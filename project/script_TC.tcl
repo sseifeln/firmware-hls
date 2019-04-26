@@ -1,12 +1,21 @@
 open_project -reset trackletCalculator
 
+#set_top TrackletCalculator_L1L2B
+#add_files -tb ../TestBenches/TrackletCalculator_L1L2B_test.cpp -cflags "-I../TrackletAlgorithm -I../emData -std=c++11"
 set_top TrackletCalculator_L1L2E
+add_files -tb ../TestBenches/TrackletCalculator_L1L2E_test.cpp -cflags "-I../TrackletAlgorithm -I../emData -std=c++11"
+#set_top TrackletCalculator_L1L2D
+#add_files -tb ../TestBenches/TrackletCalculator_L1L2D_test.cpp -cflags "-I../TrackletAlgorithm -I../emData -std=c++11"
+
 add_files ../TrackletAlgorithm/TrackletCalculator.cpp -cflags "-std=c++11"
 add_files ../TrackletAlgorithm/TC_L1L2.cpp            -cflags "-std=c++11"
-add_files -tb ../TestBenches/TrackletCalculator_test.cpp -cflags "-I../TrackletAlgorithm -I../emData -std=c++11"
 add_files -tb ../emData/TC/tables
+add_files -tb ../emData/TC/TC_L1L2B
+add_files -tb ../emData/TC/TC_L1L2B_truncated108
 add_files -tb ../emData/TC/TC_L1L2E
-add_files -tb ../emData/TC/TC_L1L2E_truncated
+add_files -tb ../emData/TC/TC_L1L2E_truncated108
+add_files -tb ../emData/TC/TC_L1L2D
+add_files -tb ../emData/TC/TC_L1L2D_truncated108
 
 open_solution -reset "solution_250MHz"
 source set_fpga.tcl

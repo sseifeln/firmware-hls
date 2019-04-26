@@ -23,16 +23,16 @@ int main(int argc, char *argv[])
 
   ///////////////////////////
   // input memories
-  static AllStubMemory<BARRELPS> innerStubs[2];
-  static AllStubMemory<BARRELPS> outerStubs[1];
+  static AllStubMemory<BARRELPS> innerStubs[1];
+  static AllStubMemory<BARRELPS> outerStubs[2];
   static StubPairMemory stubPairs[13];
 
   // output memories
   static TrackletParameterMemory tpar;
+  static TrackletProjectionMemory<BARRELPS> tproj_L3PHIA;
   static TrackletProjectionMemory<BARRELPS> tproj_L3PHIB;
   static TrackletProjectionMemory<BARREL2S> tproj_L4PHIA;
   static TrackletProjectionMemory<BARREL2S> tproj_L4PHIB;
-  static TrackletProjectionMemory<BARREL2S> tproj_L4PHIC;
   static TrackletProjectionMemory<BARREL2S> tproj_L5PHIA;
   static TrackletProjectionMemory<BARREL2S> tproj_L5PHIB;
   static TrackletProjectionMemory<BARREL2S> tproj_L5PHIC;
@@ -56,127 +56,127 @@ int main(int argc, char *argv[])
   // open input files
   cout << "Open files..." << endl;
 
-  const string dir = (truncate ? "TC_L1L2E_truncated" : "TC_L1L2E");
+  const string dir = (truncate ? "TC_L1L2D_truncated108" : "TC_L1L2D");
 
   ifstream fin_innerStubs0;
-  if (not openDataFile(fin_innerStubs0, dir + "/AllStubs_AS_L1PHICn3_04.dat")) return -1;
+  if (not openDataFile(fin_innerStubs0, dir + "/AllStubs_AS_L1PHICn2_04.dat")) return -1;
 
-  ifstream fin_innerStubs1;
-  if (not openDataFile(fin_innerStubs1, dir + "/AllStubs_AS_L1PHIDn1_04.dat")) return -1;
+  ifstream fin_outerStubs0;
+  if (not openDataFile(fin_outerStubs0, dir + "/AllStubs_AS_L2PHIAn4_04.dat")) return -1;
 
-  ifstream fin_outerStubs;
-  if (not openDataFile(fin_outerStubs, dir + "/AllStubs_AS_L2PHIBn3_04.dat")) return -1;
+  ifstream fin_outerStubs1;
+  if (not openDataFile(fin_outerStubs1, dir + "/AllStubs_AS_L2PHIBn2_04.dat")) return -1;
 
   ifstream fin_stubPairs0;
-  if (not openDataFile(fin_stubPairs0, dir + "/StubPairs_SP_L1PHIC12_L2PHIB10_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs0, dir + "/StubPairs_SP_L1PHIC9_L2PHIB9_04.dat")) return -1;
 
   ifstream fin_stubPairs1;
-  if (not openDataFile(fin_stubPairs1, dir + "/StubPairs_SP_L1PHIC12_L2PHIB11_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs1, dir + "/StubPairs_SP_L1PHIC9_L2PHIB10_04.dat")) return -1;
 
   ifstream fin_stubPairs2;
-  if (not openDataFile(fin_stubPairs2, dir + "/StubPairs_SP_L1PHIC12_L2PHIB12_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs2, dir + "/StubPairs_SP_L1PHIC9_L2PHIB11_04.dat")) return -1;
 
   ifstream fin_stubPairs3;
-  if (not openDataFile(fin_stubPairs3, dir + "/StubPairs_SP_L1PHIC12_L2PHIB13_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs3, dir + "/StubPairs_SP_L1PHIC10_L2PHIA8_04.dat")) return -1;
 
   ifstream fin_stubPairs4;
-  if (not openDataFile(fin_stubPairs4, dir + "/StubPairs_SP_L1PHIC12_L2PHIB14_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs4, dir + "/StubPairs_SP_L1PHIC10_L2PHIB9_04.dat")) return -1;
 
   ifstream fin_stubPairs5;
-  if (not openDataFile(fin_stubPairs5, dir + "/StubPairs_SP_L1PHID13_L2PHIB11_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs5, dir + "/StubPairs_SP_L1PHIC10_L2PHIB10_04.dat")) return -1;
 
   ifstream fin_stubPairs6;
-  if (not openDataFile(fin_stubPairs6, dir + "/StubPairs_SP_L1PHID13_L2PHIB12_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs6, dir + "/StubPairs_SP_L1PHIC10_L2PHIB11_04.dat")) return -1;
 
   ifstream fin_stubPairs7;
-  if (not openDataFile(fin_stubPairs7, dir + "/StubPairs_SP_L1PHID13_L2PHIB13_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs7, dir + "/StubPairs_SP_L1PHIC10_L2PHIB12_04.dat")) return -1;
 
   ifstream fin_stubPairs8;
-  if (not openDataFile(fin_stubPairs8, dir + "/StubPairs_SP_L1PHID13_L2PHIB14_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs8, dir + "/StubPairs_SP_L1PHIC11_L2PHIB9_04.dat")) return -1;
 
   ifstream fin_stubPairs9;
-  if (not openDataFile(fin_stubPairs9, dir + "/StubPairs_SP_L1PHID13_L2PHIB15_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs9, dir + "/StubPairs_SP_L1PHIC11_L2PHIB10_04.dat")) return -1;
 
   ifstream fin_stubPairs10;
-  if (not openDataFile(fin_stubPairs10, dir + "/StubPairs_SP_L1PHID14_L2PHIB12_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs10, dir + "/StubPairs_SP_L1PHIC11_L2PHIB11_04.dat")) return -1;
 
   ifstream fin_stubPairs11;
-  if (not openDataFile(fin_stubPairs11, dir + "/StubPairs_SP_L1PHID14_L2PHIB13_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs11, dir + "/StubPairs_SP_L1PHIC11_L2PHIB12_04.dat")) return -1;
 
   ifstream fin_stubPairs12;
-  if (not openDataFile(fin_stubPairs12, dir + "/StubPairs_SP_L1PHID14_L2PHIB14_04.dat")) return -1;
+  if (not openDataFile(fin_stubPairs12, dir + "/StubPairs_SP_L1PHIC11_L2PHIB13_04.dat")) return -1;
 
 
   ///////////////////////////
   // open output files
   ifstream fout_tpar;
-  if (not openDataFile(fout_tpar, dir + "/TrackletParameters_TPAR_L1L2E_04.dat")) return -1;
+  if (not openDataFile(fout_tpar, dir + "/TrackletParameters_TPAR_L1L2D_04.dat")) return -1;
 
   ifstream fout_tproj0;
-  if (not openDataFile(fout_tproj0, dir + "/TrackletProjections_TPROJ_L1L2E_L3PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj0, dir + "/TrackletProjections_TPROJ_L1L2D_L3PHIA_04.dat")) return -1;
 
   ifstream fout_tproj1;
-  if (not openDataFile(fout_tproj1, dir + "/TrackletProjections_TPROJ_L1L2E_L4PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj1, dir + "/TrackletProjections_TPROJ_L1L2D_L3PHIB_04.dat")) return -1;
 
   ifstream fout_tproj2;
-  if (not openDataFile(fout_tproj2, dir + "/TrackletProjections_TPROJ_L1L2E_L4PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj2, dir + "/TrackletProjections_TPROJ_L1L2D_L4PHIA_04.dat")) return -1;
 
   ifstream fout_tproj3;
-  if (not openDataFile(fout_tproj3, dir + "/TrackletProjections_TPROJ_L1L2E_L4PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj3, dir + "/TrackletProjections_TPROJ_L1L2D_L4PHIB_04.dat")) return -1;
 
   ifstream fout_tproj4;
-  if (not openDataFile(fout_tproj4, dir + "/TrackletProjections_TPROJ_L1L2E_L5PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj4, dir + "/TrackletProjections_TPROJ_L1L2D_L5PHIA_04.dat")) return -1;
 
   ifstream fout_tproj5;
-  if (not openDataFile(fout_tproj5, dir + "/TrackletProjections_TPROJ_L1L2E_L5PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj5, dir + "/TrackletProjections_TPROJ_L1L2D_L5PHIB_04.dat")) return -1;
 
   ifstream fout_tproj6;
-  if (not openDataFile(fout_tproj6, dir + "/TrackletProjections_TPROJ_L1L2E_L5PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj6, dir + "/TrackletProjections_TPROJ_L1L2D_L5PHIC_04.dat")) return -1;
 
   ifstream fout_tproj7;
-  if (not openDataFile(fout_tproj7, dir + "/TrackletProjections_TPROJ_L1L2E_L6PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj7, dir + "/TrackletProjections_TPROJ_L1L2D_L6PHIA_04.dat")) return -1;
 
   ifstream fout_tproj8;
-  if (not openDataFile(fout_tproj8, dir + "/TrackletProjections_TPROJ_L1L2E_L6PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj8, dir + "/TrackletProjections_TPROJ_L1L2D_L6PHIB_04.dat")) return -1;
 
   ifstream fout_tproj9;
-  if (not openDataFile(fout_tproj9, dir + "/TrackletProjections_TPROJ_L1L2E_L6PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj9, dir + "/TrackletProjections_TPROJ_L1L2D_L6PHIC_04.dat")) return -1;
 
   ifstream fout_tproj10;
-  if (not openDataFile(fout_tproj10, dir + "/TrackletProjections_TPROJ_L1L2E_D1PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj10, dir + "/TrackletProjections_TPROJ_L1L2D_D1PHIA_04.dat")) return -1;
 
   ifstream fout_tproj11;
-  if (not openDataFile(fout_tproj11, dir + "/TrackletProjections_TPROJ_L1L2E_D1PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj11, dir + "/TrackletProjections_TPROJ_L1L2D_D1PHIB_04.dat")) return -1;
 
   ifstream fout_tproj12;
-  if (not openDataFile(fout_tproj12, dir + "/TrackletProjections_TPROJ_L1L2E_D1PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj12, dir + "/TrackletProjections_TPROJ_L1L2D_D1PHIC_04.dat")) return -1;
 
   ifstream fout_tproj13;
-  if (not openDataFile(fout_tproj13, dir + "/TrackletProjections_TPROJ_L1L2E_D2PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj13, dir + "/TrackletProjections_TPROJ_L1L2D_D2PHIA_04.dat")) return -1;
 
   ifstream fout_tproj14;
-  if (not openDataFile(fout_tproj14, dir + "/TrackletProjections_TPROJ_L1L2E_D2PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj14, dir + "/TrackletProjections_TPROJ_L1L2D_D2PHIB_04.dat")) return -1;
 
   ifstream fout_tproj15;
-  if (not openDataFile(fout_tproj15, dir + "/TrackletProjections_TPROJ_L1L2E_D2PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj15, dir + "/TrackletProjections_TPROJ_L1L2D_D2PHIC_04.dat")) return -1;
 
   ifstream fout_tproj16;
-  if (not openDataFile(fout_tproj16, dir + "/TrackletProjections_TPROJ_L1L2E_D3PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj16, dir + "/TrackletProjections_TPROJ_L1L2D_D3PHIA_04.dat")) return -1;
 
   ifstream fout_tproj17;
-  if (not openDataFile(fout_tproj17, dir + "/TrackletProjections_TPROJ_L1L2E_D3PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj17, dir + "/TrackletProjections_TPROJ_L1L2D_D3PHIB_04.dat")) return -1;
 
   ifstream fout_tproj18;
-  if (not openDataFile(fout_tproj18, dir + "/TrackletProjections_TPROJ_L1L2E_D3PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj18, dir + "/TrackletProjections_TPROJ_L1L2D_D3PHIC_04.dat")) return -1;
 
   ifstream fout_tproj19;
-  if (not openDataFile(fout_tproj19, dir + "/TrackletProjections_TPROJ_L1L2E_D4PHIA_04.dat")) return -1;
+  if (not openDataFile(fout_tproj19, dir + "/TrackletProjections_TPROJ_L1L2D_D4PHIA_04.dat")) return -1;
 
   ifstream fout_tproj20;
-  if (not openDataFile(fout_tproj20, dir + "/TrackletProjections_TPROJ_L1L2E_D4PHIB_04.dat")) return -1;
+  if (not openDataFile(fout_tproj20, dir + "/TrackletProjections_TPROJ_L1L2D_D4PHIB_04.dat")) return -1;
 
   ifstream fout_tproj21;
-  if (not openDataFile(fout_tproj21, dir + "/TrackletProjections_TPROJ_L1L2E_D4PHIC_04.dat")) return -1;
+  if (not openDataFile(fout_tproj21, dir + "/TrackletProjections_TPROJ_L1L2D_D4PHIC_04.dat")) return -1;
 
   ///////////////////////////
   // loop over events
@@ -186,8 +186,8 @@ int main(int argc, char *argv[])
 
     // read event and write to memories
     writeMemFromFile<AllStubMemory<BARRELPS> >(innerStubs[0], fin_innerStubs0, ievt);
-    writeMemFromFile<AllStubMemory<BARRELPS> >(innerStubs[1], fin_innerStubs1, ievt);
-    writeMemFromFile<AllStubMemory<BARRELPS> >(outerStubs[0], fin_outerStubs, ievt);
+    writeMemFromFile<AllStubMemory<BARRELPS> >(outerStubs[0], fin_outerStubs0, ievt);
+    writeMemFromFile<AllStubMemory<BARRELPS> >(outerStubs[1], fin_outerStubs1, ievt);
     writeMemFromFile<StubPairMemory>(stubPairs[0], fin_stubPairs0, ievt);
     writeMemFromFile<StubPairMemory>(stubPairs[1], fin_stubPairs1, ievt);
     writeMemFromFile<StubPairMemory>(stubPairs[2], fin_stubPairs2, ievt);
@@ -205,16 +205,13 @@ int main(int argc, char *argv[])
     // bx
     BXType bx = ievt;
 
-    const uint8_t NASMemInner = 2;
-    const uint8_t NASMemOuter = 1;
-    const uint8_t NSPMem00 = 5;
-    const uint8_t NSPMem01 = 0;
-    const uint8_t NSPMem10 = 8;
-    const uint8_t NSPMem11 = 0;
+    const uint8_t NASMemInner = 1;
+    const uint8_t NASMemOuter = 2;
+    const uint8_t NSPMem = 13;
 
     // This is the maximum number of stub pairs, if every stub pair memory is
     // filled to capacity.
-    const uint16_t N = (NSPMem00 + NSPMem01 + NSPMem10 + NSPMem11) * (1 << kNBits_MemAddr);
+    const uint16_t N = NSPMem * (1 << kNBits_MemAddr);
 
     void (*TC) (
         const BXType,
@@ -258,20 +255,20 @@ int main(int argc, char *argv[])
 
     // The last parameter is how many stub pairs to process.
     if (truncate)
-      TC = &TrackletCalculator_L1L2E;
+      TC = &TrackletCalculator_L1L2D;
     else
-      TC = &TrackletCalculator_L1L2<TC::E, NASMemInner, NASMemOuter, NSPMem00, NSPMem01, NSPMem10, NSPMem11, 0x77777772, N>;
+      TC = &TrackletCalculator_L1L2<TC::D, false, NASMemInner, NASMemOuter, NSPMem, 0x0000, 0x1FF7, 0x77777733, N>;
 
     // Unit Under Test
     TC(bx, innerStubs, outerStubs, stubPairs,
        &tpar,
-       NULL,
+       &tproj_L3PHIA,
        &tproj_L3PHIB,
        NULL,
        NULL,
        &tproj_L4PHIA,
        &tproj_L4PHIB,
-       &tproj_L4PHIC,
+       NULL,
        NULL,
        &tproj_L5PHIA,
        &tproj_L5PHIB,
@@ -302,14 +299,14 @@ int main(int argc, char *argv[])
     // compare the computed outputs with the expected ones
     err += compareMemWithFile<TrackletParameterMemory>(tpar, fout_tpar, ievt,
                                                    "\nTrackletParameter", truncate);
-    err += compareMemWithFile<TrackletProjectionMemory<BARRELPS> >(tproj_L3PHIB, fout_tproj0, ievt,
+    err += compareMemWithFile<TrackletProjectionMemory<BARRELPS> >(tproj_L3PHIA, fout_tproj0, ievt,
+                                                   "\nTrackletProjection (L3PHIA)", truncate);
+    err += compareMemWithFile<TrackletProjectionMemory<BARRELPS> >(tproj_L3PHIB, fout_tproj1, ievt,
                                                    "\nTrackletProjection (L3PHIB)", truncate);
-    err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L4PHIA, fout_tproj1, ievt,
+    err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L4PHIA, fout_tproj2, ievt,
                                                    "\nTrackletProjection (L4PHIA)", truncate);
-    err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L4PHIB, fout_tproj2, ievt,
+    err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L4PHIB, fout_tproj3, ievt,
                                                    "\nTrackletProjection (L4PHIB)", truncate);
-    err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L4PHIC, fout_tproj3, ievt,
-                                                   "\nTrackletProjection (L4PHIC)", truncate);
     err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L5PHIA, fout_tproj4, ievt,
                                                    "\nTrackletProjection (L5PHIA)", truncate);
     err += compareMemWithFile<TrackletProjectionMemory<BARREL2S> >(tproj_L5PHIB, fout_tproj5, ievt,
