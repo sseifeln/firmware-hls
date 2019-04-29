@@ -418,8 +418,8 @@ TC::barrelSeeding(const AllStub<BARRELPS> &innerStub, const AllStub<BARRELPS> &o
     success = false;
 
   if (DoPhiCrit) {
-    const ap_int<TrackletParameters::kTParPhi0Size + 2> phicrit = 6 * *phi0 - 11 * *rinv;
-    const bool keep = (phicrit > 60659) && (phicrit < 332555);
+    const ap_int<TrackletParameters::kTParPhi0Size + 2> phicrit = *phi0 - (*rinv<<1);
+    const bool keep = (phicrit > 9253) && (phicrit < 56261);
     success = success && keep;
   }
 
