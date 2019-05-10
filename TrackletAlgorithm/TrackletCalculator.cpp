@@ -41,7 +41,7 @@ void TrackletCalculator_L1L2B(
     TrackletProjectionMemory<DISK> * projout_D4PHIC,
     TrackletProjectionMemory<DISK> * projout_D4PHID
 ) {
-  TC_L1L2B: TrackletCalculator_L1L2<TC::B, true, 2, 1, 13, 0x1FF0, 0x0000, 0x33333333, kMaxProc>(
+  TC_L1L2B: TrackletCalculator_L1L2<TC::B, 2, 1, 13, 0x1FF0, 0x0000, 0x33333333, kMaxProc>(
     bx,
     innerStubs,
     outerStubs,
@@ -123,7 +123,7 @@ void TrackletCalculator_L1L2E(
     TrackletProjectionMemory<DISK> * projout_D4PHIC,
     TrackletProjectionMemory<DISK> * projout_D4PHID
 ) {
-  TC_L1L2E: TrackletCalculator_L1L2<TC::E, false, 2, 1, 13, 0x1FE0, 0x0000, 0x77777772, kMaxProc>(
+  TC_L1L2E: TrackletCalculator_L1L2<TC::E, 2, 1, 13, 0x1FE0, 0x0000, 0x77777772, kMaxProc>(
     bx,
     innerStubs,
     outerStubs,
@@ -205,7 +205,7 @@ void TrackletCalculator_L1L2D(
     TrackletProjectionMemory<DISK> * projout_D4PHIC,
     TrackletProjectionMemory<DISK> * projout_D4PHID
 ) {
-  TC_L1L2D: TrackletCalculator_L1L2<TC::D, false, 1, 2, 13, 0x0000, 0x1FF7, 0x77777733, kMaxProc>(
+  TC_L1L2D: TrackletCalculator_L1L2<TC::D, 1, 2, 13, 0x0000, 0x1FF7, 0x77777733, kMaxProc>(
     bx,
     innerStubs,
     outerStubs,

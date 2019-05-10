@@ -257,7 +257,7 @@ int main(int argc, char *argv[])
     if (truncate)
       TC = &TrackletCalculator_L1L2D;
     else
-      TC = &TrackletCalculator_L1L2<TC::D, false, NASMemInner, NASMemOuter, NSPMem, 0x0000, 0x1FF7, 0x77777733, N>;
+      TC = &TrackletCalculator_L1L2<TC::D, NASMemInner, NASMemOuter, NSPMem, 0x0000, 0x1FF7, 0x77777733, N>;
 
     // Unit Under Test
     TC(bx, innerStubs, outerStubs, stubPairs,

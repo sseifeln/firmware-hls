@@ -89,7 +89,7 @@ namespace TC {
     Types::der_rD * const der_rD_output
   );
 
-  template<seed Seed, bool DoPhiCrit> bool barrelSeeding(const AllStub<BARRELPS> &innerStub, const AllStub<BARRELPS> &outerStub, Types::rinv * const rinv, TrackletParameters::PHI0PAR * const phi0, TrackletParameters::Z0PAR * const z0, TrackletParameters::TPAR * const t, Types::phiL phiL[4], Types::zL zL[4], Types::der_phiL * const der_phiL, Types::der_zL * const der_zL, Types::flag valid_proj[4], Types::phiD phiD[4], Types::rD rD[4], Types::der_phiD * const der_phiD, Types::der_rD * const der_rD, Types::flag valid_proj_disk[4]);
+  template<seed Seed> bool barrelSeeding(const AllStub<BARRELPS> &innerStub, const AllStub<BARRELPS> &outerStub, Types::rinv * const rinv, TrackletParameters::PHI0PAR * const phi0, TrackletParameters::Z0PAR * const z0, TrackletParameters::TPAR * const t, Types::phiL phiL[4], Types::zL zL[4], Types::der_phiL * const der_phiL, Types::der_zL * const der_zL, Types::flag valid_proj[4], Types::phiD phiD[4], Types::rD rD[4], Types::der_phiD * const der_phiD, Types::der_rD * const der_rD, Types::flag valid_proj_disk[4]);
 
   template<seed Seed, itc iTC> const TrackletProjection<BARRELPS>::TProjTCID ID();
 
@@ -104,7 +104,7 @@ namespace TC {
       bool &done
   );
 
-  template<seed Seed, bool DoPhiCrit, uint32_t TPROJMask> void
+  template<seed Seed, uint32_t TPROJMask> void
   processStubPair(
       const BXType bx,
       const StubPair::SPInnerIndex innerIndex,
@@ -152,7 +152,7 @@ namespace TC {
   template<uint32_t TPROJMask, class T, class... Args> void clearMemories(const BXType bx, T mem, Args... args);
 }
 
-template<TC::itc iTC, bool DoPhiCrit, uint8_t NASMemInner, uint8_t NASMemOuter, uint8_t NSPMem, uint16_t ASInnerMask, uint16_t ASOuterMask, uint32_t TPROJMask, uint16_t N> void
+template<TC::itc iTC, uint8_t NASMemInner, uint8_t NASMemOuter, uint8_t NSPMem, uint16_t ASInnerMask, uint16_t ASOuterMask, uint32_t TPROJMask, uint16_t N> void
 TrackletCalculator_L1L2(
     const BXType bx,
     const AllStubMemory<BARRELPS> innerStubs[NASMemInner],
@@ -316,7 +316,7 @@ void TrackletCalculator_L1L2D(
 
 // This function calls TC_L1L2, defined in TC_L1L2.cpp, and applies cuts to the
 // results.
-template<TC::seed Seed, bool DoPhiCrit> bool
+template<TC::seed Seed> bool
 TC::barrelSeeding(const AllStub<BARRELPS> &innerStub, const AllStub<BARRELPS> &outerStub, TC::Types::rinv * const rinv, TrackletParameters::PHI0PAR * const phi0, TrackletParameters::Z0PAR * const z0, TrackletParameters::TPAR * const t, TC::Types::phiL phiL[4], TC::Types::zL zL[4], TC::Types::der_phiL * const der_phiL, TC::Types::der_zL * const der_zL, TC::Types::flag valid_proj[4], TC::Types::phiD phiD[4], TC::Types::rD rD[4], TC::Types::der_phiD * const der_phiD, TC::Types::der_rD * const der_rD, TC::Types::flag valid_proj_disk[4])
 {
   static_assert(Seed == TC::L1L2, "Only L1L2 has been implemented so far.");
@@ -417,11 +417,9 @@ TC::barrelSeeding(const AllStub<BARRELPS> &innerStub, const AllStub<BARRELPS> &o
   if (abs(*z0) > z0cut)
     success = false;
 
-  if (DoPhiCrit) {
-    const ap_int<TrackletParameters::kTParPhi0Size + 2> phicrit = *phi0 - (*rinv<<1);
-    const bool keep = (phicrit > 9253) && (phicrit < 56261);
-    success = success && keep;
-  }
+  const ap_int<TrackletParameters::kTParPhi0Size + 2> phicrit = *phi0 - (*rinv<<1);
+  const bool keep = (phicrit > 9253) && (phicrit < 56269);
+  success = success && keep;
 
   return success;
 }
@@ -488,7 +486,7 @@ TC::getIndices(
   done = !set || iSPMem >= NSPMem;
 }
 
-template<TC::seed Seed, bool DoPhiCrit, uint32_t TPROJMask> void
+template<TC::seed Seed, uint32_t TPROJMask> void
 TC::processStubPair(
     const BXType bx,
     const StubPair::SPInnerIndex innerIndex,
@@ -553,7 +551,7 @@ TC::processStubPair(
   bool success;
 
 // Calculate the tracklet parameters and projections.
-  success = TC::barrelSeeding<Seed, DoPhiCrit>(innerStub, outerStub, &rinv, &phi0, &z0, &t, phiL, zL, &der_phiL, &der_zL, valid_proj, phiD, rD, &der_phiD, &der_rD, valid_proj_disk);
+  success = TC::barrelSeeding<Seed>(innerStub, outerStub, &rinv, &phi0, &z0, &t, phiL, zL, &der_phiL, &der_zL, valid_proj, phiD, rD, &der_phiD, &der_rD, valid_proj_disk);
 
 // Write the tracklet parameters and projections to the output memories.
   const TrackletParameters tpar(innerIndex, outerIndex, rinv, phi0, z0, t);
@@ -598,7 +596,7 @@ TC::clearMemories(const BXType bx, T mem, Args... args)
 }
 
 // This is the primary interface for the TrackletCalculator.
-template<TC::itc iTC, bool DoPhiCrit, uint8_t NASMemInner, uint8_t NASMemOuter, uint8_t NSPMem, uint16_t ASInnerMask, uint16_t ASOuterMask, uint32_t TPROJMask, uint16_t N> void
+template<TC::itc iTC, uint8_t NASMemInner, uint8_t NASMemOuter, uint8_t NSPMem, uint16_t ASInnerMask, uint16_t ASOuterMask, uint32_t TPROJMask, uint16_t N> void
 TrackletCalculator_L1L2(
     const BXType bx,
     const AllStubMemory<BARRELPS> innerStubs[NASMemInner],
@@ -675,7 +673,7 @@ TrackletCalculator_L1L2(
       const AllStub<BARRELPS> &innerStub = innerStubs[(ASInnerMask & (1 << iSPMem)) >> iSPMem].read_mem(bx, innerIndex);
       const AllStub<BARRELPS> &outerStub = outerStubs[(ASOuterMask & (1 << iSPMem)) >> iSPMem].read_mem(bx, outerIndex);
 
-      TC::processStubPair<TC::L1L2, DoPhiCrit, TPROJMask>(bx, innerIndex, innerStub, outerIndex, outerStub, TCID, trackletIndex, trackletParameters, projout_L3PHIA, projout_L3PHIB, projout_L3PHIC, projout_L3PHID, projout_L4PHIA, projout_L4PHIB, projout_L4PHIC, projout_L4PHID, projout_L5PHIA, projout_L5PHIB, projout_L5PHIC, projout_L5PHID, projout_L6PHIA, projout_L6PHIB, projout_L6PHIC, projout_L6PHID, projout_D1PHIA, projout_D1PHIB, projout_D1PHIC, projout_D1PHID, projout_D2PHIA, projout_D2PHIB, projout_D2PHIC, projout_D2PHID, projout_D3PHIA, projout_D3PHIB, projout_D3PHIC, projout_D3PHID, projout_D4PHIA, projout_D4PHIB, projout_D4PHIC, projout_D4PHID);
+      TC::processStubPair<TC::L1L2, TPROJMask>(bx, innerIndex, innerStub, outerIndex, outerStub, TCID, trackletIndex, trackletParameters, projout_L3PHIA, projout_L3PHIB, projout_L3PHIC, projout_L3PHID, projout_L4PHIA, projout_L4PHIB, projout_L4PHIC, projout_L4PHID, projout_L5PHIA, projout_L5PHIB, projout_L5PHIC, projout_L5PHID, projout_L6PHIA, projout_L6PHIB, projout_L6PHIC, projout_L6PHID, projout_D1PHIA, projout_D1PHIB, projout_D1PHIC, projout_D1PHID, projout_D2PHIA, projout_D2PHIB, projout_D2PHIC, projout_D2PHID, projout_D3PHIA, projout_D3PHIB, projout_D3PHIC, projout_D3PHID, projout_D4PHIA, projout_D4PHIB, projout_D4PHIC, projout_D4PHID);
     }
   }
 }
