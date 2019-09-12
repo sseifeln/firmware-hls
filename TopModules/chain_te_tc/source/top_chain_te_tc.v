@@ -1278,7 +1278,7 @@ module top_chain_te_tc(
         .projout_D4PHID_nentries_1_V_o_ap_vld      (projout_D4PHID_nentries_valid[1])   //  output
     );
 
-    TrackletEngine_0 TE_L1PHIE18_L2PHIC17 (
+    TrackletEngineTop_0 TE_L1PHIE18_L2PHIC17 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start),
