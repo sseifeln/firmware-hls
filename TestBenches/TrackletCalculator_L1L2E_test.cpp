@@ -52,7 +52,7 @@ int main()
   // open input files
   cout << "Open files..." << endl;
 
-  const string dir = "TC_L1L2E_truncated";
+  const string dir = "TC_L1L2E";
 
   ifstream fin_innerStubs0;
   if (not openDataFile(fin_innerStubs0, dir + "/AllStubs_AS_L1PHICn3_04.dat")) return -1;
