@@ -428,7 +428,6 @@ module top_chain_te_tc(
         START: begin
           if (run_done) begin
             run <= 1'b0;
-            reset_run <= 1'b1;
             state <= CHECK;
           end
         end
@@ -485,58 +484,6 @@ module top_chain_te_tc(
               projout_D4PHIC_errors <= 8'b0;
               projout_D4PHID_errors <= 8'b0;
               n_errors <= 31'b0;
-              trackletParameters_nentries_in[0] <= 8'b0;
-              trackletParameters_nentries_in[1] <= 8'b0;
-              trackletParameters_nentries_in[2] <= 8'b0;
-              trackletParameters_nentries_in[3] <= 8'b0;
-              te_stubPairs_nentries_in[0] <= 8'b0;
-              te_stubPairs_nentries_in[1] <= 8'b0;
-              projout_L3PHIB_nentries_in[0] <= 8'b0;
-              projout_L3PHIB_nentries_in[1] <= 8'b0;
-              projout_L3PHIC_nentries_in[0] <= 8'b0;
-              projout_L3PHIC_nentries_in[1] <= 8'b0;
-              projout_L4PHIB_nentries_in[0] <= 8'b0;
-              projout_L4PHIB_nentries_in[1] <= 8'b0;
-              projout_L4PHIC_nentries_in[0] <= 8'b0;
-              projout_L4PHIC_nentries_in[1] <= 8'b0;
-              projout_L4PHID_nentries_in[0] <= 8'b0;
-              projout_L4PHID_nentries_in[1] <= 8'b0;
-              projout_L5PHIB_nentries_in[0] <= 8'b0;
-              projout_L5PHIB_nentries_in[1] <= 8'b0;
-              projout_L5PHIC_nentries_in[0] <= 8'b0;
-              projout_L5PHIC_nentries_in[1] <= 8'b0;
-              projout_L5PHID_nentries_in[0] <= 8'b0;
-              projout_L5PHID_nentries_in[1] <= 8'b0;
-              projout_L6PHIB_nentries_in[0] <= 8'b0;
-              projout_L6PHIB_nentries_in[1] <= 8'b0;
-              projout_L6PHIC_nentries_in[0] <= 8'b0;
-              projout_L6PHIC_nentries_in[1] <= 8'b0;
-              projout_L6PHID_nentries_in[0] <= 8'b0;
-              projout_L6PHID_nentries_in[1] <= 8'b0;
-              projout_D1PHIB_nentries_in[0] <= 8'b0;
-              projout_D1PHIB_nentries_in[1] <= 8'b0;
-              projout_D1PHIC_nentries_in[0] <= 8'b0;
-              projout_D1PHIC_nentries_in[1] <= 8'b0;
-              projout_D1PHID_nentries_in[0] <= 8'b0;
-              projout_D1PHID_nentries_in[1] <= 8'b0;
-              projout_D2PHIB_nentries_in[0] <= 8'b0;
-              projout_D2PHIB_nentries_in[1] <= 8'b0;
-              projout_D2PHIC_nentries_in[0] <= 8'b0;
-              projout_D2PHIC_nentries_in[1] <= 8'b0;
-              projout_D2PHID_nentries_in[0] <= 8'b0;
-              projout_D2PHID_nentries_in[1] <= 8'b0;
-              projout_D3PHIB_nentries_in[0] <= 8'b0;
-              projout_D3PHIB_nentries_in[1] <= 8'b0;
-              projout_D3PHIC_nentries_in[0] <= 8'b0;
-              projout_D3PHIC_nentries_in[1] <= 8'b0;
-              projout_D3PHID_nentries_in[0] <= 8'b0;
-              projout_D3PHID_nentries_in[1] <= 8'b0;
-              projout_D4PHIB_nentries_in[0] <= 8'b0;
-              projout_D4PHIB_nentries_in[1] <= 8'b0;
-              projout_D4PHIC_nentries_in[0] <= 8'b0;
-              projout_D4PHIC_nentries_in[1] <= 8'b0;
-              projout_D4PHID_nentries_in[0] <= 8'b0;
-              projout_D4PHID_nentries_in[1] <= 8'b0;
               LED <= 8'b0;
               state <= RESET;
               pressed_reset <= 1'b1;
@@ -736,6 +683,7 @@ module top_chain_te_tc(
               LED[6] <= 1'b1;
               LED[7] <= 1'b1;
             end
+            reset_run <= 1'b1;
             state <= HOLD;
           end
         end
@@ -758,11 +706,115 @@ module top_chain_te_tc(
             run_done <= 1'b1;
           end
         end
+        trackletParameters_nentries_in[0] <= trackletParameters_nentries_out[0];
+        trackletParameters_nentries_in[1] <= trackletParameters_nentries_out[1];
+        trackletParameters_nentries_in[2] <= trackletParameters_nentries_out[2];
+        trackletParameters_nentries_in[3] <= trackletParameters_nentries_out[3];
+        te_stubPairs_nentries_in[0] <= te_stubPairs_nentries_out[0];
+        te_stubPairs_nentries_in[1] <= te_stubPairs_nentries_out[1];
+        projout_L3PHIB_nentries_in[0] <= projout_L3PHIB_nentries_out[0];
+        projout_L3PHIB_nentries_in[1] <= projout_L3PHIB_nentries_out[1];
+        projout_L3PHIC_nentries_in[0] <= projout_L3PHIC_nentries_out[0];
+        projout_L3PHIC_nentries_in[1] <= projout_L3PHIC_nentries_out[1];
+        projout_L4PHIB_nentries_in[0] <= projout_L4PHIB_nentries_out[0];
+        projout_L4PHIB_nentries_in[1] <= projout_L4PHIB_nentries_out[1];
+        projout_L4PHIC_nentries_in[0] <= projout_L4PHIC_nentries_out[0];
+        projout_L4PHIC_nentries_in[1] <= projout_L4PHIC_nentries_out[1];
+        projout_L4PHID_nentries_in[0] <= projout_L4PHID_nentries_out[0];
+        projout_L4PHID_nentries_in[1] <= projout_L4PHID_nentries_out[1];
+        projout_L5PHIB_nentries_in[0] <= projout_L5PHIB_nentries_out[0];
+        projout_L5PHIB_nentries_in[1] <= projout_L5PHIB_nentries_out[1];
+        projout_L5PHIC_nentries_in[0] <= projout_L5PHIC_nentries_out[0];
+        projout_L5PHIC_nentries_in[1] <= projout_L5PHIC_nentries_out[1];
+        projout_L5PHID_nentries_in[0] <= projout_L5PHID_nentries_out[0];
+        projout_L5PHID_nentries_in[1] <= projout_L5PHID_nentries_out[1];
+        projout_L6PHIB_nentries_in[0] <= projout_L6PHIB_nentries_out[0];
+        projout_L6PHIB_nentries_in[1] <= projout_L6PHIB_nentries_out[1];
+        projout_L6PHIC_nentries_in[0] <= projout_L6PHIC_nentries_out[0];
+        projout_L6PHIC_nentries_in[1] <= projout_L6PHIC_nentries_out[1];
+        projout_L6PHID_nentries_in[0] <= projout_L6PHID_nentries_out[0];
+        projout_L6PHID_nentries_in[1] <= projout_L6PHID_nentries_out[1];
+        projout_D1PHIB_nentries_in[0] <= projout_D1PHIB_nentries_out[0];
+        projout_D1PHIB_nentries_in[1] <= projout_D1PHIB_nentries_out[1];
+        projout_D1PHIC_nentries_in[0] <= projout_D1PHIC_nentries_out[0];
+        projout_D1PHIC_nentries_in[1] <= projout_D1PHIC_nentries_out[1];
+        projout_D1PHID_nentries_in[0] <= projout_D1PHID_nentries_out[0];
+        projout_D1PHID_nentries_in[1] <= projout_D1PHID_nentries_out[1];
+        projout_D2PHIB_nentries_in[0] <= projout_D2PHIB_nentries_out[0];
+        projout_D2PHIB_nentries_in[1] <= projout_D2PHIB_nentries_out[1];
+        projout_D2PHIC_nentries_in[0] <= projout_D2PHIC_nentries_out[0];
+        projout_D2PHIC_nentries_in[1] <= projout_D2PHIC_nentries_out[1];
+        projout_D2PHID_nentries_in[0] <= projout_D2PHID_nentries_out[0];
+        projout_D2PHID_nentries_in[1] <= projout_D2PHID_nentries_out[1];
+        projout_D3PHIB_nentries_in[0] <= projout_D3PHIB_nentries_out[0];
+        projout_D3PHIB_nentries_in[1] <= projout_D3PHIB_nentries_out[1];
+        projout_D3PHIC_nentries_in[0] <= projout_D3PHIC_nentries_out[0];
+        projout_D3PHIC_nentries_in[1] <= projout_D3PHIC_nentries_out[1];
+        projout_D3PHID_nentries_in[0] <= projout_D3PHID_nentries_out[0];
+        projout_D3PHID_nentries_in[1] <= projout_D3PHID_nentries_out[1];
+        projout_D4PHIB_nentries_in[0] <= projout_D4PHIB_nentries_out[0];
+        projout_D4PHIB_nentries_in[1] <= projout_D4PHIB_nentries_out[1];
+        projout_D4PHIC_nentries_in[0] <= projout_D4PHIC_nentries_out[0];
+        projout_D4PHIC_nentries_in[1] <= projout_D4PHIC_nentries_out[1];
+        projout_D4PHID_nentries_in[0] <= projout_D4PHID_nentries_out[0];
+        projout_D4PHID_nentries_in[1] <= projout_D4PHID_nentries_out[1];
       end
 
       if (reset_run) begin
         evt <= 4'b0;
         run_done <= 1'b0;
+        trackletParameters_nentries_in[0] <= 8'b0;
+        trackletParameters_nentries_in[1] <= 8'b0;
+        trackletParameters_nentries_in[2] <= 8'b0;
+        trackletParameters_nentries_in[3] <= 8'b0;
+        te_stubPairs_nentries_in[0] <= 8'b0;
+        te_stubPairs_nentries_in[1] <= 8'b0;
+        projout_L3PHIB_nentries_in[0] <= 8'b0;
+        projout_L3PHIB_nentries_in[1] <= 8'b0;
+        projout_L3PHIC_nentries_in[0] <= 8'b0;
+        projout_L3PHIC_nentries_in[1] <= 8'b0;
+        projout_L4PHIB_nentries_in[0] <= 8'b0;
+        projout_L4PHIB_nentries_in[1] <= 8'b0;
+        projout_L4PHIC_nentries_in[0] <= 8'b0;
+        projout_L4PHIC_nentries_in[1] <= 8'b0;
+        projout_L4PHID_nentries_in[0] <= 8'b0;
+        projout_L4PHID_nentries_in[1] <= 8'b0;
+        projout_L5PHIB_nentries_in[0] <= 8'b0;
+        projout_L5PHIB_nentries_in[1] <= 8'b0;
+        projout_L5PHIC_nentries_in[0] <= 8'b0;
+        projout_L5PHIC_nentries_in[1] <= 8'b0;
+        projout_L5PHID_nentries_in[0] <= 8'b0;
+        projout_L5PHID_nentries_in[1] <= 8'b0;
+        projout_L6PHIB_nentries_in[0] <= 8'b0;
+        projout_L6PHIB_nentries_in[1] <= 8'b0;
+        projout_L6PHIC_nentries_in[0] <= 8'b0;
+        projout_L6PHIC_nentries_in[1] <= 8'b0;
+        projout_L6PHID_nentries_in[0] <= 8'b0;
+        projout_L6PHID_nentries_in[1] <= 8'b0;
+        projout_D1PHIB_nentries_in[0] <= 8'b0;
+        projout_D1PHIB_nentries_in[1] <= 8'b0;
+        projout_D1PHIC_nentries_in[0] <= 8'b0;
+        projout_D1PHIC_nentries_in[1] <= 8'b0;
+        projout_D1PHID_nentries_in[0] <= 8'b0;
+        projout_D1PHID_nentries_in[1] <= 8'b0;
+        projout_D2PHIB_nentries_in[0] <= 8'b0;
+        projout_D2PHIB_nentries_in[1] <= 8'b0;
+        projout_D2PHIC_nentries_in[0] <= 8'b0;
+        projout_D2PHIC_nentries_in[1] <= 8'b0;
+        projout_D2PHID_nentries_in[0] <= 8'b0;
+        projout_D2PHID_nentries_in[1] <= 8'b0;
+        projout_D3PHIB_nentries_in[0] <= 8'b0;
+        projout_D3PHIB_nentries_in[1] <= 8'b0;
+        projout_D3PHIC_nentries_in[0] <= 8'b0;
+        projout_D3PHIC_nentries_in[1] <= 8'b0;
+        projout_D3PHID_nentries_in[0] <= 8'b0;
+        projout_D3PHID_nentries_in[1] <= 8'b0;
+        projout_D4PHIB_nentries_in[0] <= 8'b0;
+        projout_D4PHIB_nentries_in[1] <= 8'b0;
+        projout_D4PHIC_nentries_in[0] <= 8'b0;
+        projout_D4PHIC_nentries_in[1] <= 8'b0;
+        projout_D4PHID_nentries_in[0] <= 8'b0;
+        projout_D4PHID_nentries_in[1] <= 8'b0;
       end
     end
 
@@ -846,61 +898,6 @@ module top_chain_te_tc(
         projout_D4PHIC_nentries_in[1] <= 8'b0;
         projout_D4PHID_nentries_in[0] <= 8'b0;
         projout_D4PHID_nentries_in[1] <= 8'b0;
-    end
-
-    always @(posedge fast_clk) begin
-        trackletParameters_nentries_in[0] <= trackletParameters_nentries_out[0];
-        trackletParameters_nentries_in[1] <= trackletParameters_nentries_out[1];
-        trackletParameters_nentries_in[2] <= trackletParameters_nentries_out[2];
-        trackletParameters_nentries_in[3] <= trackletParameters_nentries_out[3];
-        te_stubPairs_nentries_in[0] <= te_stubPairs_nentries_out[0];
-        te_stubPairs_nentries_in[1] <= te_stubPairs_nentries_out[1];
-        projout_L3PHIB_nentries_in[0] <= projout_L3PHIB_nentries_out[0];
-        projout_L3PHIB_nentries_in[1] <= projout_L3PHIB_nentries_out[1];
-        projout_L3PHIC_nentries_in[0] <= projout_L3PHIC_nentries_out[0];
-        projout_L3PHIC_nentries_in[1] <= projout_L3PHIC_nentries_out[1];
-        projout_L4PHIB_nentries_in[0] <= projout_L4PHIB_nentries_out[0];
-        projout_L4PHIB_nentries_in[1] <= projout_L4PHIB_nentries_out[1];
-        projout_L4PHIC_nentries_in[0] <= projout_L4PHIC_nentries_out[0];
-        projout_L4PHIC_nentries_in[1] <= projout_L4PHIC_nentries_out[1];
-        projout_L4PHID_nentries_in[0] <= projout_L4PHID_nentries_out[0];
-        projout_L4PHID_nentries_in[1] <= projout_L4PHID_nentries_out[1];
-        projout_L5PHIB_nentries_in[0] <= projout_L5PHIB_nentries_out[0];
-        projout_L5PHIB_nentries_in[1] <= projout_L5PHIB_nentries_out[1];
-        projout_L5PHIC_nentries_in[0] <= projout_L5PHIC_nentries_out[0];
-        projout_L5PHIC_nentries_in[1] <= projout_L5PHIC_nentries_out[1];
-        projout_L5PHID_nentries_in[0] <= projout_L5PHID_nentries_out[0];
-        projout_L5PHID_nentries_in[1] <= projout_L5PHID_nentries_out[1];
-        projout_L6PHIB_nentries_in[0] <= projout_L6PHIB_nentries_out[0];
-        projout_L6PHIB_nentries_in[1] <= projout_L6PHIB_nentries_out[1];
-        projout_L6PHIC_nentries_in[0] <= projout_L6PHIC_nentries_out[0];
-        projout_L6PHIC_nentries_in[1] <= projout_L6PHIC_nentries_out[1];
-        projout_L6PHID_nentries_in[0] <= projout_L6PHID_nentries_out[0];
-        projout_L6PHID_nentries_in[1] <= projout_L6PHID_nentries_out[1];
-        projout_D1PHIB_nentries_in[0] <= projout_D1PHIB_nentries_out[0];
-        projout_D1PHIB_nentries_in[1] <= projout_D1PHIB_nentries_out[1];
-        projout_D1PHIC_nentries_in[0] <= projout_D1PHIC_nentries_out[0];
-        projout_D1PHIC_nentries_in[1] <= projout_D1PHIC_nentries_out[1];
-        projout_D1PHID_nentries_in[0] <= projout_D1PHID_nentries_out[0];
-        projout_D1PHID_nentries_in[1] <= projout_D1PHID_nentries_out[1];
-        projout_D2PHIB_nentries_in[0] <= projout_D2PHIB_nentries_out[0];
-        projout_D2PHIB_nentries_in[1] <= projout_D2PHIB_nentries_out[1];
-        projout_D2PHIC_nentries_in[0] <= projout_D2PHIC_nentries_out[0];
-        projout_D2PHIC_nentries_in[1] <= projout_D2PHIC_nentries_out[1];
-        projout_D2PHID_nentries_in[0] <= projout_D2PHID_nentries_out[0];
-        projout_D2PHID_nentries_in[1] <= projout_D2PHID_nentries_out[1];
-        projout_D3PHIB_nentries_in[0] <= projout_D3PHIB_nentries_out[0];
-        projout_D3PHIB_nentries_in[1] <= projout_D3PHIB_nentries_out[1];
-        projout_D3PHIC_nentries_in[0] <= projout_D3PHIC_nentries_out[0];
-        projout_D3PHIC_nentries_in[1] <= projout_D3PHIC_nentries_out[1];
-        projout_D3PHID_nentries_in[0] <= projout_D3PHID_nentries_out[0];
-        projout_D3PHID_nentries_in[1] <= projout_D3PHID_nentries_out[1];
-        projout_D4PHIB_nentries_in[0] <= projout_D4PHIB_nentries_out[0];
-        projout_D4PHIB_nentries_in[1] <= projout_D4PHIB_nentries_out[1];
-        projout_D4PHIC_nentries_in[0] <= projout_D4PHIC_nentries_out[0];
-        projout_D4PHIC_nentries_in[1] <= projout_D4PHIC_nentries_out[1];
-        projout_D4PHID_nentries_in[0] <= projout_D4PHID_nentries_out[0];
-        projout_D4PHID_nentries_in[1] <= projout_D4PHID_nentries_out[1];
     end
 
     IBUFGDS #(
