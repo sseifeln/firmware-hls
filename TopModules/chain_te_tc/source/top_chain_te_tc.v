@@ -47,6 +47,7 @@ module top_chain_te_tc(
 ////////////////////////////////////////////////////////////////////////////////
 // Clock output wires
 ////////////////////////////////////////////////////////////////////////////////
+    wire clk_200;
     wire fast_clk;
     wire slow_clk;
 ////////////////////////////////////////////////////////////////////////////////
@@ -902,9 +903,16 @@ module top_chain_te_tc(
         projout_D4PHID_nentries_in[1] <= projout_D4PHID_nentries_out[1];
     end
 
+    IBUFGDS #(
+      .DIFF_TERM   ("TRUE"),
+      .IBUF_LOW_PWR ("FALSE")
+    ) diff_clk_200 (
+      .I  (clk_p),
+      .IB (clk_n),
+      .O  (clk_200)
+    );
     clk_wiz_0 clk_wiz (
-       .clk_in1_p (clk_p),
-       .clk_in1_n (clk_n),
+       .clk_in1 (clk_200),
 
        .fast_clk (fast_clk),
        .slow_clk (slow_clk)

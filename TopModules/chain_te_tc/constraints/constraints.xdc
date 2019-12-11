@@ -1,5 +1,5 @@
 # 200 MHz
-create_clock -period 5.000 -name sysclk200 -waveform {0.000 2.500} [get_ports clk_p]
+create_clock -period 5.000 -name clk_200 -waveform {0.000 2.500} [get_ports clk_p]
 # 250 MHz
 create_clock -period 4.000 -name fast_clk
 create_clock -period 160 -name slow_clk
