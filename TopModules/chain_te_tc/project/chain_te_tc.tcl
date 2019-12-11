@@ -1,4 +1,5 @@
-create_project chain_te_tc chain_te_tc -part xcvu7p-flvb2104-1-e
+create_project chain_te_tc chain_te_tc -part xc7vx690tffg1761-2
+#create_project chain_te_tc chain_te_tc -part xcvu7p-flvb2104-1-e
 
 add_files -fileset constrs_1 -norecurse ../constraints/constraints.xdc
 
