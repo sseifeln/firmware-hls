@@ -16,7 +16,11 @@ public:
   typedef ap_uint<NBIT_BX> BunchXingT;
   typedef ap_uint<NBIT_ADDR+1> NEntryT;
   
+#ifdef __SYNTHESIS__
+public:
+#else
 protected:
+#endif
 
   DataType dataarray_[1<<NBIT_BX][1<<NBIT_ADDR];  // data array
   NEntryT nentries_[1<<NBIT_BX];                  // number of entries

@@ -21,7 +21,11 @@ class MemoryTemplateBinned{
   typedef ap_uint<NBIT_BX> BunchXingT;
   typedef ap_uint<NBIT_ADDR-NBIT_BIN+1> NEntryT;
   
+#ifdef __SYNTHESIS__
+public:
+#else
 protected:
+#endif
   enum BitWidths {
     kNBxBins = 1<<NBIT_BX,
     kNSlots = 1<<NBIT_BIN,
