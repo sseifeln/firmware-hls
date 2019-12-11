@@ -243,6 +243,105 @@ module top_chain_te_tc(
     wire  [58:0]  projout_D4PHID_data;
     wire  [7:0]   projout_D4PHID_nentries_out[1:0];
     wire          projout_D4PHID_nentries_valid[1:0];
+
+    wire          trackletParameters_we_delay;
+    wire  [69:0]  trackletParameters_data_delay;
+    wire          projout_L3PHIB_we_delay;
+    wire  [59:0]  projout_L3PHIB_data_delay;
+    wire          projout_L3PHIC_we_delay;
+    wire  [59:0]  projout_L3PHIC_data_delay;
+    wire          projout_L4PHIB_we_delay;
+    wire  [57:0]  projout_L4PHIB_data_delay;
+    wire          projout_L4PHIC_we_delay;
+    wire  [57:0]  projout_L4PHIC_data_delay;
+    wire          projout_L4PHID_we_delay;
+    wire  [57:0]  projout_L4PHID_data_delay;
+    wire          projout_L5PHIB_we_delay;
+    wire  [57:0]  projout_L5PHIB_data_delay;
+    wire          projout_L5PHIC_we_delay;
+    wire  [57:0]  projout_L5PHIC_data_delay;
+    wire          projout_L5PHID_we_delay;
+    wire  [57:0]  projout_L5PHID_data_delay;
+    wire          projout_L6PHIB_we_delay;
+    wire  [57:0]  projout_L6PHIB_data_delay;
+    wire          projout_L6PHIC_we_delay;
+    wire  [57:0]  projout_L6PHIC_data_delay;
+    wire          projout_L6PHID_we_delay;
+    wire  [57:0]  projout_L6PHID_data_delay;
+    wire          projout_D1PHIB_we_delay;
+    wire  [58:0]  projout_D1PHIB_data_delay;
+    wire          projout_D1PHIC_we_delay;
+    wire  [58:0]  projout_D1PHIC_data_delay;
+    wire          projout_D1PHID_we_delay;
+    wire  [58:0]  projout_D1PHID_data_delay;
+    wire          projout_D2PHIB_we_delay;
+    wire  [58:0]  projout_D2PHIB_data_delay;
+    wire          projout_D2PHIC_we_delay;
+    wire  [58:0]  projout_D2PHIC_data_delay;
+    wire          projout_D2PHID_we_delay;
+    wire  [58:0]  projout_D2PHID_data_delay;
+    wire          projout_D3PHIB_we_delay;
+    wire  [58:0]  projout_D3PHIB_data_delay;
+    wire          projout_D3PHIC_we_delay;
+    wire  [58:0]  projout_D3PHIC_data_delay;
+    wire          projout_D3PHID_we_delay;
+    wire  [58:0]  projout_D3PHID_data_delay;
+    wire          projout_D4PHIB_we_delay;
+    wire  [58:0]  projout_D4PHIB_data_delay;
+    wire          projout_D4PHIC_we_delay;
+    wire  [58:0]  projout_D4PHIC_data_delay;
+    wire          projout_D4PHID_we_delay;
+    wire  [58:0]  projout_D4PHID_data_delay;
+
+    wire  [8:0]   trackletParameters_address_delay;
+    wire  [7:0]   projout_L3PHIB_address_delay;
+    wire  [7:0]   projout_L3PHIC_address_delay;
+    wire  [7:0]   projout_L4PHIB_address_delay;
+    wire  [7:0]   projout_L4PHIC_address_delay;
+    wire  [7:0]   projout_L4PHID_address_delay;
+    wire  [7:0]   projout_L5PHIB_address_delay;
+    wire  [7:0]   projout_L5PHIC_address_delay;
+    wire  [7:0]   projout_L5PHID_address_delay;
+    wire  [7:0]   projout_L6PHIB_address_delay;
+    wire  [7:0]   projout_L6PHIC_address_delay;
+    wire  [7:0]   projout_L6PHID_address_delay;
+    wire  [7:0]   projout_D1PHIB_address_delay;
+    wire  [7:0]   projout_D1PHIC_address_delay;
+    wire  [7:0]   projout_D1PHID_address_delay;
+    wire  [7:0]   projout_D2PHIB_address_delay;
+    wire  [7:0]   projout_D2PHIC_address_delay;
+    wire  [7:0]   projout_D2PHID_address_delay;
+    wire  [7:0]   projout_D3PHIB_address_delay;
+    wire  [7:0]   projout_D3PHIC_address_delay;
+    wire  [7:0]   projout_D3PHID_address_delay;
+    wire  [7:0]   projout_D4PHIB_address_delay;
+    wire  [7:0]   projout_D4PHIC_address_delay;
+    wire  [7:0]   projout_D4PHID_address_delay;
+
+    wire  [7:0]   trackletParameters_nentries_final[3:0];
+    wire  [7:0]   projout_L3PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_L3PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_L4PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_L4PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_L4PHID_nentries_final[1:0];
+    wire  [7:0]   projout_L5PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_L5PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_L5PHID_nentries_final[1:0];
+    wire  [7:0]   projout_L6PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_L6PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_L6PHID_nentries_final[1:0];
+    wire  [7:0]   projout_D1PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_D1PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_D1PHID_nentries_final[1:0];
+    wire  [7:0]   projout_D2PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_D2PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_D2PHID_nentries_final[1:0];
+    wire  [7:0]   projout_D3PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_D3PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_D3PHID_nentries_final[1:0];
+    wire  [7:0]   projout_D4PHIB_nentries_final[1:0];
+    wire  [7:0]   projout_D4PHIC_nentries_final[1:0];
+    wire  [7:0]   projout_D4PHID_nentries_final[1:0];
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -274,6 +373,10 @@ module top_chain_te_tc(
     wire  [13:0]  te_stubPairs_data;
     wire  [7:0]   te_stubPairs_nentries_out[1:0];
     wire          te_stubPairs_nentries_valid[1:0];
+
+    wire          te_stubPairs_we_delay;
+    wire  [13:0]  te_stubPairs_data_delay;
+    wire  [7:0]   te_stubPairs_address_delay;
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -405,7 +508,6 @@ module top_chain_te_tc(
     reg   [8:0]  projout_D4PHID_expected_address = 9'b0;
     wire  [58:0]  projout_D4PHID_expected_data;
     wire  [58:0]  projout_D4PHID_actual_data;
-
 ////////////////////////////////////////////////////////////////////////////////
 
     always @(posedge slow_clk) begin
@@ -496,145 +598,145 @@ module top_chain_te_tc(
 
         CHECK: begin
           trackletParameters_expected_address <= trackletParameters_expected_address + 1;
-          if (projout_L3PHIB_expected_address <= projout_L3PHIB_nentries_out[0] + 1) begin
+          if (projout_L3PHIB_expected_address <= projout_L3PHIB_nentries_final[0] + 1) begin
               projout_L3PHIB_expected_address <= projout_L3PHIB_expected_address + 1;
           end
-          if (projout_L3PHIC_expected_address <= projout_L3PHIC_nentries_out[0] + 1) begin
+          if (projout_L3PHIC_expected_address <= projout_L3PHIC_nentries_final[0] + 1) begin
               projout_L3PHIC_expected_address <= projout_L3PHIC_expected_address + 1;
           end
-          if (projout_L4PHIB_expected_address <= projout_L4PHIB_nentries_out[0] + 1) begin
+          if (projout_L4PHIB_expected_address <= projout_L4PHIB_nentries_final[0] + 1) begin
               projout_L4PHIB_expected_address <= projout_L4PHIB_expected_address + 1;
           end
-          if (projout_L4PHIC_expected_address <= projout_L4PHIC_nentries_out[0] + 1) begin
+          if (projout_L4PHIC_expected_address <= projout_L4PHIC_nentries_final[0] + 1) begin
               projout_L4PHIC_expected_address <= projout_L4PHIC_expected_address + 1;
           end
-          if (projout_L4PHID_expected_address <= projout_L4PHID_nentries_out[0] + 1) begin
+          if (projout_L4PHID_expected_address <= projout_L4PHID_nentries_final[0] + 1) begin
               projout_L4PHID_expected_address <= projout_L4PHID_expected_address + 1;
           end
-          if (projout_L5PHIB_expected_address <= projout_L5PHIB_nentries_out[0] + 1) begin
+          if (projout_L5PHIB_expected_address <= projout_L5PHIB_nentries_final[0] + 1) begin
               projout_L5PHIB_expected_address <= projout_L5PHIB_expected_address + 1;
           end
-          if (projout_L5PHIC_expected_address <= projout_L5PHIC_nentries_out[0] + 1) begin
+          if (projout_L5PHIC_expected_address <= projout_L5PHIC_nentries_final[0] + 1) begin
               projout_L5PHIC_expected_address <= projout_L5PHIC_expected_address + 1;
           end
-          if (projout_L5PHID_expected_address <= projout_L5PHID_nentries_out[0] + 1) begin
+          if (projout_L5PHID_expected_address <= projout_L5PHID_nentries_final[0] + 1) begin
               projout_L5PHID_expected_address <= projout_L5PHID_expected_address + 1;
           end
-          if (projout_L6PHIB_expected_address <= projout_L6PHIB_nentries_out[0] + 1) begin
+          if (projout_L6PHIB_expected_address <= projout_L6PHIB_nentries_final[0] + 1) begin
               projout_L6PHIB_expected_address <= projout_L6PHIB_expected_address + 1;
           end
-          if (projout_L6PHIC_expected_address <= projout_L6PHIC_nentries_out[0] + 1) begin
+          if (projout_L6PHIC_expected_address <= projout_L6PHIC_nentries_final[0] + 1) begin
               projout_L6PHIC_expected_address <= projout_L6PHIC_expected_address + 1;
           end
-          if (projout_L6PHID_expected_address <= projout_L6PHID_nentries_out[0] + 1) begin
+          if (projout_L6PHID_expected_address <= projout_L6PHID_nentries_final[0] + 1) begin
               projout_L6PHID_expected_address <= projout_L6PHID_expected_address + 1;
           end
-          if (projout_D1PHIB_expected_address <= projout_D1PHIB_nentries_out[0] + 1) begin
+          if (projout_D1PHIB_expected_address <= projout_D1PHIB_nentries_final[0] + 1) begin
               projout_D1PHIB_expected_address <= projout_D1PHIB_expected_address + 1;
           end
-          if (projout_D1PHIC_expected_address <= projout_D1PHIC_nentries_out[0] + 1) begin
+          if (projout_D1PHIC_expected_address <= projout_D1PHIC_nentries_final[0] + 1) begin
               projout_D1PHIC_expected_address <= projout_D1PHIC_expected_address + 1;
           end
-          if (projout_D1PHID_expected_address <= projout_D1PHID_nentries_out[0] + 1) begin
+          if (projout_D1PHID_expected_address <= projout_D1PHID_nentries_final[0] + 1) begin
               projout_D1PHID_expected_address <= projout_D1PHID_expected_address + 1;
           end
-          if (projout_D2PHIB_expected_address <= projout_D2PHIB_nentries_out[0] + 1) begin
+          if (projout_D2PHIB_expected_address <= projout_D2PHIB_nentries_final[0] + 1) begin
               projout_D2PHIB_expected_address <= projout_D2PHIB_expected_address + 1;
           end
-          if (projout_D2PHIC_expected_address <= projout_D2PHIC_nentries_out[0] + 1) begin
+          if (projout_D2PHIC_expected_address <= projout_D2PHIC_nentries_final[0] + 1) begin
               projout_D2PHIC_expected_address <= projout_D2PHIC_expected_address + 1;
           end
-          if (projout_D2PHID_expected_address <= projout_D2PHID_nentries_out[0] + 1) begin
+          if (projout_D2PHID_expected_address <= projout_D2PHID_nentries_final[0] + 1) begin
               projout_D2PHID_expected_address <= projout_D2PHID_expected_address + 1;
           end
-          if (projout_D3PHIB_expected_address <= projout_D3PHIB_nentries_out[0] + 1) begin
+          if (projout_D3PHIB_expected_address <= projout_D3PHIB_nentries_final[0] + 1) begin
               projout_D3PHIB_expected_address <= projout_D3PHIB_expected_address + 1;
           end
-          if (projout_D3PHIC_expected_address <= projout_D3PHIC_nentries_out[0] + 1) begin
+          if (projout_D3PHIC_expected_address <= projout_D3PHIC_nentries_final[0] + 1) begin
               projout_D3PHIC_expected_address <= projout_D3PHIC_expected_address + 1;
           end
-          if (projout_D3PHID_expected_address <= projout_D3PHID_nentries_out[0] + 1) begin
+          if (projout_D3PHID_expected_address <= projout_D3PHID_nentries_final[0] + 1) begin
               projout_D3PHID_expected_address <= projout_D3PHID_expected_address + 1;
           end
-          if (projout_D4PHIB_expected_address <= projout_D4PHIB_nentries_out[0] + 1) begin
+          if (projout_D4PHIB_expected_address <= projout_D4PHIB_nentries_final[0] + 1) begin
               projout_D4PHIB_expected_address <= projout_D4PHIB_expected_address + 1;
           end
-          if (projout_D4PHIC_expected_address <= projout_D4PHIC_nentries_out[0] + 1) begin
+          if (projout_D4PHIC_expected_address <= projout_D4PHIC_nentries_final[0] + 1) begin
               projout_D4PHIC_expected_address <= projout_D4PHIC_expected_address + 1;
           end
-          if (projout_D4PHID_expected_address <= projout_D4PHID_nentries_out[0] + 1) begin
+          if (projout_D4PHID_expected_address <= projout_D4PHID_nentries_final[0] + 1) begin
               projout_D4PHID_expected_address <= projout_D4PHID_expected_address + 1;
           end
-          if (trackletParameters_expected_address > 0 && trackletParameters_expected_address <= trackletParameters_nentries_out[0] && trackletParameters_actual_data != trackletParameters_expected_data) begin
+          if (trackletParameters_expected_address > 0 && trackletParameters_expected_address <= trackletParameters_nentries_final[0] && trackletParameters_actual_data != trackletParameters_expected_data) begin
             trackletParameters_errors <= trackletParameters_errors + 1;
           end
-          if (projout_L3PHIB_expected_address > 0 && projout_L3PHIB_expected_address <= projout_L3PHIB_nentries_out[0] && projout_L3PHIB_actual_data != projout_L3PHIB_expected_data) begin
+          if (projout_L3PHIB_expected_address > 0 && projout_L3PHIB_expected_address <= projout_L3PHIB_nentries_final[0] && projout_L3PHIB_actual_data != projout_L3PHIB_expected_data) begin
             projout_L3PHIB_errors <= projout_L3PHIB_errors + 1;
           end
-          if (projout_L3PHIC_expected_address > 0 && projout_L3PHIC_expected_address <= projout_L3PHIC_nentries_out[0] && projout_L3PHIC_actual_data != projout_L3PHIC_expected_data) begin
+          if (projout_L3PHIC_expected_address > 0 && projout_L3PHIC_expected_address <= projout_L3PHIC_nentries_final[0] && projout_L3PHIC_actual_data != projout_L3PHIC_expected_data) begin
             projout_L3PHIC_errors <= projout_L3PHIC_errors + 1;
           end
-          if (projout_L4PHIB_expected_address > 0 && projout_L4PHIB_expected_address <= projout_L4PHIB_nentries_out[0] && projout_L4PHIB_actual_data != projout_L4PHIB_expected_data) begin
+          if (projout_L4PHIB_expected_address > 0 && projout_L4PHIB_expected_address <= projout_L4PHIB_nentries_final[0] && projout_L4PHIB_actual_data != projout_L4PHIB_expected_data) begin
             projout_L4PHIB_errors <= projout_L4PHIB_errors + 1;
           end
-          if (projout_L4PHIC_expected_address > 0 && projout_L4PHIC_expected_address <= projout_L4PHIC_nentries_out[0] && projout_L4PHIC_actual_data != projout_L4PHIC_expected_data) begin
+          if (projout_L4PHIC_expected_address > 0 && projout_L4PHIC_expected_address <= projout_L4PHIC_nentries_final[0] && projout_L4PHIC_actual_data != projout_L4PHIC_expected_data) begin
             projout_L4PHIC_errors <= projout_L4PHIC_errors + 1;
           end
-          if (projout_L4PHID_expected_address > 0 && projout_L4PHID_expected_address <= projout_L4PHID_nentries_out[0] && projout_L4PHID_actual_data != projout_L4PHID_expected_data) begin
+          if (projout_L4PHID_expected_address > 0 && projout_L4PHID_expected_address <= projout_L4PHID_nentries_final[0] && projout_L4PHID_actual_data != projout_L4PHID_expected_data) begin
             projout_L4PHID_errors <= projout_L4PHID_errors + 1;
           end
-          if (projout_L5PHIB_expected_address > 0 && projout_L5PHIB_expected_address <= projout_L5PHIB_nentries_out[0] && projout_L5PHIB_actual_data != projout_L5PHIB_expected_data) begin
+          if (projout_L5PHIB_expected_address > 0 && projout_L5PHIB_expected_address <= projout_L5PHIB_nentries_final[0] && projout_L5PHIB_actual_data != projout_L5PHIB_expected_data) begin
             projout_L5PHIB_errors <= projout_L5PHIB_errors + 1;
           end
-          if (projout_L5PHIC_expected_address > 0 && projout_L5PHIC_expected_address <= projout_L5PHIC_nentries_out[0] && projout_L5PHIC_actual_data != projout_L5PHIC_expected_data) begin
+          if (projout_L5PHIC_expected_address > 0 && projout_L5PHIC_expected_address <= projout_L5PHIC_nentries_final[0] && projout_L5PHIC_actual_data != projout_L5PHIC_expected_data) begin
             projout_L5PHIC_errors <= projout_L5PHIC_errors + 1;
           end
-          if (projout_L5PHID_expected_address > 0 && projout_L5PHID_expected_address <= projout_L5PHID_nentries_out[0] && projout_L5PHID_actual_data != projout_L5PHID_expected_data) begin
+          if (projout_L5PHID_expected_address > 0 && projout_L5PHID_expected_address <= projout_L5PHID_nentries_final[0] && projout_L5PHID_actual_data != projout_L5PHID_expected_data) begin
             projout_L5PHID_errors <= projout_L5PHID_errors + 1;
           end
-          if (projout_L6PHIB_expected_address > 0 && projout_L6PHIB_expected_address <= projout_L6PHIB_nentries_out[0] && projout_L6PHIB_actual_data != projout_L6PHIB_expected_data) begin
+          if (projout_L6PHIB_expected_address > 0 && projout_L6PHIB_expected_address <= projout_L6PHIB_nentries_final[0] && projout_L6PHIB_actual_data != projout_L6PHIB_expected_data) begin
             projout_L6PHIB_errors <= projout_L6PHIB_errors + 1;
           end
-          if (projout_L6PHIC_expected_address > 0 && projout_L6PHIC_expected_address <= projout_L6PHIC_nentries_out[0] && projout_L6PHIC_actual_data != projout_L6PHIC_expected_data) begin
+          if (projout_L6PHIC_expected_address > 0 && projout_L6PHIC_expected_address <= projout_L6PHIC_nentries_final[0] && projout_L6PHIC_actual_data != projout_L6PHIC_expected_data) begin
             projout_L6PHIC_errors <= projout_L6PHIC_errors + 1;
           end
-          if (projout_L6PHID_expected_address > 0 && projout_L6PHID_expected_address <= projout_L6PHID_nentries_out[0] && projout_L6PHID_actual_data != projout_L6PHID_expected_data) begin
+          if (projout_L6PHID_expected_address > 0 && projout_L6PHID_expected_address <= projout_L6PHID_nentries_final[0] && projout_L6PHID_actual_data != projout_L6PHID_expected_data) begin
             projout_L6PHID_errors <= projout_L6PHID_errors + 1;
           end
-          if (projout_D1PHIB_expected_address > 0 && projout_D1PHIB_expected_address <= projout_D1PHIB_nentries_out[0] && projout_D1PHIB_actual_data != projout_D1PHIB_expected_data) begin
+          if (projout_D1PHIB_expected_address > 0 && projout_D1PHIB_expected_address <= projout_D1PHIB_nentries_final[0] && projout_D1PHIB_actual_data != projout_D1PHIB_expected_data) begin
             projout_D1PHIB_errors <= projout_D1PHIB_errors + 1;
           end
-          if (projout_D1PHIC_expected_address > 0 && projout_D1PHIC_expected_address <= projout_D1PHIC_nentries_out[0] && projout_D1PHIC_actual_data != projout_D1PHIC_expected_data) begin
+          if (projout_D1PHIC_expected_address > 0 && projout_D1PHIC_expected_address <= projout_D1PHIC_nentries_final[0] && projout_D1PHIC_actual_data != projout_D1PHIC_expected_data) begin
             projout_D1PHIC_errors <= projout_D1PHIC_errors + 1;
           end
-          if (projout_D1PHID_expected_address > 0 && projout_D1PHID_expected_address <= projout_D1PHID_nentries_out[0] && projout_D1PHID_actual_data != projout_D1PHID_expected_data) begin
+          if (projout_D1PHID_expected_address > 0 && projout_D1PHID_expected_address <= projout_D1PHID_nentries_final[0] && projout_D1PHID_actual_data != projout_D1PHID_expected_data) begin
             projout_D1PHID_errors <= projout_D1PHID_errors + 1;
           end
-          if (projout_D2PHIB_expected_address > 0 && projout_D2PHIB_expected_address <= projout_D2PHIB_nentries_out[0] && projout_D2PHIB_actual_data != projout_D2PHIB_expected_data) begin
+          if (projout_D2PHIB_expected_address > 0 && projout_D2PHIB_expected_address <= projout_D2PHIB_nentries_final[0] && projout_D2PHIB_actual_data != projout_D2PHIB_expected_data) begin
             projout_D2PHIB_errors <= projout_D2PHIB_errors + 1;
           end
-          if (projout_D2PHIC_expected_address > 0 && projout_D2PHIC_expected_address <= projout_D2PHIC_nentries_out[0] && projout_D2PHIC_actual_data != projout_D2PHIC_expected_data) begin
+          if (projout_D2PHIC_expected_address > 0 && projout_D2PHIC_expected_address <= projout_D2PHIC_nentries_final[0] && projout_D2PHIC_actual_data != projout_D2PHIC_expected_data) begin
             projout_D2PHIC_errors <= projout_D2PHIC_errors + 1;
           end
-          if (projout_D2PHID_expected_address > 0 && projout_D2PHID_expected_address <= projout_D2PHID_nentries_out[0] && projout_D2PHID_actual_data != projout_D2PHID_expected_data) begin
+          if (projout_D2PHID_expected_address > 0 && projout_D2PHID_expected_address <= projout_D2PHID_nentries_final[0] && projout_D2PHID_actual_data != projout_D2PHID_expected_data) begin
             projout_D2PHID_errors <= projout_D2PHID_errors + 1;
           end
-          if (projout_D3PHIB_expected_address > 0 && projout_D3PHIB_expected_address <= projout_D3PHIB_nentries_out[0] && projout_D3PHIB_actual_data != projout_D3PHIB_expected_data) begin
+          if (projout_D3PHIB_expected_address > 0 && projout_D3PHIB_expected_address <= projout_D3PHIB_nentries_final[0] && projout_D3PHIB_actual_data != projout_D3PHIB_expected_data) begin
             projout_D3PHIB_errors <= projout_D3PHIB_errors + 1;
           end
-          if (projout_D3PHIC_expected_address > 0 && projout_D3PHIC_expected_address <= projout_D3PHIC_nentries_out[0] && projout_D3PHIC_actual_data != projout_D3PHIC_expected_data) begin
+          if (projout_D3PHIC_expected_address > 0 && projout_D3PHIC_expected_address <= projout_D3PHIC_nentries_final[0] && projout_D3PHIC_actual_data != projout_D3PHIC_expected_data) begin
             projout_D3PHIC_errors <= projout_D3PHIC_errors + 1;
           end
-          if (projout_D3PHID_expected_address > 0 && projout_D3PHID_expected_address <= projout_D3PHID_nentries_out[0] && projout_D3PHID_actual_data != projout_D3PHID_expected_data) begin
+          if (projout_D3PHID_expected_address > 0 && projout_D3PHID_expected_address <= projout_D3PHID_nentries_final[0] && projout_D3PHID_actual_data != projout_D3PHID_expected_data) begin
             projout_D3PHID_errors <= projout_D3PHID_errors + 1;
           end
-          if (projout_D4PHIB_expected_address > 0 && projout_D4PHIB_expected_address <= projout_D4PHIB_nentries_out[0] && projout_D4PHIB_actual_data != projout_D4PHIB_expected_data) begin
+          if (projout_D4PHIB_expected_address > 0 && projout_D4PHIB_expected_address <= projout_D4PHIB_nentries_final[0] && projout_D4PHIB_actual_data != projout_D4PHIB_expected_data) begin
             projout_D4PHIB_errors <= projout_D4PHIB_errors + 1;
           end
-          if (projout_D4PHIC_expected_address > 0 && projout_D4PHIC_expected_address <= projout_D4PHIC_nentries_out[0] && projout_D4PHIC_actual_data != projout_D4PHIC_expected_data) begin
+          if (projout_D4PHIC_expected_address > 0 && projout_D4PHIC_expected_address <= projout_D4PHIC_nentries_final[0] && projout_D4PHIC_actual_data != projout_D4PHIC_expected_data) begin
             projout_D4PHIC_errors <= projout_D4PHIC_errors + 1;
           end
-          if (projout_D4PHID_expected_address > 0 && projout_D4PHID_expected_address <= projout_D4PHID_nentries_out[0] && projout_D4PHID_actual_data != projout_D4PHID_expected_data) begin
+          if (projout_D4PHID_expected_address > 0 && projout_D4PHID_expected_address <= projout_D4PHID_nentries_final[0] && projout_D4PHID_actual_data != projout_D4PHID_expected_data) begin
             projout_D4PHID_errors <= projout_D4PHID_errors + 1;
           end
           if (LED[0] == 1'b1 && trackletParameters_expected_address >= 512 + 1) begin
@@ -1390,7 +1492,7 @@ module top_chain_te_tc(
     );
 
     pipe_delay # (
-        .STAGES (1),
+        .STAGES (2),
         .WIDTH (1)
     ) tc_outerStubs_memory_delay (
         .val_in (tc_outerStubs_address[10]),
@@ -1399,7 +1501,7 @@ module top_chain_te_tc(
     );
 
     pipe_delay # (
-        .STAGES (1),
+        .STAGES (2),
         .WIDTH (4)
     ) tc_stubPairs_memory_delay (
         .val_in (tc_stubPairs_address[11:8]),
@@ -1407,11 +1509,1136 @@ module top_chain_te_tc(
         .clk (fast_clk)
     );
 
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) trackletParameters_we_pipe (
+        .val_in (trackletParameters_we),
+        .val_out (trackletParameters_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (70)
+    ) trackletParameters_data_pipe (
+        .val_in (trackletParameters_data),
+        .val_out (trackletParameters_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L3PHIB_we_pipe (
+        .val_in (projout_L3PHIB_we),
+        .val_out (projout_L3PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (60)
+    ) projout_L3PHIB_data_pipe (
+        .val_in (projout_L3PHIB_data),
+        .val_out (projout_L3PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L3PHIC_we_pipe (
+        .val_in (projout_L3PHIC_we),
+        .val_out (projout_L3PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (60)
+    ) projout_L3PHIC_data_pipe (
+        .val_in (projout_L3PHIC_data),
+        .val_out (projout_L3PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L4PHIB_we_pipe (
+        .val_in (projout_L4PHIB_we),
+        .val_out (projout_L4PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L4PHIB_data_pipe (
+        .val_in (projout_L4PHIB_data),
+        .val_out (projout_L4PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L4PHIC_we_pipe (
+        .val_in (projout_L4PHIC_we),
+        .val_out (projout_L4PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L4PHIC_data_pipe (
+        .val_in (projout_L4PHIC_data),
+        .val_out (projout_L4PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L4PHID_we_pipe (
+        .val_in (projout_L4PHID_we),
+        .val_out (projout_L4PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L4PHID_data_pipe (
+        .val_in (projout_L4PHID_data),
+        .val_out (projout_L4PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L5PHIB_we_pipe (
+        .val_in (projout_L5PHIB_we),
+        .val_out (projout_L5PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L5PHIB_data_pipe (
+        .val_in (projout_L5PHIB_data),
+        .val_out (projout_L5PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L5PHIC_we_pipe (
+        .val_in (projout_L5PHIC_we),
+        .val_out (projout_L5PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L5PHIC_data_pipe (
+        .val_in (projout_L5PHIC_data),
+        .val_out (projout_L5PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L5PHID_we_pipe (
+        .val_in (projout_L5PHID_we),
+        .val_out (projout_L5PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L5PHID_data_pipe (
+        .val_in (projout_L5PHID_data),
+        .val_out (projout_L5PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L6PHIB_we_pipe (
+        .val_in (projout_L6PHIB_we),
+        .val_out (projout_L6PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L6PHIB_data_pipe (
+        .val_in (projout_L6PHIB_data),
+        .val_out (projout_L6PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L6PHIC_we_pipe (
+        .val_in (projout_L6PHIC_we),
+        .val_out (projout_L6PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L6PHIC_data_pipe (
+        .val_in (projout_L6PHIC_data),
+        .val_out (projout_L6PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_L6PHID_we_pipe (
+        .val_in (projout_L6PHID_we),
+        .val_out (projout_L6PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (58)
+    ) projout_L6PHID_data_pipe (
+        .val_in (projout_L6PHID_data),
+        .val_out (projout_L6PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D1PHIB_we_pipe (
+        .val_in (projout_D1PHIB_we),
+        .val_out (projout_D1PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D1PHIB_data_pipe (
+        .val_in (projout_D1PHIB_data),
+        .val_out (projout_D1PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D1PHIC_we_pipe (
+        .val_in (projout_D1PHIC_we),
+        .val_out (projout_D1PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D1PHIC_data_pipe (
+        .val_in (projout_D1PHIC_data),
+        .val_out (projout_D1PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D1PHID_we_pipe (
+        .val_in (projout_D1PHID_we),
+        .val_out (projout_D1PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D1PHID_data_pipe (
+        .val_in (projout_D1PHID_data),
+        .val_out (projout_D1PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D2PHIB_we_pipe (
+        .val_in (projout_D2PHIB_we),
+        .val_out (projout_D2PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D2PHIB_data_pipe (
+        .val_in (projout_D2PHIB_data),
+        .val_out (projout_D2PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D2PHIC_we_pipe (
+        .val_in (projout_D2PHIC_we),
+        .val_out (projout_D2PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D2PHIC_data_pipe (
+        .val_in (projout_D2PHIC_data),
+        .val_out (projout_D2PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D2PHID_we_pipe (
+        .val_in (projout_D2PHID_we),
+        .val_out (projout_D2PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D2PHID_data_pipe (
+        .val_in (projout_D2PHID_data),
+        .val_out (projout_D2PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D3PHIB_we_pipe (
+        .val_in (projout_D3PHIB_we),
+        .val_out (projout_D3PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D3PHIB_data_pipe (
+        .val_in (projout_D3PHIB_data),
+        .val_out (projout_D3PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D3PHIC_we_pipe (
+        .val_in (projout_D3PHIC_we),
+        .val_out (projout_D3PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D3PHIC_data_pipe (
+        .val_in (projout_D3PHIC_data),
+        .val_out (projout_D3PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D3PHID_we_pipe (
+        .val_in (projout_D3PHID_we),
+        .val_out (projout_D3PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D3PHID_data_pipe (
+        .val_in (projout_D3PHID_data),
+        .val_out (projout_D3PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D4PHIB_we_pipe (
+        .val_in (projout_D4PHIB_we),
+        .val_out (projout_D4PHIB_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D4PHIB_data_pipe (
+        .val_in (projout_D4PHIB_data),
+        .val_out (projout_D4PHIB_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D4PHIC_we_pipe (
+        .val_in (projout_D4PHIC_we),
+        .val_out (projout_D4PHIC_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D4PHIC_data_pipe (
+        .val_in (projout_D4PHIC_data),
+        .val_out (projout_D4PHIC_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) projout_D4PHID_we_pipe (
+        .val_in (projout_D4PHID_we),
+        .val_out (projout_D4PHID_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (59)
+    ) projout_D4PHID_data_pipe (
+        .val_in (projout_D4PHID_data),
+        .val_out (projout_D4PHID_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (1)
+    ) te_stubPairs_we_pipe (
+        .val_in (te_stubPairs_we),
+        .val_out (te_stubPairs_we_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (14)
+    ) te_stubPairs_data_pipe (
+        .val_in (te_stubPairs_data),
+        .val_out (te_stubPairs_data_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) te_stubPairs_address_pipe (
+        .val_in (te_stubPairs_address),
+        .val_out (te_stubPairs_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (9)
+    ) trackletParameters_address_pipe (
+        .val_in (trackletParameters_address),
+        .val_out (trackletParameters_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIB_address_pipe (
+        .val_in (projout_L3PHIB_address),
+        .val_out (projout_L3PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIC_address_pipe (
+        .val_in (projout_L3PHIC_address),
+        .val_out (projout_L3PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIB_address_pipe (
+        .val_in (projout_L4PHIB_address),
+        .val_out (projout_L4PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIC_address_pipe (
+        .val_in (projout_L4PHIC_address),
+        .val_out (projout_L4PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHID_address_pipe (
+        .val_in (projout_L4PHID_address),
+        .val_out (projout_L4PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIB_address_pipe (
+        .val_in (projout_L5PHIB_address),
+        .val_out (projout_L5PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIC_address_pipe (
+        .val_in (projout_L5PHIC_address),
+        .val_out (projout_L5PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHID_address_pipe (
+        .val_in (projout_L5PHID_address),
+        .val_out (projout_L5PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIB_address_pipe (
+        .val_in (projout_L6PHIB_address),
+        .val_out (projout_L6PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIC_address_pipe (
+        .val_in (projout_L6PHIC_address),
+        .val_out (projout_L6PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHID_address_pipe (
+        .val_in (projout_L6PHID_address),
+        .val_out (projout_L6PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIB_address_pipe (
+        .val_in (projout_D1PHIB_address),
+        .val_out (projout_D1PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIC_address_pipe (
+        .val_in (projout_D1PHIC_address),
+        .val_out (projout_D1PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHID_address_pipe (
+        .val_in (projout_D1PHID_address),
+        .val_out (projout_D1PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIB_address_pipe (
+        .val_in (projout_D2PHIB_address),
+        .val_out (projout_D2PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIC_address_pipe (
+        .val_in (projout_D2PHIC_address),
+        .val_out (projout_D2PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHID_address_pipe (
+        .val_in (projout_D2PHID_address),
+        .val_out (projout_D2PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIB_address_pipe (
+        .val_in (projout_D3PHIB_address),
+        .val_out (projout_D3PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIC_address_pipe (
+        .val_in (projout_D3PHIC_address),
+        .val_out (projout_D3PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHID_address_pipe (
+        .val_in (projout_D3PHID_address),
+        .val_out (projout_D3PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIB_address_pipe (
+        .val_in (projout_D4PHIB_address),
+        .val_out (projout_D4PHIB_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIC_address_pipe (
+        .val_in (projout_D4PHIC_address),
+        .val_out (projout_D4PHIC_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHID_address_pipe (
+        .val_in (projout_D4PHID_address),
+        .val_out (projout_D4PHID_address_delay),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) trackletParameters_nentries_pipe_0 (
+        .val_in (trackletParameters_nentries_out[0]),
+        .val_out (trackletParameters_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) trackletParameters_nentries_pipe_1 (
+        .val_in (trackletParameters_nentries_out[1]),
+        .val_out (trackletParameters_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) trackletParameters_nentries_pipe_2 (
+        .val_in (trackletParameters_nentries_out[2]),
+        .val_out (trackletParameters_nentries_final[2]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) trackletParameters_nentries_pipe_3 (
+        .val_in (trackletParameters_nentries_out[3]),
+        .val_out (trackletParameters_nentries_final[3]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIB_nentries_pipe_0 (
+        .val_in (projout_L3PHIB_nentries_out[0]),
+        .val_out (projout_L3PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIB_nentries_pipe_1 (
+        .val_in (projout_L3PHIB_nentries_out[1]),
+        .val_out (projout_L3PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIC_nentries_pipe_0 (
+        .val_in (projout_L3PHIC_nentries_out[0]),
+        .val_out (projout_L3PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L3PHIC_nentries_pipe_1 (
+        .val_in (projout_L3PHIC_nentries_out[1]),
+        .val_out (projout_L3PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIB_nentries_pipe_0 (
+        .val_in (projout_L4PHIB_nentries_out[0]),
+        .val_out (projout_L4PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIB_nentries_pipe_1 (
+        .val_in (projout_L4PHIB_nentries_out[1]),
+        .val_out (projout_L4PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIC_nentries_pipe_0 (
+        .val_in (projout_L4PHIC_nentries_out[0]),
+        .val_out (projout_L4PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHIC_nentries_pipe_1 (
+        .val_in (projout_L4PHIC_nentries_out[1]),
+        .val_out (projout_L4PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHID_nentries_pipe_0 (
+        .val_in (projout_L4PHID_nentries_out[0]),
+        .val_out (projout_L4PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L4PHID_nentries_pipe_1 (
+        .val_in (projout_L4PHID_nentries_out[1]),
+        .val_out (projout_L4PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIB_nentries_pipe_0 (
+        .val_in (projout_L5PHIB_nentries_out[0]),
+        .val_out (projout_L5PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIB_nentries_pipe_1 (
+        .val_in (projout_L5PHIB_nentries_out[1]),
+        .val_out (projout_L5PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIC_nentries_pipe_0 (
+        .val_in (projout_L5PHIC_nentries_out[0]),
+        .val_out (projout_L5PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHIC_nentries_pipe_1 (
+        .val_in (projout_L5PHIC_nentries_out[1]),
+        .val_out (projout_L5PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHID_nentries_pipe_0 (
+        .val_in (projout_L5PHID_nentries_out[0]),
+        .val_out (projout_L5PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L5PHID_nentries_pipe_1 (
+        .val_in (projout_L5PHID_nentries_out[1]),
+        .val_out (projout_L5PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIB_nentries_pipe_0 (
+        .val_in (projout_L6PHIB_nentries_out[0]),
+        .val_out (projout_L6PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIB_nentries_pipe_1 (
+        .val_in (projout_L6PHIB_nentries_out[1]),
+        .val_out (projout_L6PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIC_nentries_pipe_0 (
+        .val_in (projout_L6PHIC_nentries_out[0]),
+        .val_out (projout_L6PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHIC_nentries_pipe_1 (
+        .val_in (projout_L6PHIC_nentries_out[1]),
+        .val_out (projout_L6PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHID_nentries_pipe_0 (
+        .val_in (projout_L6PHID_nentries_out[0]),
+        .val_out (projout_L6PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_L6PHID_nentries_pipe_1 (
+        .val_in (projout_L6PHID_nentries_out[1]),
+        .val_out (projout_L6PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIB_nentries_pipe_0 (
+        .val_in (projout_D1PHIB_nentries_out[0]),
+        .val_out (projout_D1PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIB_nentries_pipe_1 (
+        .val_in (projout_D1PHIB_nentries_out[1]),
+        .val_out (projout_D1PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIC_nentries_pipe_0 (
+        .val_in (projout_D1PHIC_nentries_out[0]),
+        .val_out (projout_D1PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHIC_nentries_pipe_1 (
+        .val_in (projout_D1PHIC_nentries_out[1]),
+        .val_out (projout_D1PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHID_nentries_pipe_0 (
+        .val_in (projout_D1PHID_nentries_out[0]),
+        .val_out (projout_D1PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D1PHID_nentries_pipe_1 (
+        .val_in (projout_D1PHID_nentries_out[1]),
+        .val_out (projout_D1PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIB_nentries_pipe_0 (
+        .val_in (projout_D2PHIB_nentries_out[0]),
+        .val_out (projout_D2PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIB_nentries_pipe_1 (
+        .val_in (projout_D2PHIB_nentries_out[1]),
+        .val_out (projout_D2PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIC_nentries_pipe_0 (
+        .val_in (projout_D2PHIC_nentries_out[0]),
+        .val_out (projout_D2PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHIC_nentries_pipe_1 (
+        .val_in (projout_D2PHIC_nentries_out[1]),
+        .val_out (projout_D2PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHID_nentries_pipe_0 (
+        .val_in (projout_D2PHID_nentries_out[0]),
+        .val_out (projout_D2PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D2PHID_nentries_pipe_1 (
+        .val_in (projout_D2PHID_nentries_out[1]),
+        .val_out (projout_D2PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIB_nentries_pipe_0 (
+        .val_in (projout_D3PHIB_nentries_out[0]),
+        .val_out (projout_D3PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIB_nentries_pipe_1 (
+        .val_in (projout_D3PHIB_nentries_out[1]),
+        .val_out (projout_D3PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIC_nentries_pipe_0 (
+        .val_in (projout_D3PHIC_nentries_out[0]),
+        .val_out (projout_D3PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHIC_nentries_pipe_1 (
+        .val_in (projout_D3PHIC_nentries_out[1]),
+        .val_out (projout_D3PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHID_nentries_pipe_0 (
+        .val_in (projout_D3PHID_nentries_out[0]),
+        .val_out (projout_D3PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D3PHID_nentries_pipe_1 (
+        .val_in (projout_D3PHID_nentries_out[1]),
+        .val_out (projout_D3PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIB_nentries_pipe_0 (
+        .val_in (projout_D4PHIB_nentries_out[0]),
+        .val_out (projout_D4PHIB_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIB_nentries_pipe_1 (
+        .val_in (projout_D4PHIB_nentries_out[1]),
+        .val_out (projout_D4PHIB_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIC_nentries_pipe_0 (
+        .val_in (projout_D4PHIC_nentries_out[0]),
+        .val_out (projout_D4PHIC_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHIC_nentries_pipe_1 (
+        .val_in (projout_D4PHIC_nentries_out[1]),
+        .val_out (projout_D4PHIC_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHID_nentries_pipe_0 (
+        .val_in (projout_D4PHID_nentries_out[0]),
+        .val_out (projout_D4PHID_nentries_final[0]),
+        .clk (fast_clk)
+    );
+
+    pipe_delay # (
+        .STAGES (1),
+        .WIDTH (8)
+    ) projout_D4PHID_nentries_pipe_1 (
+        .val_in (projout_D4PHID_nentries_out[1]),
+        .val_out (projout_D4PHID_nentries_final[1]),
+        .clk (fast_clk)
+    );
+
     Memory # (
         .RAM_WIDTH (22),
         .RAM_DEPTH (256),
         .INIT_FILE ("VMStubs_VMSTE_L1PHIE18n2_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TE_INNER_STUBS (
         .addra (8'b0),
@@ -1430,7 +2657,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (16),
         .RAM_DEPTH (512),
         .INIT_FILE ("VMStubs_VMSTE_L2PHIC17n4_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TE_OUTER_STUBS (
         .addra (9'b0),
@@ -1449,7 +2676,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (36),
         .RAM_DEPTH (1024),
         .INIT_FILE ("AllStubs_AS_L1PHIEn2_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_INNER_STUBS (
         .addra (10'b0),
@@ -1468,7 +2695,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (36),
         .RAM_DEPTH (1024),
         .INIT_FILE ("AllStubs_AS_L2PHIBn5_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_OUTER_STUBS_0 (
         .addra (10'b0),
@@ -1487,7 +2714,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (36),
         .RAM_DEPTH (1024),
         .INIT_FILE ("AllStubs_AS_L2PHICn2_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_OUTER_STUBS_1 (
         .addra (10'b0),
@@ -1506,7 +2733,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE17_L2PHIB16_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_0 (
         .addra (8'b0),
@@ -1525,7 +2752,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE17_L2PHIC17_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_1 (
         .addra (8'b0),
@@ -1544,7 +2771,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE17_L2PHIC18_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_2 (
         .addra (8'b0),
@@ -1563,7 +2790,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE17_L2PHIC19_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_3 (
         .addra (8'b0),
@@ -1582,7 +2809,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE18_L2PHIB16_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_4 (
         .addra (8'b0),
@@ -1601,15 +2828,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_5 (
-        .addra (te_stubPairs_address),
+        .addra (te_stubPairs_address_delay),
         .addrb (tc_stubPairs_address[7:0]),
-        .dina (te_stubPairs_data),
+        .dina (te_stubPairs_data_delay),
         .clka (fast_clk),
         .clkb (fast_clk),
-        .wea (te_stubPairs_we),
+        .wea (te_stubPairs_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1620,7 +2847,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE18_L2PHIC18_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_6 (
         .addra (8'b0),
@@ -1639,7 +2866,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE18_L2PHIC19_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_7 (
         .addra (8'b0),
@@ -1658,7 +2885,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE18_L2PHIC20_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_8 (
         .addra (8'b0),
@@ -1677,7 +2904,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE19_L2PHIC17_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_9 (
         .addra (8'b0),
@@ -1696,7 +2923,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE19_L2PHIC18_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_10 (
         .addra (8'b0),
@@ -1715,7 +2942,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE19_L2PHIC19_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_11 (
         .addra (8'b0),
@@ -1734,7 +2961,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (14),
         .RAM_DEPTH (256),
         .INIT_FILE ("StubPairs_SP_L1PHIE19_L2PHIC20_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TC_STUB_PAIRS_12 (
         .addra (8'b0),
@@ -1753,15 +2980,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (70),
         .RAM_DEPTH (512),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TRACKLET_PARAMETERS (
-        .addra (trackletParameters_address),
+        .addra (trackletParameters_address_delay),
         .addrb (trackletParameters_expected_address[8:0]),
-        .dina (trackletParameters_data),
+        .dina (trackletParameters_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (trackletParameters_we),
+        .wea (trackletParameters_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1772,15 +2999,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (60),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L3PHIB (
-        .addra (projout_L3PHIB_address),
+        .addra (projout_L3PHIB_address_delay),
         .addrb (projout_L3PHIB_expected_address[7:0]),
-        .dina (projout_L3PHIB_data),
+        .dina (projout_L3PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L3PHIB_we),
+        .wea (projout_L3PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1791,15 +3018,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (60),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L3PHIC (
-        .addra (projout_L3PHIC_address),
+        .addra (projout_L3PHIC_address_delay),
         .addrb (projout_L3PHIC_expected_address[7:0]),
-        .dina (projout_L3PHIC_data),
+        .dina (projout_L3PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L3PHIC_we),
+        .wea (projout_L3PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1810,15 +3037,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHIB (
-        .addra (projout_L4PHIB_address),
+        .addra (projout_L4PHIB_address_delay),
         .addrb (projout_L4PHIB_expected_address[7:0]),
-        .dina (projout_L4PHIB_data),
+        .dina (projout_L4PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L4PHIB_we),
+        .wea (projout_L4PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1829,15 +3056,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHIC (
-        .addra (projout_L4PHIC_address),
+        .addra (projout_L4PHIC_address_delay),
         .addrb (projout_L4PHIC_expected_address[7:0]),
-        .dina (projout_L4PHIC_data),
+        .dina (projout_L4PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L4PHIC_we),
+        .wea (projout_L4PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1848,15 +3075,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHID (
-        .addra (projout_L4PHID_address),
+        .addra (projout_L4PHID_address_delay),
         .addrb (projout_L4PHID_expected_address[7:0]),
-        .dina (projout_L4PHID_data),
+        .dina (projout_L4PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L4PHID_we),
+        .wea (projout_L4PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1867,15 +3094,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHIB (
-        .addra (projout_L5PHIB_address),
+        .addra (projout_L5PHIB_address_delay),
         .addrb (projout_L5PHIB_expected_address[7:0]),
-        .dina (projout_L5PHIB_data),
+        .dina (projout_L5PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L5PHIB_we),
+        .wea (projout_L5PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1886,15 +3113,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHIC (
-        .addra (projout_L5PHIC_address),
+        .addra (projout_L5PHIC_address_delay),
         .addrb (projout_L5PHIC_expected_address[7:0]),
-        .dina (projout_L5PHIC_data),
+        .dina (projout_L5PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L5PHIC_we),
+        .wea (projout_L5PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1905,15 +3132,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHID (
-        .addra (projout_L5PHID_address),
+        .addra (projout_L5PHID_address_delay),
         .addrb (projout_L5PHID_expected_address[7:0]),
-        .dina (projout_L5PHID_data),
+        .dina (projout_L5PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L5PHID_we),
+        .wea (projout_L5PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1924,15 +3151,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHIB (
-        .addra (projout_L6PHIB_address),
+        .addra (projout_L6PHIB_address_delay),
         .addrb (projout_L6PHIB_expected_address[7:0]),
-        .dina (projout_L6PHIB_data),
+        .dina (projout_L6PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L6PHIB_we),
+        .wea (projout_L6PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1943,15 +3170,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHIC (
-        .addra (projout_L6PHIC_address),
+        .addra (projout_L6PHIC_address_delay),
         .addrb (projout_L6PHIC_expected_address[7:0]),
-        .dina (projout_L6PHIC_data),
+        .dina (projout_L6PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L6PHIC_we),
+        .wea (projout_L6PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1962,15 +3189,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHID (
-        .addra (projout_L6PHID_address),
+        .addra (projout_L6PHID_address_delay),
         .addrb (projout_L6PHID_expected_address[7:0]),
-        .dina (projout_L6PHID_data),
+        .dina (projout_L6PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_L6PHID_we),
+        .wea (projout_L6PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -1981,15 +3208,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHIB (
-        .addra (projout_D1PHIB_address),
+        .addra (projout_D1PHIB_address_delay),
         .addrb (projout_D1PHIB_expected_address[7:0]),
-        .dina (projout_D1PHIB_data),
+        .dina (projout_D1PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D1PHIB_we),
+        .wea (projout_D1PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2000,15 +3227,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHIC (
-        .addra (projout_D1PHIC_address),
+        .addra (projout_D1PHIC_address_delay),
         .addrb (projout_D1PHIC_expected_address[7:0]),
-        .dina (projout_D1PHIC_data),
+        .dina (projout_D1PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D1PHIC_we),
+        .wea (projout_D1PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2019,15 +3246,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHID (
-        .addra (projout_D1PHID_address),
+        .addra (projout_D1PHID_address_delay),
         .addrb (projout_D1PHID_expected_address[7:0]),
-        .dina (projout_D1PHID_data),
+        .dina (projout_D1PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D1PHID_we),
+        .wea (projout_D1PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2038,15 +3265,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHIB (
-        .addra (projout_D2PHIB_address),
+        .addra (projout_D2PHIB_address_delay),
         .addrb (projout_D2PHIB_expected_address[7:0]),
-        .dina (projout_D2PHIB_data),
+        .dina (projout_D2PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D2PHIB_we),
+        .wea (projout_D2PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2057,15 +3284,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHIC (
-        .addra (projout_D2PHIC_address),
+        .addra (projout_D2PHIC_address_delay),
         .addrb (projout_D2PHIC_expected_address[7:0]),
-        .dina (projout_D2PHIC_data),
+        .dina (projout_D2PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D2PHIC_we),
+        .wea (projout_D2PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2076,15 +3303,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHID (
-        .addra (projout_D2PHID_address),
+        .addra (projout_D2PHID_address_delay),
         .addrb (projout_D2PHID_expected_address[7:0]),
-        .dina (projout_D2PHID_data),
+        .dina (projout_D2PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D2PHID_we),
+        .wea (projout_D2PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2095,15 +3322,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHIB (
-        .addra (projout_D3PHIB_address),
+        .addra (projout_D3PHIB_address_delay),
         .addrb (projout_D3PHIB_expected_address[7:0]),
-        .dina (projout_D3PHIB_data),
+        .dina (projout_D3PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D3PHIB_we),
+        .wea (projout_D3PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2114,15 +3341,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHIC (
-        .addra (projout_D3PHIC_address),
+        .addra (projout_D3PHIC_address_delay),
         .addrb (projout_D3PHIC_expected_address[7:0]),
-        .dina (projout_D3PHIC_data),
+        .dina (projout_D3PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D3PHIC_we),
+        .wea (projout_D3PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2133,15 +3360,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHID (
-        .addra (projout_D3PHID_address),
+        .addra (projout_D3PHID_address_delay),
         .addrb (projout_D3PHID_expected_address[7:0]),
-        .dina (projout_D3PHID_data),
+        .dina (projout_D3PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D3PHID_we),
+        .wea (projout_D3PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2152,15 +3379,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHIB (
-        .addra (projout_D4PHIB_address),
+        .addra (projout_D4PHIB_address_delay),
         .addrb (projout_D4PHIB_expected_address[7:0]),
-        .dina (projout_D4PHIB_data),
+        .dina (projout_D4PHIB_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D4PHIB_we),
+        .wea (projout_D4PHIB_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2171,15 +3398,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHIC (
-        .addra (projout_D4PHIC_address),
+        .addra (projout_D4PHIC_address_delay),
         .addrb (projout_D4PHIC_expected_address[7:0]),
-        .dina (projout_D4PHIC_data),
+        .dina (projout_D4PHIC_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D4PHIC_we),
+        .wea (projout_D4PHIC_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2190,15 +3417,15 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE (""),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHID (
-        .addra (projout_D4PHID_address),
+        .addra (projout_D4PHID_address_delay),
         .addrb (projout_D4PHID_expected_address[7:0]),
-        .dina (projout_D4PHID_data),
+        .dina (projout_D4PHID_data_delay),
         .clka (fast_clk),
         .clkb (slow_clk),
-        .wea (projout_D4PHID_we),
+        .wea (projout_D4PHID_we_delay),
         .enb (1'b1),
         .rstb (1'b0),
         .regceb (1'b1),
@@ -2209,7 +3436,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (70),
         .RAM_DEPTH (512),
         .INIT_FILE ("TrackletParameters_TPAR_L1L2G_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) TRACKLET_PARAMETERS_EXPECTED (
         .addra (9'b0),
@@ -2228,7 +3455,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (60),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L3PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L3PHIB_EXPECTED (
         .addra (8'b0),
@@ -2247,7 +3474,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (60),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L3PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L3PHIC_EXPECTED (
         .addra (8'b0),
@@ -2266,7 +3493,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L4PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHIB_EXPECTED (
         .addra (8'b0),
@@ -2285,7 +3512,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L4PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHIC_EXPECTED (
         .addra (8'b0),
@@ -2304,7 +3531,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L4PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L4PHID_EXPECTED (
         .addra (8'b0),
@@ -2323,7 +3550,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L5PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHIB_EXPECTED (
         .addra (8'b0),
@@ -2342,7 +3569,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L5PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHIC_EXPECTED (
         .addra (8'b0),
@@ -2361,7 +3588,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L5PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L5PHID_EXPECTED (
         .addra (8'b0),
@@ -2380,7 +3607,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L6PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHIB_EXPECTED (
         .addra (8'b0),
@@ -2399,7 +3626,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L6PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHIC_EXPECTED (
         .addra (8'b0),
@@ -2418,7 +3645,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (58),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_L6PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_L6PHID_EXPECTED (
         .addra (8'b0),
@@ -2437,7 +3664,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D1PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHIB_EXPECTED (
         .addra (8'b0),
@@ -2456,7 +3683,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D1PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHIC_EXPECTED (
         .addra (8'b0),
@@ -2475,7 +3702,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D1PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D1PHID_EXPECTED (
         .addra (8'b0),
@@ -2494,7 +3721,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D2PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHIB_EXPECTED (
         .addra (8'b0),
@@ -2513,7 +3740,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D2PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHIC_EXPECTED (
         .addra (8'b0),
@@ -2532,7 +3759,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D2PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D2PHID_EXPECTED (
         .addra (8'b0),
@@ -2551,7 +3778,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D3PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHIB_EXPECTED (
         .addra (8'b0),
@@ -2570,7 +3797,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D3PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHIC_EXPECTED (
         .addra (8'b0),
@@ -2589,7 +3816,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D3PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D3PHID_EXPECTED (
         .addra (8'b0),
@@ -2608,7 +3835,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D4PHIB_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHIB_EXPECTED (
         .addra (8'b0),
@@ -2627,7 +3854,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D4PHIC_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHIC_EXPECTED (
         .addra (8'b0),
@@ -2646,7 +3873,7 @@ module top_chain_te_tc(
         .RAM_WIDTH (59),
         .RAM_DEPTH (256),
         .INIT_FILE ("TrackletProjections_TPROJ_L1L2G_D4PHID_04.mem"),
-        .RAM_PERFORMANCE ("LOW_LATENCY"),
+        .RAM_PERFORMANCE ("HIGH_PERFORMANCE"),
         .HEX (1)
     ) PROJOUT_D4PHID_EXPECTED (
         .addra (8'b0),
