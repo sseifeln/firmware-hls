@@ -24,18 +24,18 @@ module pipe_delay #(
  )
 (
     input  wire [WIDTH-1:0] val_in,
-    input  wire pipe_in,
+    //input  wire pipe_in,
     output wire [WIDTH-1:0] val_out,
-    output wire pipe_out,
+    //output wire pipe_out,
     input wire clk
     );
    // the pipeline
-   reg [STAGES-1:0] pipe;
+   //reg [STAGES-1:0] pipe;
    reg signed [WIDTH-1:0] res[STAGES-1:0];
  
    // initial stage
    always @(posedge clk ) begin
-     pipe[0] <= pipe_in;
+     //pipe[0] <= pipe_in;
      res[0] <= val_in;
    end
 
@@ -43,13 +43,13 @@ module pipe_delay #(
    generate
       for (c = 1; c < STAGES; c = c + 1) begin: test
           always @(posedge clk) begin
-             pipe[c] <= pipe[c-1];
+             //pipe[c] <= pipe[c-1];
              res[c] <= res[c-1];
           end
       end
    endgenerate 
  
-   assign pipe_out = pipe[STAGES-1];
+   //assign pipe_out = pipe[STAGES-1];
    assign val_out = res[STAGES-1];
 
 
