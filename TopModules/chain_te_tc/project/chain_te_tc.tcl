@@ -12,8 +12,44 @@ generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs
 set_property  ip_repo_paths  ../../../project [current_project]
 update_ip_catalog
 
-create_ip -name TrackletEngineTop -vendor xilinx.com -library hls -version 1.0 -module_name TrackletEngineTop_0
-generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TrackletEngineTop_0/TrackletEngineTop_0.xci]
+create_ip -name TE_L1PHIE17_L2PHIB16 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE17_L2PHIB16_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE17_L2PHIB16_0/TE_L1PHIE17_L2PHIB16_0.xci]
+
+create_ip -name TE_L1PHIE17_L2PHIC17 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE17_L2PHIC17_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE17_L2PHIC17_0/TE_L1PHIE17_L2PHIC17_0.xci]
+
+create_ip -name TE_L1PHIE17_L2PHIC18 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE17_L2PHIC18_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE17_L2PHIC18_0/TE_L1PHIE17_L2PHIC18_0.xci]
+
+create_ip -name TE_L1PHIE17_L2PHIC19 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE17_L2PHIC19_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE17_L2PHIC19_0/TE_L1PHIE17_L2PHIC19_0.xci]
+
+create_ip -name TE_L1PHIE18_L2PHIB16 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE18_L2PHIB16_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE18_L2PHIB16_0/TE_L1PHIE18_L2PHIB16_0.xci]
+
+create_ip -name TE_L1PHIE18_L2PHIC17 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE18_L2PHIC17_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE18_L2PHIC17_0/TE_L1PHIE18_L2PHIC17_0.xci]
+
+create_ip -name TE_L1PHIE18_L2PHIC18 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE18_L2PHIC18_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE18_L2PHIC18_0/TE_L1PHIE18_L2PHIC18_0.xci]
+
+create_ip -name TE_L1PHIE18_L2PHIC19 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE18_L2PHIC19_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE18_L2PHIC19_0/TE_L1PHIE18_L2PHIC19_0.xci]
+
+create_ip -name TE_L1PHIE18_L2PHIC20 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE18_L2PHIC20_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE18_L2PHIC20_0/TE_L1PHIE18_L2PHIC20_0.xci]
+
+create_ip -name TE_L1PHIE19_L2PHIC17 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE19_L2PHIC17_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE19_L2PHIC17_0/TE_L1PHIE19_L2PHIC17_0.xci]
+
+create_ip -name TE_L1PHIE19_L2PHIC18 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE19_L2PHIC18_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE19_L2PHIC18_0/TE_L1PHIE19_L2PHIC18_0.xci]
+
+create_ip -name TE_L1PHIE19_L2PHIC19 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE19_L2PHIC19_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE19_L2PHIC19_0/TE_L1PHIE19_L2PHIC19_0.xci]
+
+create_ip -name TE_L1PHIE19_L2PHIC20 -vendor xilinx.com -library hls -version 1.0 -module_name TE_L1PHIE19_L2PHIC20_0
+generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TE_L1PHIE19_L2PHIC20_0/TE_L1PHIE19_L2PHIC20_0.xci]
 
 create_ip -name TrackletCalculator_L1L2G -vendor xilinx.com -library hls -version 1.0 -module_name TrackletCalculator_L1L2G_0
 generate_target {instantiation_template} [get_files chain_te_tc/chain_te_tc.srcs/sources_1/ip/TrackletCalculator_L1L2G_0/TrackletCalculator_L1L2G_0.xci]
