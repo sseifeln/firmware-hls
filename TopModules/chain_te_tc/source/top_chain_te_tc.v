@@ -956,6 +956,7 @@ module top_chain_te_tc(
         trackletParameters_nentries_in[2] <= 8'b0;
         trackletParameters_nentries_in[3] <= 8'b0;
         for(j=0; j<13; j=j+1) begin
+            te_start[j] <= 1'b0;
             te_stubPairs_nentries_in[0][j] <= 8'b0;
             te_stubPairs_nentries_in[1][j] <= 8'b0;
         end
