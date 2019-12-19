@@ -1,6 +1,6 @@
 #include "TE_L1PHIE19_L2PHIC20.h"
 
-void TE_L1PHIE19_L2PHIC20(const BXType bx,
+void TE_12(const BXType bx,
                        const VMStubTEInnerMemory<BARRELPS>& instubinnerdata,
                        const VMStubTEOuterMemory<BARRELPS>& instubouterdata,
                        StubPairMemory& outstubpair)

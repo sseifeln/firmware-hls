@@ -1023,7 +1023,7 @@ module top_chain_te_tc(
        .slow_clk (slow_clk)
     );
 
-    TrackletCalculator_L1L2G_0 TC_L1L2G (
+    TC_0 TC_L1L2G (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (tc_start),
@@ -1391,7 +1391,7 @@ module top_chain_te_tc(
         .projout_D4PHID_nentries_1_V_o_ap_vld      (projout_D4PHID_nentries_valid[1])   //  output
     );
 
-    TE_L1PHIE17_L2PHIB16_0 TE_0 (
+    TE_0_0 TE_0 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[0]),
@@ -1451,7 +1451,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][0])   //  output
     );
     
-    TE_L1PHIE17_L2PHIC17_0 TE_1 (
+    TE_1_0 TE_1 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[1]),
@@ -1511,7 +1511,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][1])   //  output
     );
 
-    TE_L1PHIE17_L2PHIC18_0 TE_2 (
+    TE_2_0 TE_2 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[2]),
@@ -1571,7 +1571,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][2])   //  output
     );
 
-    TE_L1PHIE17_L2PHIC19_0 TE_3 (
+    TE_3_0 TE_3 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[3]),
@@ -1631,7 +1631,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][3])   //  output
     );
 
-    TE_L1PHIE18_L2PHIB16_0 TE_4 (
+    TE_4_0 TE_4 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[4]),
@@ -1691,7 +1691,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][4])   //  output
     );
 
-    TE_L1PHIE18_L2PHIC17_0 TE_5 (
+    TE_5_0 TE_5 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[5]),
@@ -1751,7 +1751,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld      (te_stubPairs_nentries_valid[1][5])   //  output
     );
 
-    TE_L1PHIE18_L2PHIC18_0 TE_6 (
+    TE_6_0 TE_6 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[6]),
@@ -1811,7 +1811,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][6])   //  output
     );
 
-    TE_L1PHIE18_L2PHIC19_0 TE_7 (
+    TE_7_0 TE_7 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[7]),
@@ -1871,7 +1871,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][7])   //  output
     );
 
-    TE_L1PHIE18_L2PHIC20_0 TE_8 (
+    TE_8_0 TE_8 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[8]),
@@ -1931,7 +1931,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][8])   //  output
     );
 
-    TE_L1PHIE19_L2PHIC17_0 TE_9 (
+    TE_9_0 TE_9 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[9]),
@@ -1991,7 +1991,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][9])   //  output
     );
 
-    TE_L1PHIE19_L2PHIC18_0 TE_10 (
+    TE_10_0 TE_10 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[10]),
@@ -2051,7 +2051,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][10])   //  output
     );
 
-    TE_L1PHIE19_L2PHIC19_0 TE_11 (
+    TE_11_0 TE_11 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[11]),
@@ -2111,7 +2111,7 @@ module top_chain_te_tc(
         .outstubpair_nentries_1_V_o_ap_vld          (te_stubPairs_nentries_valid[1][11])   //  output
     );
 
-    TE_L1PHIE19_L2PHIC20_0 TE_12 (
+    TE_12_0 TE_12 (
         .ap_clk    (fast_clk),
         .ap_rst    (1'b0),
         .ap_start  (te_start[12]),

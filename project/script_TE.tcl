@@ -25,7 +25,7 @@ set clockperiod 4
 delete_project TE_L1PHIE17_L2PHIB16
 open_project -reset TE_L1PHIE17_L2PHIB16
 add_files ../TrackletAlgorithm/TE_L1PHIE17_L2PHIB16.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE17_L2PHIB16
+set_top TE_0
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -35,7 +35,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE17_L2PHIC17
 open_project -reset TE_L1PHIE17_L2PHIC17
 add_files ../TrackletAlgorithm/TE_L1PHIE17_L2PHIC17.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE17_L2PHIC17
+set_top TE_1
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -45,7 +45,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE17_L2PHIC18
 open_project -reset TE_L1PHIE17_L2PHIC18
 add_files ../TrackletAlgorithm/TE_L1PHIE17_L2PHIC18.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE17_L2PHIC18
+set_top TE_2
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -55,7 +55,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE17_L2PHIC19
 open_project -reset TE_L1PHIE17_L2PHIC19
 add_files ../TrackletAlgorithm/TE_L1PHIE17_L2PHIC19.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE17_L2PHIC19
+set_top TE_3
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -65,7 +65,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE18_L2PHIB16
 open_project -reset TE_L1PHIE18_L2PHIB16
 add_files ../TrackletAlgorithm/TE_L1PHIE18_L2PHIB16.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE18_L2PHIB16
+set_top TE_4
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -75,7 +75,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE18_L2PHIC17
 open_project -reset TE_L1PHIE18_L2PHIC17
 add_files ../TrackletAlgorithm/TE_L1PHIE18_L2PHIC17.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE18_L2PHIC17
+set_top TE_5
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -85,7 +85,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE18_L2PHIC18
 open_project -reset TE_L1PHIE18_L2PHIC18
 add_files ../TrackletAlgorithm/TE_L1PHIE18_L2PHIC18.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE18_L2PHIC18
+set_top TE_6
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -95,7 +95,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE18_L2PHIC19
 open_project -reset TE_L1PHIE18_L2PHIC19
 add_files ../TrackletAlgorithm/TE_L1PHIE18_L2PHIC19.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE18_L2PHIC19
+set_top TE_7
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -105,7 +105,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE18_L2PHIC20
 open_project -reset TE_L1PHIE18_L2PHIC20
 add_files ../TrackletAlgorithm/TE_L1PHIE18_L2PHIC20.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE18_L2PHIC20
+set_top TE_8
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -115,7 +115,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE19_L2PHIC17
 open_project -reset TE_L1PHIE19_L2PHIC17
 add_files ../TrackletAlgorithm/TE_L1PHIE19_L2PHIC17.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE19_L2PHIC17
+set_top TE_9
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -125,7 +125,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE19_L2PHIC18
 open_project -reset TE_L1PHIE19_L2PHIC18
 add_files ../TrackletAlgorithm/TE_L1PHIE19_L2PHIC18.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE19_L2PHIC18
+set_top TE_10
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -135,7 +135,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE19_L2PHIC19
 open_project -reset TE_L1PHIE19_L2PHIC19
 add_files ../TrackletAlgorithm/TE_L1PHIE19_L2PHIC19.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE19_L2PHIC19
+set_top TE_11
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default
@@ -145,7 +145,7 @@ export_design -rtl verilog -format ip_catalog
 delete_project TE_L1PHIE19_L2PHIC20
 open_project -reset TE_L1PHIE19_L2PHIC20
 add_files ../TrackletAlgorithm/TE_L1PHIE19_L2PHIC20.cpp -cflags "-std=c++11"
-set_top TE_L1PHIE19_L2PHIC20
+set_top TE_12
 open_solution -reset "solution1"
 source set_fpga.tcl
 create_clock -period $clockperiod -name default

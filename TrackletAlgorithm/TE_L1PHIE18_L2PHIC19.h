@@ -3,7 +3,7 @@
 
 #include "TrackletEngine.h"
 
-void TE_L1PHIE18_L2PHIC19(const BXType bx,
+void TE_7(const BXType bx,
                        const VMStubTEInnerMemory<BARRELPS>& instubinnerdata,
                        const VMStubTEOuterMemory<BARRELPS>& instubouterdata,
                        StubPairMemory& outstubpair);
