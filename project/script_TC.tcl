@@ -12,9 +12,9 @@ open_solution -reset "solution_250MHz"
 source set_fpga.tcl
 create_clock -period 4
 
-csim_design -compiler gcc
+#csim_design -compiler gcc
 csynth_design
-cosim_design
+#cosim_design
 export_design -rtl verilog -format ip_catalog
 
 exit
