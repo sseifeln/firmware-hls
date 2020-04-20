@@ -43,8 +43,17 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 			(&hDsk.m3[cPhiBn])->clear(bx);
 			(&hDsk.m4[cPhiBn])->clear(bx);
 			(&hDsk.m5[cPhiBn])->clear(bx);
+
+			cBrl.n2[cPhiBn]=0;
+			cBrl.n3[cPhiBn]=0;
+			cDsk.n1[cPhiBn]=0;
+			cDsk.n2[cPhiBn]=0;
+			cDsk.n3[cPhiBn]=0;
+			cDsk.n4[cPhiBn]=0;
+			cDsk.n5[cPhiBn]=0;
 		}		
 		(&hBrl.m1[cPhiBn])->clear(bx);
+		cBrl.n1[cPhiBn]=0;
 	}
 
 	ap_uint<1> cIs2S; is2S(hDTCMapEncoded, cIs2S);
@@ -72,6 +81,7 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 					GetCoarsePhiRegion<InputStub<BARRELPS>,3>(hWord, cPhiBn);
 					(&hBrl.m1[cPhiBn])->write_mem(bx, hStub, cBrl.n1[cPhiBn]);
 					cBrl.n1[cPhiBn]++;
+				
 				}
 				else
 				{
@@ -166,6 +176,15 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 			(&hDsk.m3[cPhiBn])->clear(bx);
 			(&hDsk.m4[cPhiBn])->clear(bx);
 			(&hDsk.m5[cPhiBn])->clear(bx);
+
+			cBrl.n1[cPhiBn]=0;
+			cBrl.n2[cPhiBn]=0;
+			cBrl.n3[cPhiBn]=0;
+			cDsk.n1[cPhiBn]=0;
+			cDsk.n2[cPhiBn]=0;
+			cDsk.n3[cPhiBn]=0;
+			cDsk.n4[cPhiBn]=0;
+			cDsk.n5[cPhiBn]=0;
 	}
 
 	ap_uint<1> cIs2S; is2S(hDTCMapEncoded, cIs2S);

@@ -84,7 +84,6 @@ public:
   {
 	DataType data(datastr, base);
         int nent = nentries_[ibx];
-	// std::cout << "write_mem " << data << std::endl;
 	return write_mem(ibx, data, nent);
   }
 

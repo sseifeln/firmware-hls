@@ -180,8 +180,10 @@ public:
   InputStubData raw() const {return data_; }
 
   template<int NBitsRegion>
-  ap_uint<NBitsRegion> getCoarsePhiRegion() const { 
-    return data_.range(kISPhiMSB-1,(kISPhiMSB-1)-(NBitsRegion-1)); 
+  ap_uint<NBitsRegion> getCoarsePhiRegion() const 
+  {
+    // still off .. fix this! 
+    return data_.range(kISPhiMSB,kISPhiMSB-(NBitsRegion-1)); 
   } 
 
   ISR getR() const {
