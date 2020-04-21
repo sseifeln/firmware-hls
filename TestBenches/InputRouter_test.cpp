@@ -20,6 +20,8 @@ using namespace std;
 using LinkMap = std::map<int, std::pair<std::string ,std::vector<std::uint8_t>>> ; 
 //map of input stubs [ per Bx ]
 using InputStubs = std::map<int, std::vector<std::string>> ; 
+//vector of stubs 
+using Stubs = std::vector<std::bitset<kNBits_DTC>>; 
 
 // get link information 
 // memory to store LUT for mapping of DTCs to layers/disks/etc. 
@@ -61,6 +63,23 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
   pLinkWord = ap_uint<kLINKMAPwidth>( cWord);
   std::cout  << "DTC " << pInputMap[static_cast<int>(pLinkId)].first << " Link " << +pLinkId << " -- DTC map encoded word is " << std::bitset<kLINKMAPwidth>(pLinkWord) << "\n";
   pLinkName = pInputMap[static_cast<int>(pLinkId)].first;//"IL/Link_PS10G_1_A.dat";
+}
+
+void getLinkId(LinkMap pInputMap, std::string pDTC, int &pLinkId)
+{
+  bool cFound=false;
+  auto cMapIterator = pInputMap.begin();
+  do
+  {
+    auto cDTCname = (*cMapIterator).second.first;
+    auto cLayers = (*cMapIterator).second.second;
+    if( cDTCname == pDTC ) 
+      cFound=true;
+    else
+      cMapIterator++;
+  }while(!cFound && cMapIterator != pInputMap.end());
+  assert( cFound ); 
+  pLinkId = (cFound)? (*cMapIterator).first : -1;  
 }
 // get stubs from file 
 bool getStubs(std::string pInputFile , InputStubs& pInputStubs)
@@ -113,13 +132,57 @@ bool getStubs(std::string pInputFile , InputStubs& pInputStubs)
   return true;
 }
 
+// get stubs for bx 
+void getStubs(std::string pLinkFile, int pBxSelected, Stubs &pStubs) 
+{
+  // get stubs + fill memories with IR process 
+  InputStubs cInputStubs;
+  getStubs(pLinkFile , cInputStubs);
+  pStubs.clear();
+  for( int cBx = pBxSelected ; cBx < pBxSelected+1 ; cBx++)
+  {
+    BXType hBx = cBx&0x7;
+    auto& cStubs = cInputStubs[cBx];
+    for( auto cStubIter = cStubs.begin(); cStubIter < cStubs.end(); cStubIter++)
+    {
+      auto cStubCounter = std::distance( cStubs.begin(), cStubIter ); 
+      auto& cStub = *cStubIter;
+      pStubs.push_back(std::bitset<kNBits_DTC>( cStub.c_str() ) ); 
+    }
+  }
+}
+
+// fill input stream with stubs 
+void fillInputStream(Stubs pStubs, hls::stream<ap_uint<kNBits_DTC>>& hLink)
+{
+  for( auto cStubIter = pStubs.begin(); cStubIter < pStubs.end(); cStubIter++)
+  {
+    auto cStubCounter = std::distance( pStubs.begin(), cStubIter ); 
+    auto& cStub = *cStubIter;
+    if( cStubCounter < kMaxStubsFromLink )
+    {
+      hLink.write_nb(ap_uint<kNBits_DTC>(cStub.to_ulong()));
+    }
+    else
+    {
+      if( cStubCounter == kMaxStubsFromLink) 
+        std::cout << "Warning - truncation expected!" 
+          << "Stubs from simulation [currently @ stub #" << +cStubCounter 
+          << "] exceed maximum allowed on this link.."
+          << " not passing to input stream.\n";
+    }
+  }
+}
+
 int main()
 {
   #ifndef __SYNTHESIS__
     std::cout << "SYNTHESIS" << std::endl;
   #endif
 
- 
+  int cBxSelected = 0; 
+  std::string cDTCname = "2S_4_A";
+  
   // name is  : 
   // DTCtype[PS10G_PS5G_2S]
   // _[DTC_number]
@@ -174,7 +237,22 @@ int main()
   }
   std::cout << "Mapped out " << +cInputMap.size() << " links." << std::endl;
   
+  // figure out DTC map encoding for this DTC 
+  int cLinkId=0;
+  getLinkId(cInputMap, cDTCname, cLinkId);
+  std::cout << "Found " 
+    << cDTCname
+    << " link id is "
+    << cLinkId
+    << "\n";
 
+  ap_uint<kLINKMAPwidth> cLinkWord = 0x0000;
+  getLinkInfo(cInputMap, cLinkId, cLinkWord, cDTCname);
+  std::string cLinkFile = "IL/IL_" + cDTCname + "/Link_" + cDTCname + ".dat" ;
+  std::cout << "DTC name from CMSSW " 
+    << cDTCname << " input file is " 
+    << cLinkFile << "\n";
+  
   // memories for stubs 
   // PS memories 
   StubsBarrelPS hBarrelPS;
@@ -183,81 +261,29 @@ int main()
   StubsBarrel2S hBarrel2S;
   StubsDisk2S hDisk2S;
 
-  // test memories .... 
-  // in total we have 32 input stub memories for 2S 'stubs'
-  IRMemory hMemories2S[kTotal2Smemories]; 
-  // in total we have 36 input stub memories for PS 'stubs'
-  IRMemory hMemoriesPS[kTotalPSmemories]; 
-
-  // figure out DTC map encoding for this link 
-  int cLinkId = 15 ; // PS_10G_1 (neg)
-  ap_uint<kLINKMAPwidth> cLinkWord = 0x0000;
-  std::string cDTCname = "";
-  getLinkInfo(cInputMap, cLinkId, cLinkWord, cDTCname);
-  std::string cLinkFile = "IL/IL_" + cDTCname + "/Link_" + cDTCname + ".dat" ;
-  std::cout << "DTC name from CMSSW " 
-    << cDTCname << " input file is " 
-    << cLinkFile << "\n";
-  
   // get stubs 
-  InputStubs cInputStubs;
-  getStubs(cLinkFile , cInputStubs);
-  int cBxSelected = 0; 
-  for( int cBx = cBxSelected ; cBx < cBxSelected+1 ; cBx++)
+  Stubs cStubs;
+  getStubs(cLinkFile, cBxSelected, cStubs);
+  // declare input stream to be used in hls test bench 
+  hls::stream<ap_uint<kNBits_DTC>> hLink;
+  // fill input stream 
+  fillInputStream(cStubs, hLink);
+ 
+  // fill memories using IR process 
+  BXType hBx = cBxSelected&0x7;
+  ap_uint<1> cIs2S;
+  is2S(cLinkWord, cIs2S);
+  if( cIs2S == 0 )
   {
-    BXType hBx = cBxSelected&0x7;
-    // declare input stream to be used in hls simulation
-    hls::stream<ap_uint<kNBits_DTC>> hLink;
-
-    // push stubs into stub word vector for this bx 
-    std::vector<ap_uint<kNBits_DTC>> cStubWords;
-    std::cout << "Bx " << hBx << "\n";
-
-    auto& cStubs = cInputStubs[cBx];
-    size_t cSize = kMaxStubsFromLink;
-    if ( cInputStubs[cBx].size() < kMaxStubsFromLink )
-      cSize = cInputStubs[cBx].size();
-    ap_uint<kNBits_DTC> *cStubArray = new ap_uint<kNBits_DTC>[cSize];
-    for( auto cStubIter = cStubs.begin(); cStubIter < cStubs.end(); cStubIter++)
-    {
-      auto cStubCounter = std::distance( cStubs.begin(), cStubIter ); 
-      auto& cStub = *cStubIter;
-      if( cStubCounter < kMaxStubsFromLink )
-      {
-        //if( cStubCounter%25 == 0 )
-        // std::cout << " \t\t... Stub #" << +cStubCounter 
-        //   << " -- " << cStub.c_str() << "\n";
-        cStubArray[cStubCounter] = ap_uint<kNBits_DTC>( cStub.c_str() ,2) ; 
-        hLink.write_nb(cStubArray[cStubCounter]);
-      }
-      else
-      {
-        if( cStubCounter == kMaxStubsFromLink) 
-          std::cout << "Warning - truncation expected!" 
-            << "Stubs from simulation [currently @ stub #" << +cStubCounter 
-            << "] exceed maximum allowed on this link.."
-            << " not passing to input stream.\n";
-      }
-    }
-    
-    // this writes to either the PS or the 2S memories 
-    //InputRouterTop(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS, hBarrel2S, hDisk2S);
-    ap_uint<1> cIs2S;
-    is2S(cLinkWord, cIs2S);
-    if( !cIs2S)
-    {
-      InputRouterPS(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS);
-    }
-    else
-    {
-      InputRouter2S(hBx, hLink, cLinkWord, hBarrel2S, hDisk2S);
-    }
+    InputRouterPS(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS);
+  }
+  else
+  {
+    InputRouter2S(hBx, hLink, cLinkWord, hBarrel2S, hDisk2S);
   }
 
-  bool cIs2S = ( cInputMap[static_cast<int>(cLinkId)].first.find("2S") != std::string::npos  ); 
-  
   std::vector<std::string> cRegionLabels{ "A", "B" , "C", "D", "E", "F","G", "H"};
-  if( !cIs2S )
+  if( cIs2S == 0 )
   {
     for( size_t cRegion=0; cRegion < 8 ; cRegion++)
     {
@@ -373,57 +399,7 @@ int main()
       if( openDataFile(cInputStream,cFile) )
       {
         std::cout << cFile << "\n";
-        // bool cPrintLine=false;
-        // for(std::string cInputLine; getline( cInputStream, cInputLine ); )
-        // {
-        //   if( cInputLine.find("Event") == std::string::npos ) 
-        //   {
-        //     auto cStubWord = std::stoul(cInputLine.substr(cInputLine.find("0x")+2, 9 ), nullptr, 16); 
-        //     if( cPrintLine)
-        //     {
-
-        //       auto& cMemory = hDiskPS.m2[cPhiRegion]; 
-        //       if( cLayerId == 2 && !cIsBarrel ) 
-        //       {
-        //         auto cStub = cMemory.read_mem( cBxSelected, cIndex ).raw();
-        //         if( cStub != cStubWord )
-        //           std::cout << " mismatch on line "
-        //             <<  cInputLine 
-        //             << " -- " << std::hex 
-        //             << cStub 
-        //             << std::dec
-        //             << "\n";
-        //         else 
-        //           std::cout << " MATCH on line "
-        //             <<  cInputLine 
-        //             << " -- " << std::hex 
-        //             << cStub 
-        //             << std::dec
-        //             << "\n";
-        //         cIndex++;
-        //       }
-        //     }
-        //   }
-        //   else 
-        //   {
-        //     std::string cLabel = "BX = ";
-        //     auto cBxWord = std::stoul(cInputLine.substr(cInputLine.find(cLabel)+cLabel.length(), 3 ), nullptr, 2); 
-        //     if( cBxWord == cBxSelected && cCounter == 0 )
-        //     {
-        //       std::cout << cInputLine 
-        //         << " -- "
-        //         << cBxWord
-        //         << "\n";
-        //       cPrintLine=true;
-        //       cIndex=0;
-        //       cCounter++;
-        //     }
-        //     else
-        //       cPrintLine=false;
-        //   }
-        // }
-
-        if( !cIs2S )
+        if( cIs2S == 0  )
         {
           if( !cIsBarrel  ) 
           {
