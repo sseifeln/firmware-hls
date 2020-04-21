@@ -11,7 +11,7 @@ constexpr unsigned int kNBits_DTC = 38;
 // TF constants that we need to know about 
 constexpr int kBRAMwidth = 36; 
 
-constexpr int kMaxStubsFromLink = 108;
+constexpr int kMaxStubsFromLink = 256;
 
 constexpr int kTMUX = 18;   //For hourglass project
 constexpr int kMaxProc = kTMUX * 6;

@@ -95,7 +95,7 @@ bool getStubs(std::string pInputFile , InputStubs& pInputStubs)
     {
       // clean up string to access stub from this event 
       cInputLine.erase( std::remove(cInputLine.begin(), cInputLine.end(), cStubDelimeter), cInputLine.end() );
-      pInputStubs[cBxCounter].push_back( cInputLine.substr(0, cInputLine.find(cStubEnd)) );
+      pInputStubs[(cEventCounter)*8 + cBxCounter].push_back( cInputLine.substr(0, cInputLine.find(cStubEnd)) );
       //cStubString.second = cInputLine.substr(0, cInputLine.find(cStubEnd));
       //cInputStubs.push_back( cStubString );
     }
@@ -409,6 +409,31 @@ int main()
               err_count = compareMemWithFile<InputStubMemory<BARRELPS> >(hBarrelPS.m2[cPhiRegion],cInputStream,cBxSelected,"InputStub");
             else if( cLayerId == 3 )
               err_count = compareMemWithFile<InputStubMemory<BARRELPS> >(hBarrelPS.m3[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+          }
+        }
+        else
+        {
+          if( !cIsBarrel  ) 
+          {
+            if( cLayerId == 1)
+              err_count = compareMemWithFile<InputStubMemory<DISK2S> >(hDisk2S.m1[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else if( cLayerId == 2 )
+              err_count = compareMemWithFile<InputStubMemory<DISK2S> >(hDisk2S.m2[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else if( cLayerId == 3 )
+              err_count = compareMemWithFile<InputStubMemory<DISK2S> >(hDisk2S.m3[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else if( cLayerId == 4 )
+              err_count = compareMemWithFile<InputStubMemory<DISK2S> >(hDisk2S.m4[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else 
+              err_count = compareMemWithFile<InputStubMemory<DISK2S> >(hDisk2S.m5[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+          }
+          else 
+          {
+            if( cLayerId == 1)
+              err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m1[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else if( cLayerId == 2 )
+              err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m2[cPhiRegion],cInputStream,cBxSelected,"InputStub");
+            else if( cLayerId == 3 )
+              err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m3[cPhiRegion],cInputStream,cBxSelected,"InputStub");
           }
         }
         cNmismatchedMemories += (err_count > 0 );
