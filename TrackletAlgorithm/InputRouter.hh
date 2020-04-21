@@ -59,7 +59,7 @@ void GetCoarsePhiRegion(const ap_uint<kNBits_DTC> hInputStub,
 	// 			  << " -- " << cPhi
 	// 			  << " -- " << std::bitset<NBits>(hStub.raw().range(DataType::kISPhiMSB,DataType::kISPhiMSB-(NBits-1)) )
 	// 			  << " -- " << hStub.raw().range(DataType::kISPhiMSB,DataType::kISPhiMSB-(NBits-1)) 
-	// 			  << " ---- " << cPhi/(16383/std::pow(2.,NBits))
+	// 			  // << " ---- " << cPhi/(16383/std::pow(2.,NBits))
 	// 			  << " phi region is " << hPhiRegion 
 	// 			  << "\n";
 	// #endif

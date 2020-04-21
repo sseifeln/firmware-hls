@@ -81,8 +81,8 @@ bool getStubs(std::string pInputFile , InputStubs& pInputStubs)
   int  cEventCounter=-1;
   std::string cBxLabel = "BX ";
   int cNevents = 1; 
-
-  int cBxCounter;
+  int cModBx = -1;
+  int cBxCounter=0;
   for(std::string cInputLine; getline( fin_il, cInputLine ); )
   {
     if( cInputLine.find("Event") != std::string::npos ) 
@@ -90,12 +90,22 @@ bool getStubs(std::string pInputFile , InputStubs& pInputStubs)
       //cStubString.first = cInputLine.substr(cInputLine.find(cBxLabel)+cBxLabel.length(), 3 ) ;
       cBxCounter = std::stoi( cInputLine.substr(cInputLine.find(cBxLabel)+cBxLabel.length(), 3 ) , nullptr,2 );
       cEventCounter++;
+      cModBx++;
     }
     else
     {
       // clean up string to access stub from this event 
       cInputLine.erase( std::remove(cInputLine.begin(), cInputLine.end(), cStubDelimeter), cInputLine.end() );
-      pInputStubs[(cEventCounter)*8 + cBxCounter].push_back( cInputLine.substr(0, cInputLine.find(cStubEnd)) );
+      // std::cout << "Stub from Bx "
+      //   << cBxCounter
+      //   << " event "
+      //   << cEventCounter 
+      //   << " -- Bx modified "
+      //   << cModBx
+      //   << " -- "
+      //   << cInputLine.substr(0, cInputLine.find(cStubEnd))
+      //   << "\n";
+      pInputStubs[cModBx].push_back( cInputLine.substr(0, cInputLine.find(cStubEnd)) );
       //cStubString.second = cInputLine.substr(0, cInputLine.find(cStubEnd));
       //cInputStubs.push_back( cStubString );
     }
@@ -180,7 +190,7 @@ int main()
   IRMemory hMemoriesPS[kTotalPSmemories]; 
 
   // figure out DTC map encoding for this link 
-  int cLinkId = 18 ; // PS_10G_1 (neg)
+  int cLinkId = 15 ; // PS_10G_1 (neg)
   ap_uint<kLINKMAPwidth> cLinkWord = 0x0000;
   std::string cDTCname = "";
   getLinkInfo(cInputMap, cLinkId, cLinkWord, cDTCname);
@@ -229,9 +239,9 @@ int main()
             << " not passing to input stream.\n";
       }
     }
+    
     // this writes to either the PS or the 2S memories 
     //InputRouterTop(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS, hBarrel2S, hDisk2S);
-    
     ap_uint<1> cIs2S;
     is2S(cLinkWord, cIs2S);
     if( !cIs2S)
@@ -244,64 +254,91 @@ int main()
     }
   }
 
-  std::vector<std::string> cRegionLabels{ "A", "B" , "C", "D", "E", "F","G", "H"};
-  for( size_t cRegion=0; cRegion < 8 ; cRegion++)
-  {
-    std::cout << "Barrel memory [PS] layer 1 " 
-      << " region " << +cRegion 
-      << " [" <<  cRegionLabels[cRegion]
-      << "] -- "
-      << hBarrelPS.m1[cRegion].getEntries(cBxSelected) 
-      << " entries\n";
-
-    for( size_t cIndex = 0 ; cIndex < hBarrelPS.m1[cRegion].getEntries(cBxSelected); cIndex++ )
-    {
-      auto cStub = hBarrelPS.m1[cRegion].read_mem( cBxSelected, cIndex ).raw();
-      std::cout << "Stub#" << +cIndex
-        << " -- " << std::hex 
-        << cStub 
-        << std::dec
-        << "\n";
-    }
-
-  }
-  for( size_t cRegion=0; cRegion < 4 ; cRegion++)
-  {
-    std::cout << "Endcap memory [PS] layer 2 " 
-      << " region " << +cRegion 
-      << " [" <<  cRegionLabels[cRegion]
-      << "] -- "
-      << hDiskPS.m2[cRegion].getEntries(cBxSelected) 
-      << " entries\n";
-
-    for( size_t cIndex = 0 ; cIndex < hDiskPS.m2[cRegion].getEntries(cBxSelected); cIndex++ )
-    {
-      auto cStub = hDiskPS.m2[cRegion].read_mem( cBxSelected, cIndex ).raw();
-      std::cout << "Stub#" << +cIndex
-        << " -- " << std::hex 
-        << cStub 
-        << std::dec
-        << "\n";
-    }
-  }
-  for( size_t cRegion=0; cRegion < 4 ; cRegion++)
-  {
-    std::cout << "Endcap memory [PS] layer 4 " 
-      << " region " << +cRegion 
-      << " [" <<  cRegionLabels[cRegion]
-      << "] -- "
-      << hDiskPS.m4[cRegion].getEntries(cBxSelected) 
-      << " entries\n";
-
-  }
- 
-
-  // // to-do : comparison against emulation 
   bool cIs2S = ( cInputMap[static_cast<int>(cLinkId)].first.find("2S") != std::string::npos  ); 
+  
+  std::vector<std::string> cRegionLabels{ "A", "B" , "C", "D", "E", "F","G", "H"};
+  if( !cIs2S )
+  {
+    for( size_t cRegion=0; cRegion < 8 ; cRegion++)
+    {
+      std::cout << "Barrel memory [PS] layer 1 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hBarrelPS.m1[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+      for( size_t cIndex = 0 ; cIndex < hBarrelPS.m1[cRegion].getEntries(cBxSelected); cIndex++ )
+      {
+        auto cStub = hBarrelPS.m1[cRegion].read_mem( cBxSelected, cIndex ).raw();
+        std::cout << "Stub#" << +cIndex
+          << " -- " << std::hex 
+          << cStub 
+          << std::dec
+          << "\n";
+      }
+
+    }
+    for( size_t cRegion=0; cRegion < 4 ; cRegion++)
+    {
+      std::cout << "Endcap memory [PS] layer 2 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hDiskPS.m2[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+      for( size_t cIndex = 0 ; cIndex < hDiskPS.m2[cRegion].getEntries(cBxSelected); cIndex++ )
+      {
+        auto cStub = hDiskPS.m2[cRegion].read_mem( cBxSelected, cIndex ).raw();
+        std::cout << "Stub#" << +cIndex
+          << " -- " << std::hex 
+          << cStub 
+          << std::dec
+          << "\n";
+      }
+    }
+    for( size_t cRegion=0; cRegion < 4 ; cRegion++)
+    {
+      std::cout << "Endcap memory [PS] layer 4 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hDiskPS.m4[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+    }
+  }
+  else
+  {
+    // barrel 2S memories 
+    for( size_t cRegion=0; cRegion < 4 ; cRegion++)
+    {
+      std::cout << "Barrel memory [2S] layer 4 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hBarrel2S.m1[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+      std::cout << "Barrel memory [2S] layer 5 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hBarrel2S.m2[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+      std::cout << "Barrel memory [2S] layer 6 " 
+        << " region " << +cRegion 
+        << " [" <<  cRegionLabels[cRegion]
+        << "] -- "
+        << hBarrel2S.m3[cRegion].getEntries(cBxSelected) 
+        << " entries\n";
+
+    }
+  }
   auto cLayerIterator = cInputMap[static_cast<int>(cLinkId)].second.begin();
   bool cFirstLayer=false;
-  // layer id is either layer number or disk number
-
   bool cTruncated=true;
   int cNmismatchedMemories=0;
   while( cLayerIterator <  cInputMap[static_cast<int>(cLinkId)].second.end() ) 
@@ -428,11 +465,11 @@ int main()
           }
           else 
           {
-            if( cLayerId == 1)
+            if( cLayerId == 4)
               err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m1[cPhiRegion],cInputStream,cBxSelected,"InputStub");
-            else if( cLayerId == 2 )
+            else if( cLayerId == 5 )
               err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m2[cPhiRegion],cInputStream,cBxSelected,"InputStub");
-            else if( cLayerId == 3 )
+            else if( cLayerId == 6 )
               err_count = compareMemWithFile<InputStubMemory<BARREL2S> >(hBarrel2S.m3[cPhiRegion],cInputStream,cBxSelected,"InputStub");
           }
         }

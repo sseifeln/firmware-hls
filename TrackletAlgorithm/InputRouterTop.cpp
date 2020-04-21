@@ -68,7 +68,12 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 		{
 			DecodeMap( hWord, hDTCMapEncoded , cLyrOrDskId, cIsBrl);
 			assert( cIs2S == 0 ); // this should only be for PS modules 
-		
+			// std::cout << "\t.. Input stub is from layer/disk " 
+			// 	<< cLyrOrDskId 
+			// 	<< " -- "
+			// 	<< std::bitset<kNBits_DTC>(hWord)
+			// 	<< "\n";
+				
 			if( cIsBrl == 1 ) // stub is from a barrel module 
 			{
 				// only three layers in the barrel
@@ -199,13 +204,19 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 		{
 			DecodeMap( hWord, hDTCMapEncoded , cLyrOrDskId, cIsBrl);
 			assert( cIs2S == 1 ); // this should only be for 2S modules 
+			// std::cout << "\t.. Input stub is from layer/disk " 
+			// 	<< cLyrOrDskId 
+			// 	<< " -- "
+			// 	<< std::bitset<kNBits_DTC>(hWord)
+			// 	<< "\n";
+
 			ap_uint<2> cPhiBn;
 			if( cIsBrl == 1 ) // stub is from a barrel module 
 			{
 				// three layers [4--6]
 				assert( cLyrOrDskId >=4 && cLyrOrDskId <= 6 ); 
 				InputStub<BARREL2S> hStub(hWord.range(kBRAMwidth-1,0));
-				GetCoarsePhiRegion<InputStub<BARRELPS>,2>(hWord, cPhiBn);
+				GetCoarsePhiRegion<InputStub<BARREL2S>,2>(hWord, cPhiBn);
 					
 				if( cLyrOrDskId == 4 ) 
 				{
@@ -228,7 +239,7 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 				// five disks [1--5] in the endcap 
 				assert( cLyrOrDskId >=1 && cLyrOrDskId <= 5 ); 
 				InputStub<DISK2S> hStub(hWord.range(kBRAMwidth-1,0));
-				GetCoarsePhiRegion<InputStub<BARRELPS>,2>(hWord, cPhiBn);
+				GetCoarsePhiRegion<InputStub<DISK2S>,2>(hWord, cPhiBn);
 				
 				if( cLyrOrDskId == 1 ) 
 				{
