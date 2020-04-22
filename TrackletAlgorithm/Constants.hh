@@ -47,9 +47,13 @@ constexpr unsigned int kNBits_Debug = kNBits_Valid + kNBits_LayerId;
 
 
 // input stub memories 
+constexpr unsigned int kNRegionsLayer1 = 8;
+constexpr unsigned int kNRegions = 4;  
 constexpr unsigned int kTotalPSmemories = 36;
 constexpr unsigned int kTotal2Smemories = 32;
 constexpr unsigned int kNBarrelLayers = 3; 
 constexpr unsigned int kNDiskEndcaps = 5; 
+constexpr unsigned int kTMP=8; 
+
 
 #endif

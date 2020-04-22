@@ -181,7 +181,8 @@ int main()
   #endif
 
   int cBxSelected = 0; 
-  std::string cDTCname = "2S_4_A";
+  std::string cDTCname = "PS10G_2_B";
+  // std::string cDTCname =  "2S_4_B";
   
   // name is  : 
   // DTCtype[PS10G_PS5G_2S]
@@ -257,6 +258,10 @@ int main()
   // PS memories 
   StubsBarrelPS hBarrelPS;
   StubsDiskPS hDiskPS;
+  //
+  // ap_uint<kBRAMwidth> hBarrelStubs[kTMP][kNBarrelLayers][kNRegionsLayer1][kMaxStubsFromLink];
+  // ap_uint<kBRAMwidth> hDiskStubs[kTMP][kNDiskEndcaps][kNRegions][kMaxStubsFromLink];
+
   // 2S memories 
   StubsBarrel2S hBarrel2S;
   StubsDisk2S hDisk2S;
@@ -273,6 +278,8 @@ int main()
   BXType hBx = cBxSelected&0x7;
   ap_uint<1> cIs2S;
   is2S(cLinkWord, cIs2S);
+  
+  //InputRouterTop(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS, hBarrel2S, hDisk2S);
   if( cIs2S == 0 )
   {
     InputRouterPS(hBx, hLink, cLinkWord, hBarrelPS, hDiskPS);

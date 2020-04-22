@@ -65,18 +65,59 @@ void GetCoarsePhiRegion(const ap_uint<kNBits_DTC> hInputStub,
 	// #endif
 }
 
+
+
+// templated write memories function
+template<int ISType, int NBits, int Nmemories>
+void WriteMemories(const BXType bx, const ap_uint<kBRAMwidth> hInputStub, 
+	InputStubMemory<ISType> hMemory[Nmemories])
+{
+
+	ap_uint<8> hEntries;
+	ap_uint<NBits> cPhiRegion;
+	GetCoarsePhiRegion<InputStub<ISType>,NBits>(hInputStub, cPhiRegion );
+	assert(cPhiRegion >= 0 && cPhiRegion < Nmemories );
+	
+	//#pragma HLS dependence variable=hMemory intra WAR true
+	hEntries = (&hMemory[cPhiRegion])->getEntries(bx);
+	InputStub<ISType> hStub(hInputStub);
+	(&hMemory[cPhiRegion])->write_mem(bx, hStub, hEntries );
+}
+
+
 // templated write memories function
 template<int ISType, int NBits, int Nmemories>
 void WriteMemories(const BXType bx, const ap_uint<kBRAMwidth> hInputStub, 
 	ap_uint<8> nEntries[Nmemories], 
 	InputStubMemory<ISType> hMemory[Nmemories])
 {
+	ap_uint<8> hEntries;
 	ap_uint<NBits> cPhiRegion;
 	GetCoarsePhiRegion<InputStub<ISType>,NBits>(hInputStub, cPhiRegion );
 	assert(cPhiRegion >= 0 && cPhiRegion < Nmemories );
-		
-	InputStub<ISType> hStub(hInputStub.range(kBRAMwidth-1,0));
-	(&hMemory[cPhiRegion])->write_mem(bx, hStub, nEntries[cPhiRegion] );
+	
+	// #pragma HLS dependence variable=nEntries intra WAR true
+	// hEntries = nEntries[cPhiRegion]; 
+	#pragma HLS dependence variable=hMemory intra WAR true
+	hEntries = (&hMemory[cPhiRegion])->getEntries(bx);
+	InputStub<ISType> hStub(hInputStub);
+	(&hMemory[cPhiRegion])->write_mem(bx, hStub, hEntries );
+	nEntries[cPhiRegion]= hEntries+1; 
+}
+
+// templated write memories function
+template<int ISType>
+void WriteMemories(const BXType bx, const ap_uint<kBRAMwidth> hInputStub, 
+	ap_uint<8>& nEntries, 
+	InputStubMemory<ISType>& hMemory)
+{
+	ap_uint<8> hEntries;
+	#pragma HLS dependence variable=hEntries intra WAR true
+	hEntries=nEntries;
+	InputStub<ISType> hStub(hInputStub);
+	hMemory.write_mem(bx, hStub, hEntries );
+	hEntries++;
+	nEntries=hEntries;
 }
 
 // templated write memory function
