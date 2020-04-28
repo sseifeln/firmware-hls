@@ -10,7 +10,7 @@ delete_project inputrouter
 # make new project
 open_project -reset inputrouter
 set CFLAGS {-std=c++11 -I../TrackletAlgorithm}
-set_top InputRouterPS
+set_top InputRouter2S
 add_files ../TrackletAlgorithm/InputRouterTop.cpp -cflags "$CFLAGS"
 add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "$CFLAGS"
 
@@ -28,11 +28,11 @@ create_clock -period 480MHz -name fast_clock
 set nProc [exec nproc]
 csim_design -compiler gcc -mflags "-j$nProc"
 config_rtl -reset all -reset_async -reset_level low
-# #synthesize 
+#synthesize 
 csynth_design
 # cosim_design
 # generate ip
-export_design -format ip_catalog -flow syn
+# export_design -format ip_catalog -flow syn
 # #Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).
 # export_design -format ip_catalog -flow impl
 exit

@@ -53,7 +53,6 @@ constexpr unsigned int kTotalPSmemories = 36;
 constexpr unsigned int kTotal2Smemories = 32;
 constexpr unsigned int kNBarrelLayers = 3; 
 constexpr unsigned int kNDiskEndcaps = 5; 
-constexpr unsigned int kTMP=8; 
 
 
 #endif

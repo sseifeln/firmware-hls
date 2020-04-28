@@ -63,13 +63,33 @@ public:
 	return dataarray_[ibx][index];
   }
 
+  // remove need to pass along index ? 
+  bool write_mem(BunchXingT ibx, DataType data)
+  {
+#pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
+#pragma HLS dependence variable=nentries_ intra WAR true
+#pragma HLS inline
+    //ap_uint<8> hEntries; 
+    //hEntries=nentries_[ibx];
+    if (nentries_[ibx] <= (1<<NBIT_ADDR)) 
+    {
+      dataarray_[ibx][nentries_[ibx]] = data;
+      nentries_[ibx]=nentries_[ibx]+1;
+      //nentries_[ibx] = hEntries;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   bool write_mem(BunchXingT ibx, DataType data, int addr_index)
   {
 #pragma HLS ARRAY_PARTITION variable=nentries_ complete dim=0
 #pragma HLS inline
-    if (addr_index <= (1<<NBIT_ADDR)) {
+    if (addr_index <= (1<<NBIT_ADDR)) 
+    {
       dataarray_[ibx][addr_index] = data;
-      nentries_[ibx] = addr_index + 1;
+      nentries_[ibx] = addr_index + 1 ;
       return true;
     } else {
       return false;

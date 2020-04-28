@@ -6,51 +6,29 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
 	StubsBarrel2S& hBrl, StubsDisk2S& hDsk)
 {
-	// local variables to keep track of how many entries 
-	// are in each memory 
-	EntriesBarrel2S cBrl;
-	EntriesDisk2S cDsk;
 	#pragma HLS clock domain=slow_clock 
 	#pragma HLS interface ap_none port=hDTCMapEncoded
 	#pragma HLS interface ap_fifo port=hIputLink
-
-	// needed this to allow pipeline of 1 
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n1 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n2 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n3 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n1 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n2 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n3 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n4 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n5 cyclic factor=2 dim=1
 
 	// clear memories for this bunch crossing 
 	// one memory for each coarse phi bin 
 	LOOP_ClearInputStubs2S : 
 	for( int cPhiBn=0; cPhiBn<kNRegions; cPhiBn++)
 	{
-		#pragma HLS pipeline II=1
-		#pragma HLS unroll factor=2 // clear four phi regions at a time ..
-			// (&hBrl.m1[cPhiBn])->clear(bx);
-			// (&hBrl.m2[cPhiBn])->clear(bx);
-			// (&hBrl.m3[cPhiBn])->clear(bx);
-			// (&hDsk.m1[cPhiBn])->clear(bx);
-			// (&hDsk.m2[cPhiBn])->clear(bx);
-			// (&hDsk.m3[cPhiBn])->clear(bx);
-			// (&hDsk.m4[cPhiBn])->clear(bx);
-			// (&hDsk.m5[cPhiBn])->clear(bx);
-			
-			cBrl.n1[cPhiBn]=0;
-			cBrl.n2[cPhiBn]=0;
-			cBrl.n3[cPhiBn]=0;
-			cDsk.n1[cPhiBn]=0;
-			cDsk.n2[cPhiBn]=0;
-			cDsk.n3[cPhiBn]=0;
-			cDsk.n4[cPhiBn]=0;
-			cDsk.n5[cPhiBn]=0;
+		#pragma HLS unroll  // clear all phi regions at a time ..
+		(&hBrl.m1[cPhiBn])->clear(bx);
+		(&hBrl.m2[cPhiBn])->clear(bx);
+		(&hBrl.m3[cPhiBn])->clear(bx);
+		(&hDsk.m1[cPhiBn])->clear(bx);
+		(&hDsk.m2[cPhiBn])->clear(bx);
+		(&hDsk.m3[cPhiBn])->clear(bx);
+		(&hDsk.m4[cPhiBn])->clear(bx);
+		(&hDsk.m5[cPhiBn])->clear(bx);
 	}
 
 	ap_uint<1> cIs2S; is2S(hDTCMapEncoded, cIs2S);
+	assert( cIs2S == 1 ); // this should only be for 2S modules 
+			
 	ap_uint<3> cLyrOrDskId;
 	ap_uint<1> cIsBrl;
 	ap_uint<kNBits_DTC> hWord;
@@ -61,7 +39,6 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 		if (hIputLink.read_nb(hWord))
 		{
 			DecodeMap( hWord, hDTCMapEncoded , cLyrOrDskId, cIsBrl);
-			assert( cIs2S == 1 ); // this should only be for 2S modules 
 			
 			ap_uint<2> cPhiBn;
 			if( cIsBrl == 1 ) // stub is from a barrel module 
@@ -72,11 +49,14 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 				GetCoarsePhiRegion<InputStub<BARREL2S>,2>(hWord, cPhiBn);
 					
 				if( cLyrOrDskId == 4 ) 
-					WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n1[cPhiBn], hBrl.m1[cPhiBn]);
+					hBrl.m1[cPhiBn].write_mem(bx, hStub );
+				//	WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n1[cPhiBn], hBrl.m1[cPhiBn]);
 				else if( cLyrOrDskId == 5 ) 
-					WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n2[cPhiBn], hBrl.m2[cPhiBn]);
+					hBrl.m2[cPhiBn].write_mem(bx, hStub );
+				//	WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n2[cPhiBn], hBrl.m2[cPhiBn]);
 				else 
-					WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n3[cPhiBn], hBrl.m3[cPhiBn]);
+					hBrl.m3[cPhiBn].write_mem(bx, hStub );
+				//	WriteMemories<BARREL2S>(bx,hStub.raw(),cBrl.n3[cPhiBn], hBrl.m3[cPhiBn]);
 			}
 			else
 			{
@@ -86,15 +66,20 @@ void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 				GetCoarsePhiRegion<InputStub<DISK2S>,2>(hWord, cPhiBn);
 				
 				if( cLyrOrDskId == 1 ) 
-					WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n1[cPhiBn], hDsk.m1[cPhiBn]);
+					hDsk.m1[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n1[cPhiBn], hDsk.m1[cPhiBn]);
 				else if( cLyrOrDskId == 2 ) 
-					WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n2[cPhiBn], hDsk.m2[cPhiBn]);
+					hDsk.m2[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n2[cPhiBn], hDsk.m2[cPhiBn]);
 				else if( cLyrOrDskId == 3 ) 
-					WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n3[cPhiBn], hDsk.m3[cPhiBn]);
+					hDsk.m3[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n3[cPhiBn], hDsk.m3[cPhiBn]);
 				else if( cLyrOrDskId == 4 ) 
-					WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n4[cPhiBn], hDsk.m4[cPhiBn]);
+					hDsk.m4[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n4[cPhiBn], hDsk.m4[cPhiBn]);
 				else 
-					WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n5[cPhiBn], hDsk.m5[cPhiBn]);
+					hDsk.m5[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISK2S>(bx,hStub.raw(),cDsk.n5[cPhiBn], hDsk.m5[cPhiBn]);
 			}
 		}
 	}
@@ -106,47 +91,39 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
 	StubsBarrelPS& hBrl, StubsDiskPS& hDsk)
 {
-	// local variables to keep track of how many entries 
-	// are in each memory 
-	EntriesBarrelPS cBrl;
-	EntriesDiskPS cDsk;
-	#pragma HLS clock domain=slow_clock 
+	#pragma HLS clock domain=fast_clock 
 	#pragma HLS interface ap_none port=hDTCMapEncoded
 	#pragma HLS interface ap_fifo port=hIputLink
 
-	// needed this to allow pipeline of 1 
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n1 cyclic factor=4 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n2 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n3 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n1 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n2 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n3 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n4 cyclic factor=2 dim=1
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n5 cyclic factor=2 dim=1
-
-	// clear memories for this bunch crossing 
 	// one memory for each coarse phi bin 
-	LOOP_ClearInputStubsPS : 
+	LOOP_ClearInputStubsL1PS : 
 	for( int cPhiBn=0; cPhiBn<kNRegionsLayer1; cPhiBn++)
 	{
-		#pragma HLS pipeline II=1
-		#pragma HLS unroll factor=2 // clear four phi regions at a time ..
-		cBrl.n1[cPhiBn]=0;
-		if( cPhiBn < kNRegions)
-		{
-			cBrl.n2[cPhiBn]=0;
-			cBrl.n3[cPhiBn]=0;
-			cDsk.n1[cPhiBn]=0;
-			cDsk.n2[cPhiBn]=0;
-			cDsk.n3[cPhiBn]=0;
-			cDsk.n4[cPhiBn]=0;
-			cDsk.n5[cPhiBn]=0;
-		}
+		#pragma HLS unroll  // clear 8 phi regions at a time ..
+		(&hBrl.m1[cPhiBn])->clear(bx);
 	}
+	//
+	LOOP_ClearInputStubsPS : 
+	for( int cPhiBn=0; cPhiBn<kNRegions; cPhiBn++)
+	{
+		#pragma HLS unroll // clear four phi regions at a time ..
+		(&hBrl.m2[cPhiBn])->clear(bx);
+		(&hBrl.m3[cPhiBn])->clear(bx);
+		(&hDsk.m1[cPhiBn])->clear(bx);
+		(&hDsk.m2[cPhiBn])->clear(bx);
+		(&hDsk.m3[cPhiBn])->clear(bx);
+		(&hDsk.m4[cPhiBn])->clear(bx);
+		(&hDsk.m5[cPhiBn])->clear(bx);
+	}
+	
 
 	ap_uint<1> cIs2S; is2S(hDTCMapEncoded, cIs2S);
+	assert( cIs2S == 0 ); // this should only be for PS modules 
+			
 	ap_uint<3> cLyrOrDskId;
 	ap_uint<1> cIsBrl;
+	//ap_uint<8> hEntries;
+	//#pragma HLS dependence variable=hEntries intra WAR true
 	ap_uint<kNBits_DTC> hWord;
 	LOOP_InputStubsPS : 
 	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++)
@@ -155,7 +132,6 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 		if (hIputLink.read_nb(hWord))
 		{
 			DecodeMap( hWord, hDTCMapEncoded , cLyrOrDskId, cIsBrl);
-			assert( cIs2S == 0 ); // this should only be for PS modules 
 			
 			if( cIsBrl == 1 ) // stub is from a barrel module 
 			{
@@ -165,16 +141,23 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 				{
 					ap_uint<3> cPhiBn;
 					GetCoarsePhiRegion<InputStub<BARRELPS>,3>(hWord, cPhiBn);
-					WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n1[cPhiBn], hBrl.m1[cPhiBn]);
+					hBrl.m1[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n1[cPhiBn], hBrl.m1[cPhiBn]);
 				}
 				else
 				{
 					ap_uint<2> cPhiBn;
 					GetCoarsePhiRegion<InputStub<BARRELPS>,2>(hWord, cPhiBn);
 					if( cLyrOrDskId == 2 )
-						WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n2[cPhiBn], hBrl.m2[cPhiBn]);
+					{
+						hBrl.m2[cPhiBn].write_mem(bx, hStub );
+						//WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n2[cPhiBn], hBrl.m2[cPhiBn]);
+					}
 					else
-						WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n3[cPhiBn], hBrl.m3[cPhiBn]);
+					{
+						hBrl.m3[cPhiBn].write_mem(bx, hStub );
+						//WriteMemories<BARRELPS>(bx,hStub.raw(),cBrl.n3[cPhiBn], hBrl.m3[cPhiBn]);
+					}
 				}
 			}
 			else
@@ -186,17 +169,356 @@ void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
 				GetCoarsePhiRegion<InputStub<DISKPS>,2>(hWord, cPhiBn);
 				
 				if( cLyrOrDskId == 1 ) 
-					WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n1[cPhiBn], hDsk.m1[cPhiBn]);
+				{
+
+					hDsk.m1[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n1[cPhiBn], hDsk.m1[cPhiBn]);
+				}
 				else if( cLyrOrDskId == 2 ) 
-					WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n2[cPhiBn], hDsk.m2[cPhiBn]);
+				{
+					hDsk.m2[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n2[cPhiBn], hDsk.m2[cPhiBn]);
+				}
 				else if( cLyrOrDskId == 3 ) 
-					WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n3[cPhiBn], hDsk.m3[cPhiBn]);
+				{
+					hDsk.m3[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n3[cPhiBn], hDsk.m3[cPhiBn]);
+				}
 				else if( cLyrOrDskId == 4 ) 
-					WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n4[cPhiBn], hDsk.m4[cPhiBn]);
+				{
+					hDsk.m4[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n4[cPhiBn], hDsk.m4[cPhiBn]);
+				}
 				else 
-					WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n5[cPhiBn], hDsk.m5[cPhiBn]);
+				{
+					hDsk.m5[cPhiBn].write_mem(bx, hStub );
+					//WriteMemories<DISKPS>(bx,hStub.raw(),cDsk.n5[cPhiBn], hDsk.m5[cPhiBn]);
+				}
 			}
 		}
 	}
 	
+}
+
+
+// output stream 
+// an 8 bit word 3 + 3 + 2 
+void RegionRouter(hls::stream<ap_uint<kNBits_DTC>> & inData
+	, const ap_uint<kLINKMAPwidth> hLinkWord
+	, hls::stream<ap_uint<8>> &hRoutingInfo   
+	, hls::stream<ap_uint<kBRAMwidth>> outData[8])
+{
+	ap_uint<1> hValid=1; 
+	ap_uint<8> hRWord; 
+	ap_uint<3> hPhi;
+	ap_uint<3> hLyr;
+	ap_uint<1> hIs2S;
+	ap_uint<1> hIsBrl;
+	is2S(hLinkWord, hIs2S);
+	ap_uint<kNBits_DTC> hWord;
+	LOOP_ReadInputStubs :
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++) 
+	//while(hValid)
+	{
+		#pragma HLS pipeline II=1
+		if(inData.read_nb(hWord)) 
+		{
+			DecodeMap( hWord ,  hLinkWord, hLyr, hIsBrl);
+			if( hIsBrl  == 1) 
+			{
+				if( hIs2S == 1 )
+				{
+					ap_uint<2> cPhiBn;
+					GetCoarsePhiRegion<InputStub<BARREL2S>,2>(hWord, cPhiBn);
+					hPhi = cPhiBn & 0x7 ; 
+				}
+				else
+				{
+					if( hLyr == 1 )
+					{
+						GetCoarsePhiRegion<InputStub<BARRELPS>,3>(hWord, hPhi);
+					}
+				}
+				(&outData[hPhi])->write_nb(hWord.range(kBRAMwidth-1,0));
+			}
+			else
+			{
+				ap_uint<2> cPhiBn;
+				if( hIs2S == 1 )
+				{
+					GetCoarsePhiRegion<InputStub<DISK2S>,2>(hWord, cPhiBn);
+				}
+				else
+				{
+					GetCoarsePhiRegion<InputStub<DISKPS>,2>(hWord, cPhiBn);
+				}
+				hPhi = cPhiBn & 0x7 ; 
+				(&outData[hPhi])->write_nb(hWord.range(kBRAMwidth-1,0));
+			}
+			hRWord.range(7,7)=hIs2S;
+			hRWord.range(6,6)=hIsBrl;
+			hRWord.range(5,3)=hLyr;
+			hRWord.range(2,0)=hPhi;
+			hRoutingInfo.write_nb(hRWord); 
+		}
+		else
+			hValid=0;
+	}
+}
+
+void MemoryRouter(const BXType bx, hls::stream<ap_uint<kBRAMwidth>> inData[8]
+	, hls::stream<ap_uint<8>> &hRoutingInfo 
+	, StubsBarrelPS& hBrl, StubsDiskPS& hDsk )
+{
+	ap_uint<1> hValid=1; 
+	ap_uint<3> hPhi;
+	ap_uint<3> hLyr;
+	ap_uint<1> hIs2S;
+	ap_uint<1> hIsBrl;
+	ap_uint<kBRAMwidth> hWord;
+	ap_uint<8> hRoutingWord; 
+	LOOP_ReadRoutedStubs :
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++) 
+	{
+		#pragma HLS pipeline II=1
+		if( hRoutingInfo.read_nb(hRoutingWord) )
+		{
+			hIs2S = hRoutingWord.range(7,7); 
+			hIsBrl = hRoutingWord.range(6,6); 
+			hLyr = hRoutingWord.range(5,3); 
+			hPhi = hRoutingWord.range(2,0); 
+			if( inData[hPhi].read_nb(hWord) )
+			{
+				#ifndef __SYNTHESIS__
+					std::cout << "\t\tRouting word is "
+						<< std::bitset<8>(hRoutingWord)
+						<< " -- is2S bit "
+						<< hIs2S 
+						<< " -- barrel bit "
+						<< hIsBrl
+						<< " -- layer "
+						<< hLyr 
+						<< " -- stub word is "
+						<< std::bitset<kBRAMwidth>(hWord)
+						<< "\n";
+				#endif
+				if( hIsBrl == 1 )
+				{
+					InputStub<BARRELPS> hStub(hWord);
+					if( hLyr == 1 )
+						hBrl.m1[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 2 )
+						hBrl.m2[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 3 )
+						hBrl.m3[hPhi].write_mem(bx, hStub );
+				}
+				else
+				{
+					InputStub<DISKPS> hStub(hWord);
+					if( hLyr == 1 )
+						hDsk.m1[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 2 )
+						hDsk.m2[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 3 )
+						hDsk.m3[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 4 )
+						hDsk.m4[hPhi].write_mem(bx, hStub );
+					else if( hLyr == 5 )
+						hDsk.m5[hPhi].write_mem(bx, hStub );
+				}
+			}
+		}
+		else
+		{
+			hValid = 0; 
+		}
+	}
+}
+
+
+void InputRouterTop(const BXType bx, 
+	hls::stream<ap_uint<kNBits_DTC>> & hIputLink, 
+	const ap_uint<kLINKMAPwidth> hLinkWord,
+	StubsBarrelPS& hBrl, StubsDiskPS& hDsk)
+{
+
+	#pragma HLS interface ap_none port=hLinkWord
+	#pragma HLS stream variable=hIputLink
+	#pragma HLS clock domain=fast_clock 
+
+	
+	//hls::stream<ap_uint<kBRAMwidth>> hStrms[8];
+	//hls::stream<ap_uint<8>> hRoutingInfo;
+	//#pragma HLS stream variable=hStrms depth=1 
+	//#pragma HLS stream variable=hRoutingInfo depth=1 
+	//RegionRouter(hIputLink, hLinkWord, hRoutingInfo, hStrms);
+	//MemoryRouter(bx, hStrms, hRoutingInfo, hBrl, hDsk); 
+	
+	// LOOP_InputStubsTop : 
+	// for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++) 
+	// {	
+	// 	#pragma HLS pipeline II=1
+	// 	if( hRoutingInfo.read_nb(hRoutingWord) )
+	// 	{
+	// 		ap_uint<1> hIs2S = hRoutingWord.range(7,7); 
+	// 		ap_uint<1> hIsBrl = hRoutingWord.range(6,6); 
+	// 		ap_uint<3> hLyr = hRoutingWord.range(5,3); 
+	// 		ap_uint<3> hPhi = hRoutingWord.range(2,0); 
+	// 		if( hStrms[hPhi].read_nb(hWord) )
+	// 		{
+	// 			#ifndef __SYNTHESIS__
+	// 				std::cout << "\t\tRouting word is "
+	// 					<< std::bitset<8>(hRoutingWord)
+	// 					<< " -- is2S bit "
+	// 					<< hIs2S 
+	// 					<< " -- barrel bit "
+	// 					<< hIsBrl
+	// 					<< " -- layer "
+	// 					<< hLyr 
+	// 					<< " -- stub word is "
+	// 					<< std::bitset<kBRAMwidth>(hWord)
+	// 					<< "\n";
+	// 			#endif
+	// 			if( hIsBrl == 1 )
+	// 			{
+	// 				InputStub<BARRELPS> hStub(hWord);
+	// 				if( hLyr == 1 )
+	// 					hBrl.m1[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 2 )
+	// 					hBrl.m2[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 3 )
+	// 					hBrl.m3[hPhi].write_mem(bx, hStub );
+	// 			}
+	// 			else
+	// 			{
+	// 				InputStub<DISKPS> hStub(hWord);
+	// 				if( hLyr == 1 )
+	// 					hDsk.m1[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 2 )
+	// 					hDsk.m2[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 3 )
+	// 					hDsk.m3[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 4 )
+	// 					hDsk.m4[hPhi].write_mem(bx, hStub );
+	// 				else if( hLyr == 5 )
+	// 					hDsk.m5[hPhi].write_mem(bx, hStub );
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// for( int cPhi=0; cPhi < 8; cPhi++)
+	// {
+	// 	#pragma HLS pipeline II=1
+	// 	//#pragma HLS unroll 
+	// 	while(hStrms[cPhi].read_nb(hWord)) 
+	// 	{
+	// 		#ifndef __SYNTHESIS__
+	// 			std::cout << "Input word is "
+	// 				<< std::bitset<kBRAMwidth>(hWord)
+	// 				<< "\n";
+	// 		#endif
+	// 	}
+	// }
+	//#pragma HLS dependence variable=hRoutingWord inter RAW true
+	// for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++)
+	// {
+	// 	#pragma HLS pipeline II=1
+	// 	RegionRouter(hIputLink, hLinkWord, hRoutingWord, hStrms);
+	// 	//ap_uint<1> hIs2S = hRoutingWord & 0x80; 
+	// 	//ap_uint<1> hIsBrl = hRoutingWord & 0x40; 
+	// 	//ap_uint<3> hLyr = hRoutingWord & 0x38; 
+	// 	for( int cPhi=0; cPhi < 8; cPhi++)
+	// 	{
+	// 		#pragma HLS unroll 
+	// 		if(hStrms[cPhi].read_nb(hWord))
+	// 		{
+	// 			#ifndef __SYNTHESIS__
+	// 				std::cout << "Input word is "
+	// 					<< std::bitset<kBRAMwidth>(hWord)
+	// 					<< "\n";
+	// 			#endif
+	// 			// if(hStrms[hPhi].read_nb(hWord)) 
+	// 			// {
+	// 			// 	if( hIsBrl == 1 )
+	// 			// 	{
+	// 			// 		InputStub<BARRELPS> hStub(hWord);
+	// 			// 		if( hLyr == 1 )
+	// 			// 			hBrl.m1[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 2 )
+	// 			// 			hBrl.m2[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 3 )
+	// 			// 			hBrl.m3[hPhi].write_mem(bx, hStub );
+	// 			// 	}
+	// 			// 	else
+	// 			// 	{
+	// 			// 		InputStub<DISKPS> hStub(hWord);
+	// 			// 		if( hLyr == 1 )
+	// 			// 			hDsk.m1[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 2 )
+	// 			// 			hDsk.m2[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 3 )
+	// 			// 			hDsk.m3[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 4 )
+	// 			// 			hDsk.m4[hPhi].write_mem(bx, hStub );
+	// 			// 		else if( hLyr == 5 )
+	// 			// 			hDsk.m5[hPhi].write_mem(bx, hStub );
+	// 			// 	}
+	// 			// 	#ifndef __SYNTHESIS__
+	// 			// 		std::cout << "Is2S " << hIs2S 
+	// 			// 			<< " -- IsBrl "
+	// 			// 			<< hIsBrl 
+	// 			// 			<< " -- Lyr "
+	// 			// 			<< hLyr
+	// 			// 			<< " -- Phi "
+	// 			// 			<< hPhi
+	// 			// 			<< " -- "
+	// 			// 			<< std::bitset<kBRAMwidth>(hWord)
+	// 			// 			<< "\n";
+	// 			// 	#endif
+	// 			// }
+	// 		}
+	// 	}
+	// }
+	//ap_uint<1> hValid;
+	//hls::stream<ap_uint<kBRAMwidth>> hBrlStrms[3];
+	//hls::stream<ap_uint<kBRAMwidth>> hEcapStrms[5];
+	//LyrRouter(hIputLink,  hLinkWord, hBrlStrms, hEcapStrms);
+	//RegionRouter<3>(hBrlStrms);
+	//RegionRouter<5>(hEcapStrms);
+
+	// #pragma HLS stream variable=hBrlStrm depth=1 
+	// #pragma HLS stream variable=hEcapStrm depth=1 
+	// for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++)
+	// {
+	// 	#pragma HLS pipeline II=1
+	// 	TkRegionRouter(hIputLink, hLinkWord  , hValid, hBrlStrm , hEcapStrm ); 
+	// 	if( hValid == 1 )
+	// 	{
+
+	// 	}
+	// 	else
+	// 		break;
+	// 	// ap_uint<1> hValid;
+	// 	// ap_uint<1> hType;
+	// 	// ap_uint<1> hRegion;
+	// 	// ap_uint<3> hLyr;
+	// 	// ap_uint<3> hPhi; 
+	// 	// ap_uint<kBRAMwidth> hWord; 
+	// 	// GenericParser(hIputLink, hLinkWord, hValid, hType , hRegion, hLyr, hPhi , hWord); 
+	// 	// if( hValid )
+	// 	// {
+	// 	// 	#ifndef __SYNTHESIS__
+	// 	// 		std::cout << "Type " << hType 
+	// 	// 			<< " -- Region "
+	// 	// 			<< hRegion 
+	// 	// 			<< " -- Lyr "
+	// 	// 			<< hLyr
+	// 	// 			<< " -- Phi "
+	// 	// 			<< hPhi
+	// 	// 			<< " -- "
+	// 	// 			<< std::bitset<kBRAMwidth>(hWord)
+	// 	// 			<< "\n";
+	// 	// 	#endif
+	// 	// }
+	// }
 }

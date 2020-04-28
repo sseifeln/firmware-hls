@@ -96,13 +96,12 @@ void WriteMemories(const BXType bx, const ap_uint<kBRAMwidth> hInputStub,
 	GetCoarsePhiRegion<InputStub<ISType>,NBits>(hInputStub, cPhiRegion );
 	assert(cPhiRegion >= 0 && cPhiRegion < Nmemories );
 	
-	// #pragma HLS dependence variable=nEntries intra WAR true
-	// hEntries = nEntries[cPhiRegion]; 
-	#pragma HLS dependence variable=hMemory intra WAR true
-	hEntries = (&hMemory[cPhiRegion])->getEntries(bx);
+	#pragma HLS dependence variable=hEntries intra WAR true
+	hEntries=nEntries[cPhiRegion];
 	InputStub<ISType> hStub(hInputStub);
 	(&hMemory[cPhiRegion])->write_mem(bx, hStub, hEntries );
-	nEntries[cPhiRegion]= hEntries+1; 
+	hEntries++;
+	*(&nEntries[cPhiRegion])=hEntries;
 }
 
 // templated write memories function
@@ -112,7 +111,7 @@ void WriteMemories(const BXType bx, const ap_uint<kBRAMwidth> hInputStub,
 	InputStubMemory<ISType>& hMemory)
 {
 	ap_uint<8> hEntries;
-	#pragma HLS dependence variable=hEntries intra WAR true
+	// #pragma HLS dependence variable=hEntries intra WAR true
 	hEntries=nEntries;
 	InputStub<ISType> hStub(hInputStub);
 	hMemory.write_mem(bx, hStub, hEntries );
