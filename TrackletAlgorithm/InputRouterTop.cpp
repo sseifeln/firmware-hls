@@ -370,19 +370,44 @@ void DecodeInputStub(const ap_uint<kNBits_DTC> inStub,
 	ap_uint<8> hIndex=0;
 	ap_uint<1> hIsBrl;
 	ap_uint<3> hLyr; 
-	LOOP_LyrIndex :
-	for( int iLyr=0; iLyr<4;iLyr++)
+	if( pLayer == 0 )
 	{
-		#pragma HLS unroll
-		if( iLyr == pLayer )
-		{
-			hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
-			hIsBrl = lnkWord.range(hIndex,hIndex);
-			hLyr = lnkWord.range(hIndex+3,hIndex+1);
-		}
-		else
-			hIndex = hIndex + 4; 
+		hIndex=0;
+		hIsBrl = lnkWord.range(hIndex,hIndex);
+		hLyr = lnkWord.range(hIndex+3,hIndex+1);
 	}
+	else if( pLayer == 1 )
+	{
+		hIndex=4;
+		hIsBrl = lnkWord.range(hIndex,hIndex);
+		hLyr = lnkWord.range(hIndex+3,hIndex+1);
+	}
+	else if( pLayer == 2 )
+	{
+		hIndex=8;
+		hIsBrl = lnkWord.range(hIndex,hIndex);
+		hLyr = lnkWord.range(hIndex+3,hIndex+1);
+	}
+	else
+	{
+		hIndex=12;
+		hIsBrl = lnkWord.range(hIndex,hIndex);
+		hLyr = lnkWord.range(hIndex+3,hIndex+1);
+	}
+	//TO-DO - make this faster 
+	//LOOP_LyrIndex :
+	// for( int iLyr=0; iLyr<4;iLyr++)
+	// {
+	// 	#pragma HLS unroll
+	// 	if( iLyr == pLayer )
+	// 	{
+	// 		hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
+	// 		hIsBrl = lnkWord.range(hIndex,hIndex);
+	// 		hLyr = lnkWord.range(hIndex+3,hIndex+1);
+	// 	}
+	// 	else
+	// 		hIndex = hIndex + 4; 
+	// }
 	ap_uint<5> hPhiMSB;
 	ap_uint<5> hPhiLSB; 
 	if( hIsBrl == 1 )
