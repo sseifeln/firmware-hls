@@ -85,193 +85,179 @@ typedef struct
 } StubsDisk2S;
 
 
-void InputRouterPS(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink, 
+typedef struct
+{
+	ap_uint<kLINKMAPwidth> hLinkWord; 
+	ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]; 
+}RouterInputPort;
+
+typedef struct
+{
+	ap_uint<1> region;
+	ap_uint<3> lyr;
+	ap_uint<3> phi; 
+	hls::stream<ap_uint<kBRAMwidth>> outStrm; 
+}RouterOutputPort;
+
+typedef struct
+{
+	ap_uint<1> isValid; 
+	ap_uint<1> isBrl;
+	ap_uint<1> is2S;
+	ap_uint<3> layerId;
+	ap_uint<3> phiRegion;
+	ap_uint<kBRAMwidth> hStub; 
+}LayerRouterOutputPort;
+
+typedef struct
+{
+	ap_uint<1> isValid; 
+	ap_uint<3> phiRegion;
+	ap_uint<kBRAMwidth> hStub; 
+}PhiRouterOutputPort;
+
+void LayerDecode(const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
+	const ap_uint<2> pLayer, 
+	LayerRouterOutputPort &hOutput);
+
+void DecodeInputStub(const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
+	const ap_uint<2> pLayer, 
+	LayerRouterOutputPort &hOutput);
+
+void LayerRouter(const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	ap_uint<kBRAMwidth>& outStub) ;
+
+template<int ISType> 
+void MemoryFiller(const BXType bx
+	, ap_uint<kBRAMwidth> hInputStub 
+	, InputStubMemory<ISType> &hMemory )
+{
+	InputStub<ISType> hStub(hInputStub);
+	hMemory.write_mem(bx, hStub );
+}
+
+void MemoryRouter(const BXType bx 
+	, LayerRouterOutputPort hInput
+	, ap_uint<8> hEntries 
+	, StubsBarrelPS& hBrl
+	, StubsDiskPS& hDsk);
+
+void UpdateCounters(LayerRouterOutputPort hInput
+	, EntriesBarrelPS& cBrl
+	, EntriesDiskPS& cDsk);
+
+void RouterPS(const BXType bx
+	, RouterInputPort inPrt
+	, StubsBarrelPS& hBrl
+	, StubsDiskPS& hDsk);
+
+
+template<int ISType>
+void Router8R(const BXType bx
+	, LayerRouterOutputPort hInput
+	, InputStubMemory<ISType> &hPhi0
+	, InputStubMemory<ISType> &hPhi1
+	, InputStubMemory<ISType> &hPhi2
+	, InputStubMemory<ISType> &hPhi3
+	, InputStubMemory<ISType> &hPhi4
+	, InputStubMemory<ISType> &hPhi5
+	, InputStubMemory<ISType> &hPhi6
+	, InputStubMemory<ISType> &hPhi7)
+{
+	ap_uint<8> hEntries;
+	#pragma HLS dependence variable=hEntries intra WAR true
+	InputStub<ISType> hStub(hInput.hStub);
+	if( hInput.phiRegion == 0 )
+	{
+		hEntries = hPhi0.getEntries(bx);
+		hPhi0.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 1 )
+	{
+		hEntries = hPhi1.getEntries(bx);
+		hPhi1.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 2 )
+	{
+		hEntries = hPhi2.getEntries(bx);
+		hPhi2.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 3 )
+	{
+		hEntries = hPhi3.getEntries(bx);
+		hPhi3.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 4 )
+	{
+		hEntries = hPhi4.getEntries(bx);
+		hPhi4.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 5 )
+	{
+		hEntries = hPhi5.getEntries(bx);
+		hPhi5.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 6 )
+	{
+		hEntries = hPhi6.getEntries(bx);
+		hPhi6.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 7 )
+	{
+		hEntries = hPhi7.getEntries(bx);
+		hPhi7.write_mem(bx, hStub, hEntries );
+	}
+}
+
+template<int ISType>
+void Router4R(const BXType bx
+	, LayerRouterOutputPort hInput
+	, InputStubMemory<ISType> &hPhi0
+	, InputStubMemory<ISType> &hPhi1
+	, InputStubMemory<ISType> &hPhi2
+	, InputStubMemory<ISType> &hPhi3)
+{
+	ap_uint<8> hEntries;
+	#pragma HLS dependence variable=hEntries intra WAR true
+	InputStub<ISType> hStub(hInput.hStub);
+	if( hInput.phiRegion == 0 )
+	{
+		hEntries = hPhi0.getEntries(bx);
+		hPhi0.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 1 )
+	{
+		hEntries = hPhi1.getEntries(bx);
+		hPhi1.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 2 )
+	{
+		hEntries = hPhi2.getEntries(bx);
+		hPhi2.write_mem(bx, hStub, hEntries );
+	}
+	else if( hInput.phiRegion == 3 )
+	{
+		hEntries = hPhi3.getEntries(bx);
+		hPhi3.write_mem(bx, hStub, hEntries );
+	}
+}
+
+
+void GenericRouter(RouterInputPort inPS,
+	RouterInputPort in2S, 
+	ap_uint<8>& nRoutedPS,
+	ap_uint<8>& nRouted2S);
+
+void InputRouterPS(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-	StubsBarrelPS& hBarrelMemories, StubsDiskPS& hDiskMemories);
-
-void InputRouter2S(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink, 
-	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-	StubsBarrel2S& hBarrelMemories, StubsDisk2S& hDiskMemories);
-
-
-void RegionRouter(hls::stream<ap_uint<kNBits_DTC>> & inData
-	, const ap_uint<kLINKMAPwidth> hLinkWord
-	, hls::stream<ap_uint<8>> &hRoutingInfo  
-	, hls::stream<ap_uint<kBRAMwidth>> outData[8]);
-
-void MemoryRouter(const BXType bx, hls::stream<ap_uint<kBRAMwidth>> inData[8]
-	, hls::stream<ap_uint<8>> &hRoutingInfo 
-	, StubsBarrelPS& hBrl, StubsDiskPS& hDsk ); 
-
-
-// route stub word from DTC to correct memory 
-template<int ISType, int NmemoriesL1, int NmemoriesL2, int NmemoriesL3> 
-void BarrelStubMemoryRouter(const BXType bx
-	, const ap_uint<kNBits_DTC> inData 
-	, const ap_uint<kLINKMAPwidth> hLinkWord 
-	, InputStubMemory<ISType> hL1[NmemoriesL1]
-	, InputStubMemory<ISType> hL2[NmemoriesL2]
-	, InputStubMemory<ISType> hL3[NmemoriesL3]) 
-{
-	ap_uint<1> hIs2S;
-	is2S(hLinkWord, hIs2S);
-	ap_uint<3> hLyr;
-	ap_uint<1> hIsBrl;
-	DecodeMap( inData ,  hLinkWord, hLyr, hIsBrl);
-	InputStub<ISType> hStub(inData.range(kBRAMwidth-1,0));
-	if( hIsBrl == 1 )
-	{
-		ap_uint<3> hPhi; 
-		if( hIs2S == 1 )
-		{
-			ap_uint<2> cPhiBn;
-			GetCoarsePhiRegion<InputStub<BARREL2S>,2>(inData, cPhiBn);
-			hPhi = cPhiBn & 0x7 ; 
-		}
-		else
-		{
-			if( hLyr == 1 )
-				GetCoarsePhiRegion<InputStub<BARRELPS>,3>(inData, hPhi);
-			else
-			{
-				ap_uint<2> cPhiBn;
-				GetCoarsePhiRegion<InputStub<BARRELPS>,2>(inData, cPhiBn);
-				hPhi = cPhiBn & 0x7 ; 
-			}
-		}
-		if( hLyr == 1 || hLyr == 3 )
-			(&hL1[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 2 || hLyr == 4 ) 
-			(&hL2[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 3 || hLyr == 6 ) 
-			(&hL3[hPhi])->write_mem(bx, hStub);
-	}
-}
-
-// route stub word from DTC to correct memory 
-template<int ISType, int NmemoriesL1, int NmemoriesL2, int NmemoriesL3, int NmemoriesL4, int NmemoriesL5> 
-void EndcapStubMemoryRouter(const BXType bx
-	, const ap_uint<kNBits_DTC> inData 
-	, const ap_uint<kLINKMAPwidth> hLinkWord 
-	, InputStubMemory<ISType> hL1[NmemoriesL1]
-	, InputStubMemory<ISType> hL2[NmemoriesL2]
-	, InputStubMemory<ISType> hL3[NmemoriesL3]
-	, InputStubMemory<ISType> hL4[NmemoriesL4]
-	, InputStubMemory<ISType> hL5[NmemoriesL5]) 
-{
-	ap_uint<3> hPhi; 
-	ap_uint<2> cPhiBn;
-	ap_uint<3> hLyr;
-	ap_uint<1> hIsBrl;
-	DecodeMap( inData ,  hLinkWord, hLyr, hIsBrl);
-	InputStub<ISType> hStub(inData.range(kBRAMwidth-1,0));
-
-	if( hIsBrl == 0 )
-	{
-		GetCoarsePhiRegion<InputStub<ISType>,2>(inData, cPhiBn);
-		hPhi = cPhiBn & 0x7 ; 
-		if( hLyr == 1 )
-			(&hL1[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 2 ) 
-			(&hL2[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 3 ) 
-			(&hL3[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 4 ) 
-			(&hL4[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 5 ) 
-			(&hL5[hPhi])->write_mem(bx, hStub);
-	}
-}
-
-// route stub word from DTC to correct memory 
-template<int ISTypeBrl, int ISTypeDsk, int NregionsL1, int NregionsTk> 
-void StubMemoryRouter(const BXType bx
-	, const ap_uint<kNBits_DTC> inData 
-	, const ap_uint<kLINKMAPwidth> hLinkWord 
-	, InputStubMemory<ISTypeBrl> hL1[NregionsL1]
-	, InputStubMemory<ISTypeBrl> hL2[NregionsTk]
-	, InputStubMemory<ISTypeBrl> hL3[NregionsTk]
-	, InputStubMemory<ISTypeDsk> hD1[NregionsTk]
-	, InputStubMemory<ISTypeDsk> hD2[NregionsTk]
-	, InputStubMemory<ISTypeDsk> hD3[NregionsTk]
-	, InputStubMemory<ISTypeDsk> hD4[NregionsTk]
-	, InputStubMemory<ISTypeDsk> hD5[NregionsTk]) 
-{
-	ap_uint<1> hIs2S;
-	is2S(hLinkWord, hIs2S);
-	ap_uint<3> hPhi; 
-	ap_uint<2> cPhiBn;
-	ap_uint<3> hLyr;
-	ap_uint<1> hIsBrl;
-	DecodeMap( inData ,  hLinkWord, hLyr, hIsBrl);
-	if( hIsBrl == 0 )
-	{
-		InputStub<ISTypeDsk> hStub(inData.range(kBRAMwidth-1,0));
-		GetCoarsePhiRegion<InputStub<ISTypeDsk>,2>(inData, cPhiBn);
-		hPhi = cPhiBn & 0x7 ; 
-		if( hLyr == 1 )
-			(&hD1[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 2 ) 
-			(&hD2[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 3 ) 
-			(&hD3[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 4 ) 
-			(&hD4[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 5 ) 
-			(&hD5[hPhi])->write_mem(bx, hStub);
-	}
-	else if( hIsBrl == 1 )
-	{
-		InputStub<ISTypeBrl> hStub(inData.range(kBRAMwidth-1,0));
-		ap_uint<3> hPhi; 
-		if( hIs2S == 1 )
-		{
-			ap_uint<2> cPhiBn;
-			GetCoarsePhiRegion<InputStub<ISTypeBrl>,2>(inData, cPhiBn);
-			hPhi = cPhiBn & 0x7 ; 
-		}
-		else
-		{
-			if( hLyr == 1 )
-				GetCoarsePhiRegion<InputStub<ISTypeBrl>,3>(inData, hPhi);
-			else
-			{
-				ap_uint<2> cPhiBn;
-				GetCoarsePhiRegion<InputStub<ISTypeBrl>,2>(inData, cPhiBn);
-				hPhi = cPhiBn & 0x7 ; 
-			}
-		}
-		if( hLyr == 1 || hLyr == 3 )
-			(&hL1[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 2 || hLyr == 4 ) 
-			(&hL2[hPhi])->write_mem(bx, hStub);
-		else if( hLyr == 3 || hLyr == 6 ) 
-			(&hL3[hPhi])->write_mem(bx, hStub);
-	}
-}
-
-
-void InputRouterTop(const BXType bx, 
-	hls::stream<ap_uint<kNBits_DTC>> & hIputLink, 
-	const ap_uint<kLINKMAPwidth> hLinkWord,
 	StubsBarrelPS& hBrl, StubsDiskPS& hDsk);
 
-// void InputRouterTop(const BXType bx, 
-// 	hls::stream<ap_uint<kNBits_DTC>> &hIputLink, 
-// 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-// 	StubsBarrelPS& hBrlPS, StubsDiskPS& hDskPS, 
-// 	StubsBarrel2S& hBrl2S, StubsDisk2S& hDsk2S);
-
-// void InputRouterGeneric(const BXType bx, const int nStubs, 
-// 	hls::stream<ap_uint<kNBits_DTC>> &hIputLink,
-// 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-// 	IRMemory hMemoriesPS[kTotalPSmemories], 
-// 	IRMemory hMemories2S[kTotal2Smemories]);	
-
-// void InputRouterTest(const BXType bx, hls::stream<ap_uint<kNBits_DTC>> &hIputLink, 
-// 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded,
-// 	StubsBarrelPS& hBrl, StubsDiskPS& hDsk,
-// 	StubsBarrel2S& hBrl2S, StubsDisk2S& hDsk2S);
+void InputRouter2S(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
+	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
+	StubsBarrel2S& hBrl, StubsDisk2S& hDsk);
 
 #endif
 

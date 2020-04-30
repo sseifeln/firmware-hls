@@ -10,7 +10,7 @@ delete_project inputrouter
 # make new project
 open_project -reset inputrouter
 set CFLAGS {-std=c++11 -I../TrackletAlgorithm}
-set_top InputRouter2S
+set_top RouterPS
 add_files ../TrackletAlgorithm/InputRouterTop.cpp -cflags "$CFLAGS"
 add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "$CFLAGS"
 
@@ -21,7 +21,7 @@ open_solution -reset "solution1"
 # Define FPGA, clock frequency & common HLS settings.
 source settings_hls.tcl
 
-create_clock -period 240MHz -name slow_clock 
+create_clock -period 250MHz -name slow_clock 
 create_clock -period 480MHz -name fast_clock
 
 # simulate 

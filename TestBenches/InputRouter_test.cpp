@@ -320,6 +320,101 @@ void fillInputStreams(Stubs pStubsPS, Stubs pStubs2S,
 
 }
 
+void prepareStream(ap_uint<kNBits_DTC> hLink[kMaxStubsFromLink])
+{
+  for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink; cStubCounter++)
+  {
+    hLink[cStubCounter]=0x00;
+  }
+}
+// fill input stream with stubs 
+void fillInputStreams(Stubs pStubsPS, Stubs pStubs2S
+ , ap_uint<kNBits_DTC> hLinkPS[kMaxStubsFromLink]
+ , ap_uint<kNBits_DTC> hLink2S[kMaxStubsFromLink])
+{
+  prepareStream(hLinkPS);
+  prepareStream(hLink2S);
+
+  for( auto cStubIter = pStubsPS.begin(); cStubIter < pStubsPS.end(); cStubIter++)
+  {
+    auto cStubCounter = std::distance( pStubsPS.begin(), cStubIter ); 
+    auto& cStub = *cStubIter;
+    if( cStubCounter < kMaxStubsFromLink )
+    {
+      hLinkPS[cStubCounter]=(ap_uint<kNBits_DTC>(cStub.to_ulong()));
+    }
+    else
+    {
+      if( cStubCounter == kMaxStubsFromLink) 
+        std::cout << "Warning - truncation expected!" 
+          << "Stubs from simulation [currently @ stub #" << +cStubCounter 
+          << "] exceed maximum allowed on this link.."
+          << " not passing to input stream.\n";
+    }
+  }
+
+  for( auto cStubIter = pStubs2S.begin(); cStubIter < pStubs2S.end(); cStubIter++)
+  {
+    auto cStubCounter = std::distance( pStubs2S.begin(), cStubIter ); 
+    auto& cStub = *cStubIter;
+    if( cStubCounter < kMaxStubsFromLink )
+    {
+      hLink2S[cStubCounter]=(ap_uint<kNBits_DTC>(cStub.to_ulong()));
+    }
+    else
+    {
+      if( cStubCounter == kMaxStubsFromLink) 
+        std::cout << "Warning - truncation expected!" 
+          << "Stubs from simulation [currently @ stub #" << +cStubCounter 
+          << "] exceed maximum allowed on this link.."
+          << " not passing to input stream.\n";
+    }
+  }
+
+}
+
+// fill input stream with stubs 
+void fillInputStreams(Stubs pStubsPS, Stubs pStubs2S,
+ hls::stream<ap_uint<kNBits_DTC>> &hLinkPS, hls::stream<ap_uint<kNBits_DTC>> &hLink2S )
+{
+  for( auto cStubIter = pStubsPS.begin(); cStubIter < pStubsPS.end(); cStubIter++)
+  {
+    auto cStubCounter = std::distance( pStubsPS.begin(), cStubIter ); 
+    auto& cStub = *cStubIter;
+    if( cStubCounter < kMaxStubsFromLink )
+    {
+      hLinkPS.write_nb(ap_uint<kNBits_DTC>(cStub.to_ulong()));
+    }
+    else
+    {
+      if( cStubCounter == kMaxStubsFromLink) 
+        std::cout << "Warning - truncation expected!" 
+          << "Stubs from simulation [currently @ stub #" << +cStubCounter 
+          << "] exceed maximum allowed on this link.."
+          << " not passing to input stream.\n";
+    }
+  }
+
+  for( auto cStubIter = pStubs2S.begin(); cStubIter < pStubs2S.end(); cStubIter++)
+  {
+    auto cStubCounter = std::distance( pStubs2S.begin(), cStubIter ); 
+    auto& cStub = *cStubIter;
+    if( cStubCounter < kMaxStubsFromLink )
+    {
+      hLink2S.write_nb(ap_uint<kNBits_DTC>(cStub.to_ulong()));
+    }
+    else
+    {
+      if( cStubCounter == kMaxStubsFromLink) 
+        std::cout << "Warning - truncation expected!" 
+          << "Stubs from simulation [currently @ stub #" << +cStubCounter 
+          << "] exceed maximum allowed on this link.."
+          << " not passing to input stream.\n";
+    }
+  }
+
+}
+
 
 // fill input stream with stubs 
 void fillInputStreams(Stubs pStubsPS, Stubs pStubs2S,
@@ -500,13 +595,18 @@ int main()
   // get stubs 
   Stubs cStubs_DTC_PS; 
   Stubs cStubs_DTC_2S; 
-  ap_uint<kLINKMAPwidth> cLinkWords[2];
-  hls::stream<ap_uint<kNBits_DTC>> hLinks[2];
+  RouterInputPort cInputs_PS;
+  RouterInputPort cInputs_2S;
+
+  //ap_uint<kLINKMAPwidth> cLinkWords[2];
+  //hls::stream<ap_uint<kNBits_DTC>> hLinks[2];
   // 
-  getStubs(cInputFile_LinkMap, "PS10G_2_B", cBxSelected, cStubs_DTC_PS, cLinkWords[0]);
-  getStubs(cInputFile_LinkMap, "2S_4_B", cBxSelected, cStubs_DTC_2S, cLinkWords[1]);
-  fillInputStreams(cStubs_DTC_PS, cStubs_DTC_2S, hLinks);
+  getStubs(cInputFile_LinkMap, "PS10G_2_B", cBxSelected, cStubs_DTC_PS, cInputs_PS.hLinkWord );
+  getStubs(cInputFile_LinkMap, "2S_4_B", cBxSelected, cStubs_DTC_2S, cInputs_2S.hLinkWord );
+  fillInputStreams(cStubs_DTC_PS, cStubs_DTC_2S, cInputs_PS.hStubs, cInputs_2S.hStubs );
   
+  // memories 
+  InputStubMemory<BARRELPS> L1_PS_PhiRA; 
   // PS memories 
   StubsBarrelPS hBarrelPS;
   StubsDiskPS hDiskPS;
@@ -515,10 +615,15 @@ int main()
   StubsDisk2S hDisk2S;
   // compare memories 
   BXType hBx = cBxSelected&0x7;
-  //InputRouterTop(hBx, hLinks[0], cLinkWords[0], hBarrelPS, hDiskPS);
-  InputRouterPS(hBx, hLinks[0], cLinkWords[0], hBarrelPS, hDiskPS);
-  InputRouter2S(hBx, hLinks[1], cLinkWords[1], hBarrel2S, hDisk2S);
-  int nMismatches = compareMemories(cInputFile_LinkMap,"PS10G_2_B","2S_4_B",cBxSelected,hBarrelPS,  hDiskPS, hBarrel2S,  hDisk2S);
+  RouterOutputPort outPS; 
+  RouterOutputPort out2S; 
+  ap_uint<8> nRoutedPS=0; 
+  ap_uint<8> nRouted2S=0;
+  //GenericRouter(cInputs_PS,cInputs_2S, nRoutedPS, nRouted2S);
+  RouterPS(hBx , cInputs_PS , hBarrelPS , hDiskPS); 
+
+  //InputRouterPS(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord, hBarrelPS, hDiskPS);
+  InputRouter2S(hBx, cInputs_2S.hStubs, cInputs_2S.hLinkWord, hBarrel2S, hDisk2S);
+  int nMismatches = compareMemories(cInputFile_LinkMap,"PS10G_2_B","2S_4_B", cBxSelected,hBarrelPS,  hDiskPS, hBarrel2S,  hDisk2S);
   return nMismatches; 
-  //return 0;
 }

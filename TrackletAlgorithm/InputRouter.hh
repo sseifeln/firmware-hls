@@ -65,6 +65,37 @@ void GetCoarsePhiRegion(const ap_uint<kNBits_DTC> hInputStub,
 	// #endif
 }
 
+// templated fucntion to get coarse phi region 
+template<class DataType, int NBits>
+void GetCoarsePhiRegion(const ap_uint<kBRAMwidth> hInputStub, 
+	ap_uint<NBits> &hPhiRegion )
+{
+	
+	// stub from input stub 
+	DataType hStub(hInputStub);
+	auto cPhi = hStub.getPhi();
+	hPhiRegion = hStub.template getCoarsePhiRegion<NBits>(); 
+	// #ifndef __SYNTHESIS__
+	// 	std::cout << "\t.. Input stub is " 
+	// 			  << std::bitset<kNBits_DTC>(hInputStub) 
+	// 			  << " TF stub is "
+	// 			  << std::bitset<kBRAMwidth>(hStub.raw())
+	// 			  << " hex "
+	// 			  << std::hex 
+	// 			  << hStub.raw() 
+	// 			  << std::dec 
+	// 			  << " bend value is "
+	// 			  << std::bitset<DataType::kISBendSize>(hStub.getBend())
+	// 			  << " phi value is " << std::bitset<DataType::kISPhiSize>(hStub.raw().range(DataType::kISPhiMSB,DataType::kISPhiLSB)) 
+	// 			  << " -- " << cPhi
+	// 			  << " -- " << std::bitset<NBits>(hStub.raw().range(DataType::kISPhiMSB,DataType::kISPhiMSB-(NBits-1)) )
+	// 			  << " -- " << hStub.raw().range(DataType::kISPhiMSB,DataType::kISPhiMSB-(NBits-1)) 
+	// 			  // << " ---- " << cPhi/(16383/std::pow(2.,NBits))
+	// 			  << " phi region is " << hPhiRegion 
+	// 			  << "\n";
+	// #endif
+}
+
 
 
 // templated write memories function
