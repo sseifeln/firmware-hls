@@ -30,9 +30,9 @@ csim_design -compiler gcc -mflags "-j$nProc"
 config_rtl -reset all -reset_async -reset_level low
 # synthesize 
 csynth_design
-# cosim_design
+cosim_design
 # generate ip
-# export_design -format ip_catalog -flow syn
+export_design -format ip_catalog -flow syn
 # #Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).
 # export_design -format ip_catalog -flow impl
 exit

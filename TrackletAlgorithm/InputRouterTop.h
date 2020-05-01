@@ -416,6 +416,48 @@ void EnLRouter2(const BXType bx
 	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
 }
 
+template<int ISType1, int ISType2, int ISType3, int NM1, int NM2, int NM3>
+void EnLRouter3(const BXType bx
+	, ap_uint<kNBits_DTC> inStub
+	, const ap_uint<kLINKMAPwidth> lnkWord
+	, ap_uint<8> n1[NM1] 
+	, ap_uint<8> n2[NM2]
+	, ap_uint<8> n3[NM3]
+	, InputStubMemory<ISType1> L1[NM1] 
+	, InputStubMemory<ISType2> L2[NM2] 
+	, InputStubMemory<ISType2> L3[NM3])
+{
+	#pragma HLS pipeline II=1 
+	#pragma HLS interface ap_none port=inStub
+	#pragma HLS interface ap_none port=lnkWord
+	EnLRouter<ISType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
+	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,2, n2, L2);
+	EnLRouter<ISType3, NM3>(bx, inStub, lnkWord,1, n3, L3);
+}
+
+template<int ISType1, int ISType2, int ISType3, int ISType4, int NM1, int NM2, int NM3, int NM4>
+void EnLRouter4(const BXType bx
+	, ap_uint<kNBits_DTC> inStub
+	, const ap_uint<kLINKMAPwidth> lnkWord
+	, ap_uint<8> n1[NM1] 
+	, ap_uint<8> n2[NM2]
+	, ap_uint<8> n3[NM3]
+	, ap_uint<8> n4[NM4]
+	, InputStubMemory<ISType1> L1[NM1] 
+	, InputStubMemory<ISType2> L2[NM2] 
+	, InputStubMemory<ISType2> L3[NM3] 
+	, InputStubMemory<ISType2> L4[NM4])
+{
+	#pragma HLS pipeline II=1 
+	#pragma HLS interface ap_none port=inStub
+	#pragma HLS interface ap_none port=lnkWord
+	EnLRouter<ISType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
+	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
+	EnLRouter<ISType3, NM3>(bx, inStub, lnkWord,2, n3, L3);
+	EnLRouter<ISType4, NM4>(bx, inStub, lnkWord,3, n4, L4);
+}
+
+
 void TopLevelIR( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hDTCMapEncoded 
