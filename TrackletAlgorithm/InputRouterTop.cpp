@@ -6,7 +6,7 @@ void InputRouter2S(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromL
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
 	StubsBarrel2S& hBrl, StubsDisk2S& hDsk)
 {
-	#pragma HLS clock domain=slow_clock 
+	#pragma HLS clock domain=fast_clock 
 	#pragma HLS interface ap_none port=hDTCMapEncoded
 	#pragma HLS stream variable=hIputLink depth=1 
 	// #pragma HLS interface ap_fifo port=hIputLink
@@ -94,7 +94,7 @@ void InputRouterPS(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromL
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
 	StubsBarrelPS& hBrl, StubsDiskPS& hDsk)
 {
-	#pragma HLS clock domain=slow_clock 
+	#pragma HLS clock domain=fast_clock 
 	#pragma HLS interface ap_none port=hDTCMapEncoded
 	#pragma HLS stream variable=hIputLink depth=1 
 	// #pragma HLS interface ap_fifo port=hIputLink
@@ -358,6 +358,8 @@ void DecodeInputStub(const ap_uint<kNBits_DTC> inStub,
 	const ap_uint<2> pLayer, 
 	LayerRouterOutputPort &hOutput)
 {
+	#pragma HLS interface ap_none port=inStub
+	#pragma HLS interface ap_none port=lnkWord
 	// some constants 
 	ap_uint<3> cNbitsL1=3;
 	ap_uint<3> cNbitsTk=2; 
@@ -366,114 +368,248 @@ void DecodeInputStub(const ap_uint<kNBits_DTC> inStub,
 	ap_uint<1> hFirstLyr = lnkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-1);
 	ap_uint<1> hIs2S = lnkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-2);
 	// now stuff I can get from the stub word 
-	//ap_uint<4> hLyrDecoding = lnkWord.range(pLayer*4+3,pLayer*4);
+	ap_uint<4> hLyrDecoding;
 	ap_uint<8> hIndex=0;
-	ap_uint<1> hIsBrl;
-	ap_uint<3> hLyr; 
-	if( pLayer == 0 )
+	LOOP_LyrIndex :
+	for( int iLyr=0; iLyr<4;iLyr++)
 	{
-		hIndex=0;
-		hIsBrl = lnkWord.range(hIndex,hIndex);
-		hLyr = lnkWord.range(hIndex+3,hIndex+1);
-	}
-	else if( pLayer == 1 )
-	{
-		hIndex=4;
-		hIsBrl = lnkWord.range(hIndex,hIndex);
-		hLyr = lnkWord.range(hIndex+3,hIndex+1);
-	}
-	else if( pLayer == 2 )
-	{
-		hIndex=8;
-		hIsBrl = lnkWord.range(hIndex,hIndex);
-		hLyr = lnkWord.range(hIndex+3,hIndex+1);
-	}
-	else
-	{
-		hIndex=12;
-		hIsBrl = lnkWord.range(hIndex,hIndex);
-		hLyr = lnkWord.range(hIndex+3,hIndex+1);
-	}
-	//TO-DO - make this faster 
-	//LOOP_LyrIndex :
-	// for( int iLyr=0; iLyr<4;iLyr++)
-	// {
-	// 	#pragma HLS unroll
-	// 	if( iLyr == pLayer )
-	// 	{
-	// 		hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
-	// 		hIsBrl = lnkWord.range(hIndex,hIndex);
-	// 		hLyr = lnkWord.range(hIndex+3,hIndex+1);
-	// 	}
-	// 	else
-	// 		hIndex = hIndex + 4; 
-	// }
-	ap_uint<5> hPhiMSB;
-	ap_uint<5> hPhiLSB; 
-	if( hIsBrl == 1 )
-	{
-		if( hIs2S == 0 )
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( iLyr == pLayer )
 		{
-			hPhiMSB = InputStub<BARRELPS>::kISPhiMSB;
-			if( hLyr == 1 ) 
-				hPhiLSB = InputStub<BARRELPS>::kISPhiMSB-(cNbitsL1-1);
-			else
-				hPhiLSB = InputStub<BARRELPS>::kISPhiMSB-(cNbitsTk-1);
+			hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
 		}
 		else
-		{
-			hPhiMSB = InputStub<BARRELPS>::kISPhiMSB;
-			hPhiLSB = InputStub<BARRELPS>::kISPhiMSB-(cNbitsTk-1);
-		}
+			hIndex = hIndex + 4; 
+	}
+	ap_uint<3> hPhiBn;
+	if( hLyrDecoding.range(0,0) )
+	{
+		if( hIs2S == 0 )
+			GetPhiBin<BARRELPS>(inStub, hLyrDecoding.range(3,1), hPhiBn);
+		else
+			GetPhiBin<BARREL2S>(inStub, hLyrDecoding.range(3,1), hPhiBn);
 	}
 	else
 	{
 		if( hIs2S == 0 )
-		{
-			hPhiMSB = InputStub<DISKPS>::kISPhiMSB;
-			hPhiLSB = InputStub<DISKPS>::kISPhiMSB-(cNbitsTk-1);
-		}
+			GetPhiBin<DISKPS>(inStub, hLyrDecoding.range(3,1), hPhiBn);
 		else
-		{
-			hPhiMSB = InputStub<DISK2S>::kISPhiMSB;
-			hPhiLSB = InputStub<DISK2S>::kISPhiMSB-(cNbitsTk-1);
-		}	
+			GetPhiBin<DISK2S>(inStub, hLyrDecoding.range(3,1), hPhiBn);
 	}
-	// if( hIs2S == 0 && hLyrDecoding.range(3,1) == 1 && hLyrDecoding.range(0,0) == 1 )
-	// {
-	// 	hPhiMSB = InputStub<BARRELPS>::kISPhiMSB;
-	// 	hPhiLSB = InputStub<BARRELPS>::kISPhiMSB-(cNbitsL1-1);
-	// }
-	// // BRL PS 
-	// else if( hIs2S == 0 && hLyrDecoding.range(0,0) == 1 )
-	// {
-	// 	hPhiMSB = InputStub<BARRELPS>::kISPhiMSB;
-	// 	hPhiLSB = InputStub<BARRELPS>::kISPhiMSB-(cNbitsTk-1);
-	// }
-	// // DSK PS 
-	// else if( hIs2S == 0 && hLyrDecoding.range(0,0) == 0 ) 
-	// {
-	// 	hPhiMSB = InputStub<DISKPS>::kISPhiMSB;
-	// 	hPhiLSB = InputStub<DISKPS>::kISPhiMSB-(cNbitsTk-1);
-	// }
-	// // BRL 2S 
-	// else if( hIs2S == 1 && hLyrDecoding.range(0,0) == 1 )
-	// {
-	// 	hPhiMSB = InputStub<BARREL2S>::kISPhiMSB;
-	// 	hPhiLSB = InputStub<BARREL2S>::kISPhiMSB-(cNbitsTk-1);
-	// }
-	// // DSK 2S 
-	// else if( hIs2S == 1 && hLyrDecoding.range(0,0) == 0 )
-	// {
-	// 	hPhiMSB = InputStub<DISK2S>::kISPhiMSB;
-	// 	hPhiLSB = InputStub<DISK2S>::kISPhiMSB-(cNbitsTk-1);
-	// }
 	hOutput.isValid=1;
 	hOutput.is2S = hIs2S;
-	hOutput.isBrl = hIsBrl;
-	hOutput.layerId = hLyr;
-	hOutput.phiRegion = inStub.range(hPhiMSB,hPhiLSB) & 0x7;	
+	hOutput.isBrl = hLyrDecoding.range(0,0);
+	hOutput.layerId = hLyrDecoding.range(3,1);
+	hOutput.phiRegion = hPhiBn;	
 	hOutput.hStub = inStub.range(kBRAMwidth-1,0);
+	#ifndef __SYNTHESIS__
+		std::cout << "Is2S bit "
+			<< hOutput.is2S 
+			<< " -- barrel bit "
+			<< hOutput.isBrl
+			<< " -- layer "
+			<< hOutput.layerId 
+			<< " -- phi "
+			<< hOutput.phiRegion 
+			<< " -- stub word is "
+			<< std::bitset<kBRAMwidth>(hOutput.hStub)
+			<< "\n";
+	#endif
+	
+}
+
+void DecodeIS(const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
+	LayerRouterOutputPort &hOutput)
+{
+	#pragma HLS interface ap_none port=inStub
+	#pragma HLS interface ap_none port=lnkWord
+	// some constants 
+	ap_uint<3> cNbitsL1=3;
+	ap_uint<3> cNbitsTk=2; 
+
+	// stuff I can get from the lnk word 
+	ap_uint<2> pLayer=inStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3;
+	ap_uint<1> hFirstLyr = lnkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-1);
+	ap_uint<1> hIs2S = lnkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-2);
+	// now stuff I can get from the stub word 
+	ap_uint<4> hLyrDecoding;
+	ap_uint<8> hIndex=0;
+	LOOP_LyrIndex :
+	for( int iLyr=0; iLyr<4;iLyr++)
+	{
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( iLyr == pLayer )
+		{
+			hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
+		}
+		else
+			hIndex = hIndex + 4; 
+	}
+	ap_uint<3> hPhiBn;
+	if( hLyrDecoding.range(0,0) )
+	{
+		if( hIs2S == 0 )
+			GetPhiBin<BARRELPS>(inStub, hLyrDecoding.range(3,1), hPhiBn);
+		else
+			GetPhiBin<BARREL2S>(inStub, hLyrDecoding.range(3,1), hPhiBn);
+	}
+	else
+	{
+		if( hIs2S == 0 )
+			GetPhiBin<DISKPS>(inStub, hLyrDecoding.range(3,1), hPhiBn);
+		else
+			GetPhiBin<DISK2S>(inStub, hLyrDecoding.range(3,1), hPhiBn);
+	}
+	hOutput.isValid=1;
+	hOutput.is2S = hIs2S;
+	hOutput.isBrl = hLyrDecoding.range(0,0);
+	hOutput.layerId = hLyrDecoding.range(3,1);
+	hOutput.phiRegion = hPhiBn;	
+	hOutput.hStub = inStub.range(kBRAMwidth-1,0);
+	#ifndef __SYNTHESIS__
+		std::cout << "Is2S bit "
+			<< hOutput.is2S 
+			<< " -- barrel bit "
+			<< hOutput.isBrl
+			<< " -- layer "
+			<< hOutput.layerId 
+			<< " -- phi "
+			<< hOutput.phiRegion 
+			<< " -- stub word is "
+			<< std::bitset<kBRAMwidth>(hOutput.hStub)
+			<< "\n";
+	#endif
+	
+}
+
+void RouteInputStub(const BXType bx,
+	const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
+	const ap_uint<2> pLayer, 
+	CountersPS& hCntrsPS,
+	MemoriesPS &hPS)
+{
+	InputStubMemory<BARRELPS> tmp;
+	#pragma HLS interface ap_none port=inStub
+	#pragma HLS interface ap_none port=lnkWord
+	
+	// some constants 
+	ap_uint<3> cNbitsL1=3;
+	ap_uint<3> cNbitsTk=2; 
+	ap_uint<1> isValid=1;
+	// stuff I can get from the lnk word 
+	ap_uint<1> hFirstLyr = lnkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-1);
+	ap_uint<1> hIs2S = lnkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-2);
+	// now stuff I can get from the stub word 
+	ap_uint<4> hLyrDecoding;
+	ap_uint<8> hIndex=0;
+	LOOP_LyrIndex :
+	for( int iLyr=0; iLyr<4;iLyr++)
+	{
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( iLyr == pLayer )
+		{
+			hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
+		}
+		else
+			hIndex = hIndex + 4; 
+	}
+	ap_uint<1> isBrl = hLyrDecoding.range(0,0);
+	ap_uint<3> layerId = hLyrDecoding.range(3,1);
+	ap_uint<3> phiBn;
+	ap_uint<8> hEntries;
+	if( isBrl == 1 )
+	{
+		if( hIs2S == 0 )
+		{
+			GetPhiBin<BARRELPS>(inStub, layerId, phiBn);
+			InputStub<BARRELPS> hStub(inStub.range(kBRAMwidth-1,0));
+			assert( layerId >=1 && layerId <= 3 ); 
+			if( layerId == 1 )
+			{
+				//(&hPS.l1[phiBn])->write_mem(bx, hStub);
+				//tmp.write_mem(bx, hStub, hCntrsPS.l1[phiBn]);
+				//hCntrsPS.l1[phiBn]=hCntrsPS.l1[phiBn]+1;
+			}
+			// else if( layerId == 2 )
+			// {
+			// 	(&hPS.l2[phiBn])->write_mem(bx, hStub);
+			// }
+			// else 
+			// {
+			// 	(&hPS.l3[phiBn])->write_mem(bx, hStub);
+			// }
+		}
+		else
+		{
+			GetPhiBin<BARREL2S>(inStub, layerId, phiBn);
+			InputStub<BARREL2S> hStub(inStub.range(kBRAMwidth-1,0));
+			assert( layerId >=4 && layerId <= 6 ); 
+			// if( layerId == 4 )
+			// {
+			// }
+			// else if( layerId == 5 )
+			// {
+			// }
+			// else 
+			// {
+			// }
+		}
+	}
+	else
+	{
+		assert( layerId >=1 && layerId <= 5 ); 
+		if( hIs2S == 0 )
+		{
+			GetPhiBin<DISKPS>(inStub, layerId, phiBn);
+			InputStub<DISKPS> hStub(inStub.range(kBRAMwidth-1,0));
+			// if( layerId == 1 )
+			// {
+			// 	hPS.d1[phiBn].write_mem(bx, hStub);
+			// }
+			// else if( layerId  == 2 )
+			// {
+			// 	hPS.d2[phiBn].write_mem(bx, hStub);
+			// }
+			// else if( layerId == 3 )
+			// {
+			// 	hPS.d3[phiBn].write_mem(bx, hStub);
+			// }
+			// else if( layerId == 4 )
+			// {
+			// 	hPS.d4[phiBn].write_mem(bx, hStub);
+			// }
+			// else
+			// {
+			// 	hPS.d5[phiBn].write_mem(bx, hStub);
+			// }	
+		}
+		else
+		{
+			GetPhiBin<DISK2S>(inStub, layerId, phiBn);
+			InputStub<DISK2S> hStub(inStub.range(kBRAMwidth-1,0));
+			// if( layerId == 1 )
+			// {
+			// }
+			// else if( layerId  == 2 )
+			// {
+			// }
+			// else if( layerId == 3 )
+			// {
+			// }
+			// else if( layerId == 4 )
+			// {
+			// }
+			// else
+			// {
+			// }
+		}	
+	}
+	
 }
 
 void LayerRouter(const ap_uint<kNBits_DTC> inStub, 
@@ -493,66 +629,360 @@ void LayerRouter(const ap_uint<kNBits_DTC> inStub,
 	}
 }
 
-
-
-void UpdateCounters(LayerRouterOutputPort hInput
-	, EntriesBarrelPS& cBrl
-	, EntriesDiskPS& cDsk)
+void StubRouter(const BXType bx,
+	const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	CountersPS& hCntrsPS,
+	MemoriesPS &hPS) 
 {
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n1 complete
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n2 complete
-	#pragma HLS ARRAY_PARTITION variable=cBrl.n3 complete
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n1 complete
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n2 complete
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n3 complete
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n4 complete
-	#pragma HLS ARRAY_PARTITION variable=cDsk.n5 complete
-	
-	LOOP_CounterUpdate :
-	for( int cLayer=1; cLayer<=5; cLayer++)
+	LOOP_EncLyrRouter :
+	for( int cLayer=0; cLayer<=3; cLayer++)
 	{
 		#pragma HLS unroll
-		if( cLayer == hInput.layerId && hInput.isValid == 1 && hInput.is2S == 0  && hInput.isBrl == 1 )
+		if( cLayer == inStub.range(kNBits_DTC-1,kNBits_DTC-2) )
 		{
-			if( cLayer == 1 )
-			{
-				cBrl.n1[hInput.phiRegion]++;
-			}
-			else if( cLayer == 2 )
-			{
-				cBrl.n2[hInput.phiRegion]++;
-			}
-			else if( cLayer == 3 )
-			{
-				cBrl.n3[hInput.phiRegion]++;
-			}
-		}
-		else if( cLayer == hInput.layerId && hInput.isValid == 1 && hInput.is2S == 0  && hInput.isBrl == 0 )
-		{
-			if( cLayer == 1 )
-			{
-				cDsk.n1[hInput.phiRegion]++;
-			}
-			else if( cLayer == 2 )
-			{
-				cDsk.n2[hInput.phiRegion]++;
-			}
-			else if( cLayer == 3 )
-			{
-				cDsk.n3[hInput.phiRegion]++;
-			}
-			else if( cLayer == 4 )
-			{
-				cDsk.n4[hInput.phiRegion]++;
-			}
-			else if( cLayer == 5 )
-			{
-				cDsk.n5[hInput.phiRegion]++;
-			}
+			#pragma HLS inline
+			ap_uint<2> cLyr=cLayer&0x3; 
+			RouteInputStub( bx, inStub, lnkWord , cLyr,hCntrsPS, hPS );
 		}
 	}
 }
 
+void L1Router( const BXType bx, const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	InputStubMemory<BARRELPS> &h0,
+	InputStubMemory<BARRELPS> &h1,
+	InputStubMemory<BARRELPS> &h2,
+	InputStubMemory<BARRELPS> &h3,
+	InputStubMemory<BARRELPS> &h4,
+	InputStubMemory<BARRELPS> &h5,
+	InputStubMemory<BARRELPS> &h6,
+	InputStubMemory<BARRELPS> &h7)
+{
+
+	#pragma HLS inline
+	LayerRouterOutputPort oLRouter;
+	DecodeIS( inStub, lnkWord, oLRouter );
+	if( oLRouter.isValid == 1 ) 
+	{
+		if(oLRouter.is2S == 0 )
+		{
+			if( oLRouter.layerId == 1 )
+				Router8R<BARRELPS>(bx, oLRouter
+					, h0 , h1, h2 , h3 
+					, h4 , h5 , h6, h7 );
+		}
+	}
+			
+
+}
+// think about this 
+// void PSBarrelRouter( const BXType bx, const ap_uint<kNBits_DTC> inStub, 
+// 	const ap_uint<kLINKMAPwidth> lnkWord, 
+// 	const ap_uint<3> lyr, 
+// 	InputStubMemory<BARRELPS> &h0,
+// 	InputStubMemory<BARRELPS> &h1,
+// 	InputStubMemory<BARRELPS> &h2,
+// 	InputStubMemory<BARRELPS> &h3)
+// {
+
+// 	#pragma HLS inline
+// 	LayerRouterOutputPort oLRouter;
+// 	DecodeIS( inStub, lnkWord, oLRouter );
+// 	if( oLRouter.isValid == 1 ) 
+// 	{
+// 		if(oLRouter.is2S == 0 )
+// 		{
+// 			if( oLRouter.layerId == lyr )
+// 				Router4R<BARRELPS>(bx, oLRouter
+// 					, h0 , h1, h2 , h3 );
+// 		}
+// 	}
+			
+// }
+
+
+void GetCntrIndex(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex) 
+{
+	
+	ap_uint<8> indx;
+	ap_uint<4> hRegion=0;
+	ap_uint<8> hOffsetsBrl[6]={0,8,12,16,20,24};
+	ap_uint<8> hOffsetsDsk[5]={28,32,36,40,44};
+	LOOP_cntr :
+	for( int phiR=1; phiR<=8;phiR++)
+	{
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( phiR == phiRegion )
+		{
+			if( isBrl == 1 ) 
+				indx = hOffsetsBrl[layerId-1]+hRegion;
+			else 
+				indx = hOffsetsDsk[layerId-1]+hRegion;
+		}
+		else
+			hRegion = hRegion + 1; 
+	}
+	cIndex=indx;
+}
+
+void GetCntrIndex2S(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex) 
+{
+	
+	ap_uint<8> indx;
+	ap_uint<4> hRegion=0;
+	ap_uint<8> hOffsetsBrl[3]={0,4,8};
+	ap_uint<8> hOffsetsDsk[5]={12,16,20,24,28};
+	LOOP_cntr :
+	for( int phiR=1; phiR<=4;phiR++)
+	{
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( phiR == phiRegion )
+		{
+			if( isBrl == 1 ) 
+				indx = hOffsetsBrl[layerId-4]+hRegion;
+			else 
+				indx = hOffsetsDsk[layerId-1]+hRegion;
+		}
+		else
+			hRegion = hRegion + 1; 
+	}
+	cIndex=indx;
+}
+
+void GetCntrIndexPS(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex) 
+{
+	
+	ap_uint<8> indx;
+	ap_uint<4> hRegion=0;
+	ap_uint<8> hOffsetsBrl[3]={0,8,12};
+	ap_uint<8> hOffsetsDsk[5]={16,20,24,28,32};
+	LOOP_cntr :
+	for( int phiR=1; phiR<=8;phiR++)
+	{
+		#pragma HLS unroll
+	 	#pragma HLS pipeline II=1 
+		if( phiR == phiRegion )
+		{
+			if( isBrl == 1 ) 
+				indx = hOffsetsBrl[layerId-1]+hRegion;
+			else 
+				indx = hOffsetsDsk[layerId-1]+hRegion;
+		}
+		else
+			hRegion = hRegion + 1; 
+	}
+	cIndex=indx;
+}
+
+void GenericRouter(const BXType bx, 
+	RouterInputPort inPS,
+	RouterInputPort in2S,
+	InputStubMemory<BARRELPS> &L1PhiA,
+	InputStubMemory<BARREL2S> &L4PhiA)
+{
+
+	#pragma HLS clock domain=fast_clock 
+	#pragma HLS stream variable=inPrt.hStubs depth=1 
+	#pragma HLS array_partition variable=inPS.hStubs cyclic factor=2 dim=1 
+	//#pragma HLS ARRAY_PARTITION variable=inPS.hStubs cyclic factor=2 partition 
+	// local array to store number of
+	// entries in memories 
+	ap_uint<8> lCnt[kNPSMemories];
+	#pragma HLS array_partition variable=lCnt complete dim=1
+	// clear counters
+	LOOP_cntrlClear : 
+	for( int cIndex=0; cIndex < kNPSMemories ; cIndex++)
+	{
+		#pragma HLS unroll 
+		lCnt[cIndex]=0;
+	}
+	
+
+	L1PhiA.clear(bx);
+	ap_uint<8> cStubCounter=0;
+	LOOP_OuterStubLoop :
+	for (int cOtrLoop=0; cOtrLoop<kMaxStubsFromLink ; cOtrLoop+=1)
+	{
+		#pragma HLS pipeline II=1
+		LOOP_InnerStubLoop :
+		for( int cInrLoop=0; cInrLoop<1; cInrLoop++)
+		{
+			#pragma HLS unroll
+			if(inPS.hStubs[cOtrLoop+cInrLoop]!=0)
+			{
+				ap_uint<8> cIndxPS;
+				LayerRouterOutputPort oLRouterPS;
+				DecodeIS( inPS.hStubs[cOtrLoop+cInrLoop], inPS.hLinkWord, oLRouterPS );
+				GetCntrIndex( oLRouterPS.isBrl, oLRouterPS.layerId , oLRouterPS.phiRegion, cIndxPS);
+				ap_uint<8> hEntriesPS=lCnt[cIndxPS];
+				if( oLRouterPS.layerId == 1 && oLRouterPS.isBrl == 1 ) 
+				{
+					if( oLRouterPS.phiRegion == 1 )
+						L1PhiA.write_mem(bx, oLRouterPS.hStub,hEntriesPS);
+				}
+				lCnt[cIndxPS]=hEntriesPS+1;
+			}
+			if(in2S.hStubs[cOtrLoop+cInrLoop]!=0)
+			{
+				ap_uint<8> cIndx2S;
+				LayerRouterOutputPort oLRouter2S;
+				DecodeIS( in2S.hStubs[cOtrLoop+cInrLoop], in2S.hLinkWord, oLRouter2S );
+				GetCntrIndex( oLRouter2S.isBrl, oLRouter2S.layerId , oLRouter2S.phiRegion, cIndx2S);
+				ap_uint<8> hEntries2S=lCnt[cIndx2S];
+				if( oLRouter2S.layerId == 4 && oLRouter2S.isBrl == 1 ) 
+				{
+					if( oLRouter2S.phiRegion == 1 )
+						L4PhiA.write_mem(bx, oLRouter2S.hStub,hEntries2S);
+				}
+				lCnt[cIndx2S]=hEntries2S+1;
+			}
+			
+		}
+	}
+}
+
+void GenericRouterPS(const BXType bx, 
+	RouterInputPort inPS,
+	StubsBarrelPS& hBrl,
+	StubsDiskPS& hDsk)
+{
+
+	#pragma HLS clock domain=fast_clock 
+	#pragma HLS stream variable=inPrt.hStubs depth=1 
+	//#pragma HLS array_partition variable=inPS.hStubs block factor=4 dim=1 
+	
+	// local array to store number of
+	// entries in memories 
+	//ap_uint<kBRAMwidth> lCnt[48][kMaxStubsFromLink];
+	//#pragma HLS array_partition variable=lCnt complete dim=0
+	ap_uint<8> lCnt[kNPSMemories];
+	#pragma HLS array_partition variable=lCnt complete dim=1
+	// clear counters
+	LOOP_cntrlClear : 
+	for( int cIndex=0; cIndex < kNPSMemories ; cIndex++)
+	{
+		#pragma HLS unroll 
+		lCnt[cIndex]=0;
+	}
+	
+	LOOP_OuterStubLoop :
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
+	{
+		#pragma HLS pipeline II=1
+		//#pragma HLS unroll factor = 2
+		if( inPS.hStubs[cStubCounter] != 0 )
+		{
+			ap_uint<8> cIndex;
+			LayerRouterOutputPort oLRouter;
+			DecodeIS( inPS.hStubs[cStubCounter], inPS.hLinkWord, oLRouter );
+			GetCntrIndexPS( oLRouter.isBrl, oLRouter.layerId , oLRouter.phiRegion, cIndex); 
+			ap_uint<8> hEntries=lCnt[cIndex];
+			#ifndef __SYNTHESIS__
+				std::cout << "\tRouting stub  "
+					<< std::bitset<8>(inPS.hStubs[cStubCounter])
+					<< " -- memory has "
+					<< hEntries
+					<< " -- entries"
+					<< "\n";
+			#endif
+			// fill memories 
+			if( oLRouter.isBrl == 1 )
+			{
+				if( oLRouter.layerId == 1 )
+					hBrl.m1[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 2 )
+					hBrl.m2[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 3 )
+					hBrl.m3[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+			}	
+			else
+			{
+				if( oLRouter.layerId == 1 )
+					hDsk.m1[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 2 )
+					hDsk.m2[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 3 )
+					hDsk.m3[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 4 )
+					hDsk.m4[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 5 )
+					hDsk.m5[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+			}
+			lCnt[cIndex]=hEntries+1;
+		}
+	}
+}
+void GenericRouter2S(const BXType bx, 
+	RouterInputPort inPS,
+	StubsBarrel2S& hBrl,
+	StubsDisk2S& hDsk)
+{
+
+	#pragma HLS clock domain=fast_clock 
+	#pragma HLS stream variable=inPrt.hStubs depth=1 
+	//#pragma HLS array_partition variable=inPS.hStubs block factor=4 dim=1 
+	ap_uint<8> lCnt[kN2SMemories];
+	#pragma HLS array_partition variable=lCnt complete dim=1
+	// clear counters
+	LOOP_cntrlClear : 
+	for( int cIndex=0; cIndex < kN2SMemories ; cIndex++)
+	{
+		#pragma HLS unroll 
+		lCnt[cIndex]=0;
+	}
+	
+	LOOP_OuterStubLoop :
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
+	{
+		#pragma HLS pipeline II=1
+		//#pragma HLS unroll factor = 2
+		if( inPS.hStubs[cStubCounter] != 0 )
+		{
+			ap_uint<8> cIndex;
+			LayerRouterOutputPort oLRouter;
+			DecodeIS( inPS.hStubs[cStubCounter], inPS.hLinkWord, oLRouter );
+			GetCntrIndex2S( oLRouter.isBrl, oLRouter.layerId , oLRouter.phiRegion, cIndex); 
+			ap_uint<8> hEntries=lCnt[cIndex];
+			// fill memories 
+			if( oLRouter.isBrl == 1 )
+			{
+				if( oLRouter.layerId == 4 )
+					hBrl.m1[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 5 )
+					hBrl.m2[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 6 )
+					hBrl.m3[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+			}	
+			else
+			{
+				if( oLRouter.layerId == 1 )
+					hDsk.m1[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 2 )
+					hDsk.m2[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 3 )
+					hDsk.m3[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 4 )
+					hDsk.m4[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+				else if( oLRouter.layerId == 5 )
+					hDsk.m5[oLRouter.phiRegion].write_mem(bx, oLRouter.hStub, hEntries);
+			}
+			lCnt[cIndex]=hEntries+1;
+		}
+	}
+
+}
 void RouterPS(const BXType bx
 	, RouterInputPort inPrt
 	, StubsBarrelPS& hBrl
@@ -582,6 +1012,7 @@ void RouterPS(const BXType bx
 		(&hDsk.m5[cPhiBn])->clear(bx);
 	}
 	
+	MemoriesPS hPSMemories;
 	ap_uint<8> hEntries;
 	LayerRouterOutputPort oLRouter;
 	LOOP_OuterStubLoop :
@@ -591,155 +1022,108 @@ void RouterPS(const BXType bx
 		if( inPrt.hStubs[cStubCounter] != 0 ) 
 		{
 			// working 
-			LayerRouter(inPrt.hStubs[cStubCounter], inPrt.hLinkWord, oLRouter);
+			#pragma HLS inline
+			DecodeIS( inPrt.hStubs[cStubCounter], inPrt.hLinkWord, oLRouter );
 			assert( oLRouter.is2S == 0 ); 
-			if( oLRouter.isValid == 1 )
+			if( oLRouter.isBrl == 1 )
 			{
-				if( oLRouter.isBrl == 1 )
+				InputStub<BARRELPS> hStub(oLRouter.hStub);
+				if( oLRouter.layerId == 1 )
 				{
-					InputStub<BARRELPS> hStub(oLRouter.hStub);
-					if( oLRouter.layerId == 1 )
-						hBrl.m1[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 2 )
-						hBrl.m2[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 3 )
-						hBrl.m3[oLRouter.phiRegion].write_mem(bx, hStub);
+					hEntries = (hBrl.m1[oLRouter.phiRegion]).getEntries(bx);
+					(hBrl.m1[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
 				}
-				else
+				else if( oLRouter.layerId == 2 )
 				{
-					InputStub<DISKPS> hStub(oLRouter.hStub);
-					if( oLRouter.layerId == 1 )
-						hDsk.m1[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 2 )
-						hDsk.m2[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 3 )
-						hDsk.m3[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 4 )
-						hDsk.m4[oLRouter.phiRegion].write_mem(bx, hStub);
-					else if( oLRouter.layerId == 5 )
-						hDsk.m5[oLRouter.phiRegion].write_mem(bx, hStub);
+					hEntries = (hBrl.m2[oLRouter.phiRegion]).getEntries(bx);
+					(hBrl.m2[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+				else if( oLRouter.layerId == 3 )
+				{
+					hEntries = (hBrl.m3[oLRouter.phiRegion]).getEntries(bx);
+					(hBrl.m3[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
 				}
 			}
-			// if( oLRouter.isValid == 1 && oLRouter.is2S == 0  && oLRouter.isBrl == 1 )
-			// {
-			// 	InputStub<BARRELPS> hStub(oLRouter.hStub);
-			// 	if( oLRouter.layerId == 1 )
-			// 	{
-			// 		hEntries = (hBrl.m1[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hBrl.m1[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 2 )
-			// 	{
-			// 		hEntries = (hBrl.m2[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hBrl.m2[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 3 )
-			// 	{
-			// 		hEntries = (hBrl.m3[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hBrl.m3[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// }
-			// else if( oLRouter.isValid == 1 && oLRouter.is2S == 0  && oLRouter.isBrl == 0 )
-			// {
-			// 	InputStub<DISKPS> hStub(oLRouter.hStub);
-			// 	if( oLRouter.layerId == 1 )
-			// 	{
-			// 		hEntries = (hDsk.m1[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hDsk.m1[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 2 )
-			// 	{
-			// 		hEntries = (hDsk.m2[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hDsk.m2[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 3 )
-			// 	{
-			// 		hEntries = (hDsk.m3[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hDsk.m3[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 4 )
-			// 	{
-			// 		hEntries = (hDsk.m4[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hDsk.m4[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// 	else if( oLRouter.layerId == 5 )
-			// 	{
-			// 		hEntries = (hDsk.m5[oLRouter.phiRegion]).getEntries(bx);
-			// 		(hDsk.m5[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
-			// 	}
-			// }
+			else if( oLRouter.isBrl == 0 )
+			{
+				InputStub<DISKPS> hStub(oLRouter.hStub);
+				if( oLRouter.layerId == 1 )
+				{
+					hEntries = (hDsk.m1[oLRouter.phiRegion]).getEntries(bx);
+					(hDsk.m1[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+				else if( oLRouter.layerId == 2 )
+				{
+					hEntries = (hDsk.m2[oLRouter.phiRegion]).getEntries(bx);
+					(hDsk.m2[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+				else if( oLRouter.layerId == 3 )
+				{
+					hEntries = (hDsk.m3[oLRouter.phiRegion]).getEntries(bx);
+					(hDsk.m3[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+				else if( oLRouter.layerId == 4 )
+				{
+					hEntries = (hDsk.m4[oLRouter.phiRegion]).getEntries(bx);
+					(hDsk.m4[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+				else if( oLRouter.layerId == 5 )
+				{
+					hEntries = (hDsk.m5[oLRouter.phiRegion]).getEntries(bx);
+					(hDsk.m5[oLRouter.phiRegion]).write_mem(bx, hStub, hEntries );
+				}
+			}
 		}
 	}
 }
-
-void GenericRouter(RouterInputPort inPS,
-	RouterInputPort in2S, 
-	ap_uint<8>& nRoutedPS,
-	ap_uint<8>& nRouted2S)
+void RoutePS(const BXType bx
+	, RouterInputPort inPrt
+	, MemoriesPS& hPS) 
 {
 	#pragma HLS clock domain=fast_clock 
-	#pragma HLS stream variable=inPS.hStubs depth=1 
-	#pragma HLS stream variable=in2S.hStubs depth=1 
+	#pragma HLS stream variable=inPrt.hStubs depth=1 
 
-	nRoutedPS=0;
-	nRouted2S=0;
-
-	ap_uint<3> nPhiBins=4;
-	LayerRouterOutputPort oLRouterPS;
-	LayerRouterOutputPort oLRouter2S;
-
-	PhiRouterOutputPort oPhiRouterPS;
-	PhiRouterOutputPort oPhiRouter2S;
+	CountersPS hCntrsPS;
+	// one memory for each coarse phi bin 
+	LOOP_ClearInputStubsL1PS : 
+	for( int cPhiBn=0; cPhiBn<kNRegionsLayer1; cPhiBn++)
+	{
+		#pragma HLS unroll  // clear 8 phi regions at a time ..
+		(&hPS.l1[cPhiBn])->clear(bx);
+		hCntrsPS.l1[cPhiBn]=0;
+	}
+	//
+	LOOP_ClearInputStubsPS : 
+	for( int cPhiBn=0; cPhiBn<kNRegions; cPhiBn++)
+	{
+		#pragma HLS unroll // clear four phi regions at a time ..
+		(&hPS.l2[cPhiBn])->clear(bx);
+		(&hPS.l3[cPhiBn])->clear(bx);
+		(&hPS.d1[cPhiBn])->clear(bx);
+		(&hPS.d2[cPhiBn])->clear(bx);
+		(&hPS.d3[cPhiBn])->clear(bx);
+		(&hPS.d4[cPhiBn])->clear(bx);
+		(&hPS.d5[cPhiBn])->clear(bx);
+		hCntrsPS.l1[cPhiBn]=0;
+		hCntrsPS.l2[cPhiBn]=0;
+		hCntrsPS.l3[cPhiBn]=0;
+		hCntrsPS.d1[cPhiBn]=0;
+		hCntrsPS.d1[cPhiBn]=0;
+		hCntrsPS.d2[cPhiBn]=0;
+		hCntrsPS.d3[cPhiBn]=0;
+		hCntrsPS.d4[cPhiBn]=0;
+		hCntrsPS.d5[cPhiBn]=0;
+	}
+	
 	LOOP_OuterStubLoop :
-	for (int cStubCounter=0; cStubCounter<10 ; cStubCounter++)
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
 	{
 		#pragma HLS pipeline II=1
-		LayerRouter(inPS.hStubs[cStubCounter], inPS.hLinkWord, oLRouterPS);
-		LayerRouter(in2S.hStubs[cStubCounter], in2S.hLinkWord, oLRouter2S);
-		if( oLRouterPS.isValid == 1 )
+		if( inPrt.hStubs[cStubCounter] != 0 ) 
 		{
-			nRoutedPS++;
+			// working 
+			#pragma HLS inline
+			StubRouter(bx, inPrt.hStubs[cStubCounter], inPrt.hLinkWord, hCntrsPS, hPS);
 		}
-		if( oLRouter2S.isValid == 1 )
-		{
-			nRouted2S++;
-		}
-
-		// LOOP_EncLyrRouter :
-		// for( ap_uint<3> cLayer=1; cLayer<=3; cLayer++)
-		// {
-		// 	#pragma HLS unroll
-		// 	LayerRouter(inPS.hStubs[cStubCounter], inPS.hLinkWord, cLayer, oLRouterPS);
-		// 	if( oLRouterPS.isValid == 1 )
-		// 	{
-		// 		if( oLRouterPS.layerId == 1 && oLRouterPS.isBrl == 1 ) 
-		// 		{
-		// 			LOOP_PhiRouterPSL1 :
-		// 			for( ap_uint<3> cPhiBn=0; cPhiBn < 8; cPhiBn++ )
-		// 			{
-		// 				#pragma HLS unroll
-		// 				PhiRouterPS(oLRouterPS, cPhiBn, oPhiRouterPS);
-		// 				if( oPhiRouterPS.isValid == 1 ) 
-		// 					nRoutedPS++;
-		// 			}
-		// 		}
-		// 		else
-		// 		{
-		// 			LOOP_PhiRouterPS :
-		// 			for( ap_uint<3> cPhiBn=0; cPhiBn < 4; cPhiBn++ )
-		// 			{
-		// 				#pragma HLS unroll
-		// 				PhiRouterPS(oLRouterPS, cPhiBn, oPhiRouterPS);
-		// 				if( oPhiRouterPS.isValid == 1 ) 
-		// 					nRoutedPS++;
-		// 			}
-		// 		}
-		// 	}
-		// 	LayerRouter(in2S.hStubs[cStubCounter], in2S.hLinkWord, cLayer, oLRouter2S);
-		// 	if( oLRouter2S.isValid == 1 )
-		// 	{
-		// 		nRouted2S++;
-		// 	}
-		// }
 	}
 }

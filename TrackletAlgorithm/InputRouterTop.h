@@ -11,6 +11,11 @@
 #include "hls_stream.h"
 #include "InputStubMemory.hh"
 
+constexpr unsigned int kNPSMemories=36;
+constexpr unsigned int kN2SMemories=32;
+
+#define STUB_READ_FCTR 2
+
 // structs to keep track of passing things around 
 // not templated because I want them here for now .. 
 // PS barrel memories 
@@ -85,6 +90,60 @@ typedef struct
 } StubsDisk2S;
 
 
+// memories 
+typedef struct
+{
+	InputStubMemory<BARRELPS> l1[kNRegionsLayer1];
+	InputStubMemory<BARRELPS> l2[kNRegions];
+	InputStubMemory<BARRELPS> l3[kNRegions];
+	InputStubMemory<DISKPS> d1[kNRegions];
+	InputStubMemory<DISKPS> d2[kNRegions];
+	InputStubMemory<DISKPS> d3[kNRegions];
+	InputStubMemory<DISKPS> d4[kNRegions];
+	InputStubMemory<DISKPS> d5[kNRegions];
+} MemoriesPS;
+
+// memories 
+typedef struct
+{
+	InputStubMemory<BARREL2S> l1[kNRegionsLayer1];
+	InputStubMemory<BARREL2S> l2[kNRegions];
+	InputStubMemory<BARREL2S> l3[kNRegions];
+	InputStubMemory<DISK2S> d1[kNRegions];
+	InputStubMemory<DISK2S> d2[kNRegions];
+	InputStubMemory<DISK2S> d3[kNRegions];
+	InputStubMemory<DISKPS> d4[kNRegions];
+	InputStubMemory<DISKPS> d5[kNRegions];
+} Memories2S;
+
+// counters 
+typedef struct
+{
+	ap_uint<8> l1[kNRegionsLayer1];
+	ap_uint<8> l2[kNRegions];
+	ap_uint<8> l3[kNRegions];
+	ap_uint<8> d1[kNRegions];
+	ap_uint<8> d2[kNRegions];
+	ap_uint<8> d3[kNRegions];
+	ap_uint<8> d4[kNRegions];
+	ap_uint<8> d5[kNRegions];
+} CountersPS;
+// counters 
+typedef struct
+{
+	ap_uint<8> l1[kNRegions];
+	ap_uint<8> l2[kNRegions];
+	ap_uint<8> l3[kNRegions];
+	ap_uint<8> d1[kNRegions];
+	ap_uint<8> d2[kNRegions];
+	ap_uint<8> d3[kNRegions];
+	ap_uint<8> d4[kNRegions];
+	ap_uint<8> d5[kNRegions];
+} Counters2S;
+
+
+
+
 typedef struct
 {
 	ap_uint<kLINKMAPwidth> hLinkWord; 
@@ -119,6 +178,10 @@ typedef struct
 void LayerDecode(const ap_uint<kNBits_DTC> inStub, 
 	const ap_uint<kLINKMAPwidth> lnkWord,
 	const ap_uint<2> pLayer, 
+	LayerRouterOutputPort &hOutput);
+
+void DecodeIS(const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
 	LayerRouterOutputPort &hOutput);
 
 void DecodeInputStub(const ap_uint<kNBits_DTC> inStub, 
@@ -172,43 +235,43 @@ void Router8R(const BXType bx
 	InputStub<ISType> hStub(hInput.hStub);
 	if( hInput.phiRegion == 0 )
 	{
-		hEntries = hPhi0.getEntries(bx);
-		hPhi0.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi0.getEntries(bx);
+		hPhi0.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 1 )
 	{
-		hEntries = hPhi1.getEntries(bx);
-		hPhi1.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi1.getEntries(bx);
+		hPhi1.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 2 )
 	{
-		hEntries = hPhi2.getEntries(bx);
-		hPhi2.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi2.getEntries(bx);
+		hPhi2.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 3 )
 	{
-		hEntries = hPhi3.getEntries(bx);
-		hPhi3.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi3.getEntries(bx);
+		hPhi3.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 4 )
 	{
-		hEntries = hPhi4.getEntries(bx);
-		hPhi4.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi4.getEntries(bx);
+		hPhi4.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 5 )
 	{
-		hEntries = hPhi5.getEntries(bx);
-		hPhi5.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi5.getEntries(bx);
+		hPhi5.write_mem(bx, hStub );
 	}
 	else if( hInput.phiRegion == 6 )
 	{
 		hEntries = hPhi6.getEntries(bx);
-		hPhi6.write_mem(bx, hStub, hEntries );
+		//hPhi6.write_mem(bx, hStub, hEntries );
 	}
 	else if( hInput.phiRegion == 7 )
 	{
-		hEntries = hPhi7.getEntries(bx);
-		hPhi7.write_mem(bx, hStub, hEntries );
+		//hEntries = hPhi7.getEntries(bx);
+		hPhi7.write_mem(bx, hStub );
 	}
 }
 
@@ -245,11 +308,90 @@ void Router4R(const BXType bx
 	}
 }
 
+template<int ISType> 
+void GetPhiBin(const ap_uint<kNBits_DTC> inStub
+	, ap_uint<3> pLyrId 
+	, ap_uint<3> &phiBn )
+{
+	ap_uint<5> hPhiMSB = InputStub<ISType>::kISPhiMSB;
+	ap_uint<5> hPhiLSB;
+	if( pLyrId == 1 && ISType == BARRELPS ) 
+		hPhiLSB = InputStub<ISType>::kISPhiMSB-(3-1);
+	else
+		hPhiLSB = InputStub<ISType>::kISPhiMSB-(2-1);
+	phiBn = inStub.range(hPhiMSB,hPhiLSB) & 0x7;
 
-void GenericRouter(RouterInputPort inPS,
-	RouterInputPort in2S, 
-	ap_uint<8>& nRoutedPS,
-	ap_uint<8>& nRouted2S);
+}
+void RouteInputStub(const BXType bx,
+	const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord,
+	const ap_uint<2> pLayer, 
+	CountersPS& hCntrsPS,
+	MemoriesPS &hPS); 
+
+void StubRouter(const BXType bx,
+	const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	CountersPS& hCntrsPS,
+	MemoriesPS &hPS) ;
+
+
+void GenericRouterPS(const BXType bx, 
+	RouterInputPort inPS,
+	StubsBarrelPS& hBrl,
+	StubsDiskPS& hDsk);
+
+
+void GenericRouter2S(const BXType bx, 
+	RouterInputPort inPS,
+	StubsBarrel2S& hBrl,
+	StubsDisk2S& hDsk);
+
+
+void RoutePS(const BXType bx
+	, RouterInputPort inPrt
+	, MemoriesPS& hPS);
+
+void GetCntrIndex(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex);
+
+void GetCntrIndex2S(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex);
+
+void GetCntrIndexPS(ap_uint<1> isBrl
+	, ap_uint<3> layerId 
+	, ap_uint<3> phiRegion
+	, ap_uint<8> &cIndex);
+
+ 
+void L1Router( const BXType bx, const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	InputStubMemory<BARRELPS> &h0,
+	InputStubMemory<BARRELPS> &h1,
+	InputStubMemory<BARRELPS> &h2,
+	InputStubMemory<BARRELPS> &h3,
+	InputStubMemory<BARRELPS> &h4,
+	InputStubMemory<BARRELPS> &h5,
+	InputStubMemory<BARRELPS> &h6,
+	InputStubMemory<BARRELPS> &h7);
+
+void BrlRouterPS( const BXType bx, const ap_uint<kNBits_DTC> inStub, 
+	const ap_uint<kLINKMAPwidth> lnkWord, 
+	const ap_uint<3> pLayer,
+	InputStubMemory<BARRELPS> &h0,
+	InputStubMemory<BARRELPS> &h1,
+	InputStubMemory<BARRELPS> &h2,
+	InputStubMemory<BARRELPS> &h3);
+
+void GenericRouter(const BXType bx, 
+	RouterInputPort inPS,
+	RouterInputPort in2S,
+	InputStubMemory<BARRELPS> &L1PhiA,
+	InputStubMemory<BARREL2S> &L4PhiA);
 
 void InputRouterPS(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
