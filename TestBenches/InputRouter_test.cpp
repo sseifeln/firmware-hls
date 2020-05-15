@@ -597,10 +597,6 @@ int main()
   Stubs cStubs_DTC_2S; 
   RouterInputPort cInputs_PS;
   RouterInputPort cInputs_2S;
-
-  //ap_uint<kLINKMAPwidth> cLinkWords[2];
-  //hls::stream<ap_uint<kNBits_DTC>> hLinks[2];
-  // 
   getStubs(cInputFile_LinkMap, "PS10G_2_B", cBxSelected, cStubs_DTC_PS, cInputs_PS.hLinkWord );
   getStubs(cInputFile_LinkMap, "2S_4_B", cBxSelected, cStubs_DTC_2S, cInputs_2S.hLinkWord );
   fillInputStreams(cStubs_DTC_PS, cStubs_DTC_2S, cInputs_PS.hStubs, cInputs_2S.hStubs );
@@ -613,21 +609,12 @@ int main()
   // 2S memories 
   StubsBarrel2S hBarrel2S;
   StubsDisk2S hDisk2S;
-  //
-  MemoriesPS hPS;
-
-  // compare memories 
+  
+  // fill memories 
   BXType hBx = cBxSelected&0x7;
   TopLevelIR(hBx, cInputs_2S.hStubs, cInputs_2S.hLinkWord, hBarrel2S.m3, hDisk2S.m3);
-
-  //ap_uint<8> nRoutedPS=0; 
-  //ap_uint<8> nRouted2S=0;
-  //GenericRouter(hBx, cInputs_PS, cInputs_2S, hBarrelPS, hBarrel2S);
-  //GenericRouterPS(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord , hBarrelPS, hDiskPS);
-  //GenericRouter2S(hBx, cInputs_2S , hBarrel2S, hDisk2S);
-  
-  InputRouterPS(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord, hBarrelPS, hDiskPS);
-  //InputRouter2S(hBx, cInputs_2S.hStubs, cInputs_2S.hLinkWord, hBarrel2S, hDisk2S);
+  PSIRTest(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord, hBarrelPS.m1, hDiskPS.m1, hDiskPS.m3, hDiskPS.m5 );
+  // compare memories 
   int nMismatches = compareMemories(cInputFile_LinkMap,"PS10G_2_B","2S_4_B", cBxSelected,hBarrelPS,  hDiskPS, hBarrel2S,  hDisk2S);
-  return 0;
+  return nMismatches;
 }

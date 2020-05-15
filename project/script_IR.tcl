@@ -10,7 +10,7 @@ delete_project inputrouter
 # make new project
 open_project -reset inputrouter
 set CFLAGS {-std=c++11 -I../TrackletAlgorithm}
-set_top TopLevelIR
+set_top PSIRTest
 add_files ../TrackletAlgorithm/InputRouterTop.cpp -cflags "$CFLAGS"
 add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "$CFLAGS"
 
@@ -29,7 +29,7 @@ set nProc [exec nproc]
 csim_design -compiler gcc -mflags "-j$nProc"
 config_rtl -reset all -reset_async -reset_level low
 # synthesize 
-csynth_design
+csynth_design	
 cosim_design
 # generate ip
 export_design -format ip_catalog -flow syn
