@@ -2,8 +2,6 @@
 #define INPUTROUTERTOP_HH
 
 
-
-
 #include "InputRouter.hh"
 #include "Constants.hh"
 #include "hls_math.h"
@@ -65,6 +63,7 @@ void GetPhiBin(const ap_uint<kNBits_DTC> inStub
 	, ap_uint<3> pLyrId 
 	, ap_uint<3> &phiBn )
 {
+	#pragma HLS pipeline II=1 
 	ap_uint<5> hPhiMSB = InputStub<ISType>::kISPhiMSB;
 	ap_uint<5> hPhiLSB;
 	if( pLyrId == 1 && ISType == BARRELPS ) 
@@ -89,30 +88,14 @@ void EnLRouter(const BXType bx
 	#pragma HLS interface ap_none port=inStub
 	#pragma HLS interface ap_none port=lnkWord
 	#pragma HLS array_partition variable=nEntries complete
-	// stuff I can get from the lnk word 
+	// hMemory is partition in the memory template 
+	// layer id is in the link word
 	ap_uint<2> pLayer=inStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3;
 	if( pLayer == cLyr ) 
 	{
-		ap_uint<1> hIs2S = lnkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-2);
 		// now stuff I can get from the stub word 
-		ap_uint<3> hLyrDecoding = lnkWord.range(4*cLyr+3,4*cLyr+1);
-		//ap_uint<4> hLyrDecoding;
-		// ap_uint<8> hIndex=0;
-		// LOOP_LyrIndex :
-		// for( int iLyr=0; iLyr<4;iLyr++)
-		// {
-		// 	#pragma HLS unroll
-		//  	if( iLyr == pLayer )
-		// 	{
-		// 		hLyrDecoding = lnkWord.range(hIndex+3,hIndex);
-		// 	}
-		// 	else
-		// 		hIndex = hIndex + 4; 
-		// }
-		//ap_uint<3> hPhiBn;
-		//GetPhiBin<ISType>(inStub, hLyrDecoding.range(3,1), hPhiBn);
 		ap_uint<3> hPhiBn;
-		GetPhiBin<ISType>(inStub, hLyrDecoding, hPhiBn);
+		GetPhiBin<ISType>(inStub, lnkWord.range(4*cLyr+3,4*cLyr+1), hPhiBn);
 		assert( hPhiBn < NM );
 		InputStub<ISType> hStub(inStub.range(kBRAMwidth-1,0));
 		ap_uint<8> hEntries = nEntries[hPhiBn];
@@ -122,7 +105,7 @@ void EnLRouter(const BXType bx
 }
 
 template<int ISType1, int ISType2, int NM1, int NM2>
-void EnLRouter2(const BXType bx
+void EnLRouter2L(const BXType bx
 	, ap_uint<kNBits_DTC> inStub
 	, const ap_uint<kLINKMAPwidth> lnkWord
 	, ap_uint<8> n1[NM1] 
@@ -130,15 +113,12 @@ void EnLRouter2(const BXType bx
 	, InputStubMemory<ISType1> L1[NM1] 
 	, InputStubMemory<ISType2> L2[NM2])
 {
-	// #pragma HLS pipeline II=1 
-	// #pragma HLS interface ap_none port=inStub
-	// #pragma HLS interface ap_none port=lnkWord
 	EnLRouter<ISType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
 	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
 }
 
 template<int ISType1, int ISType2, int ISType3, int NM1, int NM2, int NM3>
-void EnLRouter3(const BXType bx
+void EnLRouter3L(const BXType bx
 	, ap_uint<kNBits_DTC> inStub
 	, const ap_uint<kLINKMAPwidth> lnkWord
 	, ap_uint<8> n1[NM1] 
@@ -148,16 +128,13 @@ void EnLRouter3(const BXType bx
 	, InputStubMemory<ISType2> L2[NM2] 
 	, InputStubMemory<ISType2> L3[NM3])
 {
-	// #pragma HLS pipeline II=1 
-	// #pragma HLS interface ap_none port=inStub
-	// #pragma HLS interface ap_none port=lnkWord
 	EnLRouter<ISType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
-	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,2, n2, L2);
-	EnLRouter<ISType3, NM3>(bx, inStub, lnkWord,1, n3, L3);
+	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
+	EnLRouter<ISType3, NM3>(bx, inStub, lnkWord,2, n3, L3);
 }
 
 template<int ISType1, int ISType2, int ISType3, int ISType4, int NM1, int NM2, int NM3, int NM4>
-void EnLRouter4(const BXType bx
+void EnLRouter4L(const BXType bx
 	, ap_uint<kNBits_DTC> inStub
 	, const ap_uint<kLINKMAPwidth> lnkWord
 	, ap_uint<8> n1[NM1] 
@@ -169,16 +146,13 @@ void EnLRouter4(const BXType bx
 	, InputStubMemory<ISType2> L3[NM3] 
 	, InputStubMemory<ISType2> L4[NM4])
 {
-	// #pragma HLS pipeline II=1 
-	// #pragma HLS interface ap_none port=inStub
-	// #pragma HLS interface ap_none port=lnkWord
 	EnLRouter<ISType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
 	EnLRouter<ISType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
 	EnLRouter<ISType3, NM3>(bx, inStub, lnkWord,2, n3, L3);
 	EnLRouter<ISType4, NM4>(bx, inStub, lnkWord,3, n4, L4);
 }
 
-void PSIRTest( const BXType bx
+void InputRouter_PS_1Barrel3Disk( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hDTCMapEncoded 
 	, InputStubMemory<BARRELPS> L1[8]
@@ -186,19 +160,21 @@ void PSIRTest( const BXType bx
 	, InputStubMemory<DISKPS> L3[4]
 	, InputStubMemory<DISKPS> L4[4]);
 
-void TopLevelIR( const BXType bx
+void InputRouter_2S_1Barrel1Disk( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hDTCMapEncoded 
 	, InputStubMemory<BARREL2S> L1[4]
 	, InputStubMemory<DISK2S> L2[4]);
 
-void InputRouterPS(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
-	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-	StubsBarrelPS& hBrl, StubsDiskPS& hDsk);
 
-void InputRouter2S(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
-	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
-	StubsBarrel2S& hBrl, StubsDisk2S& hDsk);
+
+// void InputRouterPS(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
+// 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
+// 	StubsBarrelPS& hBrl, StubsDiskPS& hDsk);
+
+// void InputRouter2S(const BXType bx, ap_uint<kNBits_DTC> hIputLink[kMaxStubsFromLink], 
+// 	const ap_uint<kLINKMAPwidth> hDTCMapEncoded, 
+// 	StubsBarrel2S& hBrl, StubsDisk2S& hDsk);
 
 #endif
 

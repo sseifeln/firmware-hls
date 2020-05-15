@@ -4,7 +4,6 @@
 #include "InputStubMemory.hh"
 #include "FileReadUtility.hh"
 
-// #include "InputRouter.cc"
 #include "InputRouterTop.h"
 #include <iostream>
 #include <fstream>
@@ -485,10 +484,9 @@ int compareMemories(std::string pInputFile,
     bool cTruncated=true;
     
     ap_uint<kLINKMAPwidth> cLinkWord=0x00;
-    ap_uint<1> cIs2S;
     std::string cDTCname;
     getLinkInfo(cInputMap, cLinkId, cLinkWord, cDTCname);
-    is2S(cLinkWord, cIs2S);
+    bool cIs2S = ( cDTCname.find("2S") != std::string::npos  ); 
     std::cout << "Comparing memories for "
       << cDTCname 
       << " --link "
@@ -526,7 +524,7 @@ int compareMemories(std::string pInputFile,
         if( openDataFile(cInputStream,cFile) )
         {
           std::cout << cFile << "\n";
-          if( cIs2S == 0 )
+          if( !cIs2S )
           {
             if( !cIsBarrel  ) 
             {
@@ -612,8 +610,8 @@ int main()
   
   // fill memories 
   BXType hBx = cBxSelected&0x7;
-  TopLevelIR(hBx, cInputs_2S.hStubs, cInputs_2S.hLinkWord, hBarrel2S.m3, hDisk2S.m3);
-  PSIRTest(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord, hBarrelPS.m1, hDiskPS.m1, hDiskPS.m3, hDiskPS.m5 );
+  InputRouter_2S_1Barrel1Disk(hBx, cInputs_2S.hStubs, cInputs_2S.hLinkWord, hBarrel2S.m3, hDisk2S.m3);
+  InputRouter_PS_1Barrel3Disk(hBx, cInputs_PS.hStubs, cInputs_PS.hLinkWord, hBarrelPS.m1, hDiskPS.m1, hDiskPS.m3, hDiskPS.m5 );
   // compare memories 
   int nMismatches = compareMemories(cInputFile_LinkMap,"PS10G_2_B","2S_4_B", cBxSelected,hBarrelPS,  hDiskPS, hBarrel2S,  hDisk2S);
   return nMismatches;
