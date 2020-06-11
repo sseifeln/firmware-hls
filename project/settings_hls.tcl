@@ -1,10 +1,11 @@
 # Execute download.sh in the emData/ directory.
-set cwd [pwd]
-cd ../emData/
-if { [catch { exec ./download.sh } msg] } {
-  puts $msg
-}
-cd $cwd
+# set cwd [pwd]
+# puts $cwd
+# cd ../emData/
+# if { [catch { exec ./download.sh } msg] } {
+#   puts $msg
+# }
+# cd $cwd
 
 # Set FPGA
 set_part {xcvu7p-flvb2104-1-e} -tool vivado

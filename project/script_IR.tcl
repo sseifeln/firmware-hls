@@ -1,30 +1,38 @@
-# Script to generate project for IR
-#   vivado_hls -f script_IR.tcl
-#   vivado_hls -p inputrouter
-# WARNING: this will wipe out the original project by the same name
+############################################################
+## This file is generated automatically by Vivado HLS.
+## Please DO NOT edit it.
+## Copyright (C) 1986-2017 Xilinx, Inc. All Rights Reserved.
+############################################################
 
-# create new project (deleting any existing one of same name)
+# delete old project
+delete_project inputrouter
+
+# make new project
 open_project -reset inputrouter
-
-# source files
 set CFLAGS {-std=c++11 -I../TrackletAlgorithm}
-set_top InputRouter
-add_files ../TrackletAlgorithm/InputRouter.cpp -cflags "$CFLAGS"
-add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "CFLAGS"
+set_top InputRouter_Generic
+add_files ../TrackletAlgorithm/InputRouterTop.cpp -cflags "$CFLAGS"
+# test bench 
+add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "$CFLAGS"
+add_files -tb ../emData/
 
-# data files
-add_files -tb ../emData/IL/
-
-open_solution "solution1"
+open_solution -reset "solution1"
 
 # Define FPGA, clock frequency & common HLS settings.
-source settings_hls.tcl
+source ./settings_hls.tcl
 
-csim_design -compiler gcc -mflags "-j8"
-csynth_design
-cosim_design 
-export_design -format ip_catalog
-# Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).
-#export_design -format ip_catalog -flow impl
+create_clock -period 240MHz -name slow_clock 
+create_clock -period 480MHz -name fast_clock
 
+# simulate 
+set nProc [exec nproc]
+csim_design -compiler gcc -mflags "-j$nProc"
+# config_rtl -reset all -reset_async -reset_level low
+# synthesize 
+csynth_design	
+# cosim_design
+# generate ip
+# export_design -format ip_catalog -flow syn
+# #Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).
+# export_design -format ip_catalog -flow impl
 exit

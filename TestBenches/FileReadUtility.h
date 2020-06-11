@@ -74,31 +74,53 @@ std::vector<std::string> split(const std::string& s, char delimiter)
 template<class MemType>
 void writeMemFromFile(MemType& memory, std::ifstream& fin, int ievt, int base=16)
 {
-  std::string line;
-
-  if (ievt==0) {
-    getline(fin, line);
-  }
-  
-  memory.clear();
-  
-  while (getline(fin, line)) {
-    
-    if (!fin.good()) {
-      return;
+  char cDelimiter = ' ';
+  // process the text file .. just regular c++ here 
+  int cEventId=-1;
+  for(std::string cInputLine; getline( fin, cInputLine ); )
+  {
+    if( cInputLine.find("Event") != std::string::npos ) 
+    {
+      cEventId++;
+      if( cEventId == ievt) memory.clear(cEventId);
     }
-    
-    if (line.find("Event") != std::string::npos) {
-      return;
-    } else {
-      if (split(line,' ').size()==4) {
-       memory.write_mem(ievt, line, base);
-      } else {
-	const std::string datastr = split(line, ' ').back();
-	memory.write_mem(ievt, datastr, base);
-      }
-    }	
+    else
+    {
+      auto cTokens = split( cInputLine , cDelimiter );
+      if( cEventId == ievt) memory.write_mem(cEventId, cTokens[cTokens.size()-1], 16);
+    }
   }
+  //std::string line;
+  // if (ievt==0) 
+  // {
+  //   getline(fin, line);
+  // }
+  // memory.clear();
+  
+  // while (getline(fin, line)) 
+  // {
+    
+  //   if (!fin.good()) 
+  //   {
+  //     return;
+  //   }
+  //   if (line.find("Event") != std::string::npos) 
+  //   {
+  //     return;
+  //   } 
+  //   else 
+  //   {
+  //     if (split(line,' ').size()==4) 
+  //     {
+  //       memory.write_mem(ievt, line, base);
+  //     } 
+  //     else 
+  //     {
+	 //     const std::string datastr = split(line, ' ').back();
+	 //     memory.write_mem(ievt, datastr, base);
+  //     }
+  //   }	
+  // }
   
 }
 

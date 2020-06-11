@@ -1,8 +1,8 @@
 #ifndef CONSTANTS_HH
 #define CONSTANTS_HH
 
+//#define AP_UINT_MAX_W 9216
 #include "ap_int.h"
-
 //#include <cmath>
 //#include "hls_math.h"
 
