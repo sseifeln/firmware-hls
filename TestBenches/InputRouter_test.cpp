@@ -275,7 +275,7 @@ int main()
 
   int cTotalErrorCount=0;
   std::vector<std::vector<int>> cErrorCount_L1(0);
-  for(int cSelectedBx=10; cSelectedBx < 11 ; cSelectedBx ++ )
+  for(int cSelectedBx=58; cSelectedBx < 59 ; cSelectedBx ++ )
   {
     std::cout << "Bx" << +cSelectedBx << "\n";  
     // first prepare array 
@@ -339,13 +339,15 @@ int main()
         {
           auto cEntries = hL1[cPhiBin].getEntries(hBx);
           std::cout << "TopLevel found " 
+            << std::dec 
             << +cEntries
             << " stub in L"
             << +cLyrIndx
             << " phi bin "
             << +cPhiBin
             << " for Bx "
-            << hBx 
+            << cSelectedBx 
+            << std::dec 
             << "\n";
         }
         std::cout << "Phi Bin " << cPhiBin << "\n";
@@ -361,19 +363,19 @@ int main()
     cErrorCount_L1.push_back(cErrors);
   }
   // now look at the mismatches
-  for(int cSelectedBx=10; cSelectedBx < 11 ; cSelectedBx++ )
-  {
-    for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
-    {
-      if( cErrorCount_L1[cSelectedBx][cPhiBin] != 0 ) 
-        std::cout << "Found " << +cErrorCount_L1[cSelectedBx][cPhiBin]
-          << std::dec 
-          << " mismatches in Bx#" << cSelectedBx 
-          << " [ phi bin " << cPhiBin
-          << " ]"
-          << "\n";
-    }
-  }
+  // for(int cSelectedBx=0; cSelectedBx < 100 ; cSelectedBx++ )
+  // {
+  //   for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
+  //   {
+  //     if( cErrorCount_L1[cSelectedBx][cPhiBin] != 0 ) 
+  //       std::cout << "Found " << +cErrorCount_L1[cSelectedBx][cPhiBin]
+  //         << std::dec 
+  //         << " mismatches in Bx#" << cSelectedBx 
+  //         << " [ phi bin " << cPhiBin
+  //         << " ]"
+  //         << "\n";
+  //   }
+  // }
   std::cout << "Found " << cTotalErrorCount << " mismatches." << "\n";
 	return cTotalErrorCount;
 }
