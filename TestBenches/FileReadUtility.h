@@ -71,6 +71,45 @@ std::vector<std::string> split(const std::string& s, char delimiter)
   return tokens;
 }
 
+// S.S.Storey  
+// For some reason writeMemFromFile
+// doesn't work for the IR for Bx>0 
+// this does 
+// why?!?! 
+template<class MemType>
+void writeFromFile(MemType& hMemory, std::ifstream& pInputStream, int pEvent, int pBase=2)
+{
+  hMemory.clear(pEvent);
+  char cStubDelimeter = '|';
+  char cSplitToken=' ';
+  assert(pInputStream.good());
+  int cEventCounter=-1;
+  for(std::string cInputLine; getline( pInputStream, cInputLine ); )
+  {
+    if( cInputLine.find("Event") != std::string::npos ) 
+    {
+      cEventCounter++;
+    }
+    else
+    {
+      if(cEventCounter != pEvent)
+        continue;
+      // split line 
+      std::stringstream cLineContent(cInputLine);
+      for(std::string cToken; getline( cLineContent, cToken , cSplitToken ); )
+      {
+        // look for binary representation of word  
+        if( cToken.find('|') != std::string::npos )  
+        {
+          //remove delimeter
+          cToken.erase( std::remove(cToken.begin(), cToken.end(), cStubDelimeter), cToken.end() );
+          hMemory.write_mem(pEvent, cToken, pBase);
+        }
+      }
+    }
+  }
+}
+
 template<class MemType>
 void writeMemFromFile(MemType& memory, std::ifstream& fin, int ievt, int base=16)
 {
@@ -123,7 +162,8 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
   ////////////////////////////////////////
   // Read from file
   MemType memory_ref;
-  writeMemFromFile<MemType>(memory_ref, fout, ievt, InputBase);
+  writeFromFile<MemType>(memory_ref, fout, ievt, InputBase);
+  //writeMemFromFile<MemType>(memory_ref, fout, ievt, InputBase);
 
   // Check if at least one of the memories in comparison is non empty
   // before spamming the screen

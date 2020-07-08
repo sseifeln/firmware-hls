@@ -66,7 +66,8 @@ for module in ${processing_modules[@]}
 do
   module_type=`echo ${module} | sed "s/^\([^_]*\)_.*$/\1/g"`
   target_dir=${module_type}/${module}
-
+  mems=`grep "${module}\." wires_hourglass.dat | awk '{print $1}' | sort -u`
+  
   rm -rf ${target_dir}
   mkdir -p ${target_dir}
   for mem in `grep "${module}\." wires_hourglass.dat | awk '{print $1}' | sort -u`;
