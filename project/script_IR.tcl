@@ -19,9 +19,13 @@ source settings_hls.tcl
 
 # data files
 add_files -tb ../emData/
+
+create_clock -period 250MHz -name slow_clock 
+create_clock -period 480MHz -name fast_clock
+
 set nProc [exec nproc]
 csim_design -compiler gcc -mflags "-j$nProc"
-#csynth_design
+csynth_design
 #cosim_design 
 #export_design -format ip_catalog
 # Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).

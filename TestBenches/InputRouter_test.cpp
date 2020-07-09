@@ -275,7 +275,9 @@ int main()
 
   int cTotalErrorCount=0;
   std::vector<std::vector<int>> cErrorCount_L1(0);
-  for(int cSelectedBx=58; cSelectedBx < 59 ; cSelectedBx ++ )
+  int cFirstBx=0;
+  int cLastBx=1;
+  for(int cSelectedBx=cFirstBx; cSelectedBx < cLastBx ; cSelectedBx ++ )
   {
     std::cout << "Bx" << +cSelectedBx << "\n";  
     // first prepare array 
