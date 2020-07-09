@@ -1,4 +1,5 @@
 // InputRouter Test
+#include "InputStubMemory.h"
 #include "AllStubMemory.h"
 #include "InputRouterTop.h"
 #include "FileReadUtility.h"
@@ -105,13 +106,10 @@ void getLinkId(LinkMap pInputMap, std::string pDTC, int &pLinkId)
 // 1 bit for barrel/disk --> 4 bits  
 // up-to 4 layers/disks per DTC
 // 16 bits per link
-// then 2 bits 
+// then 3 bits 
 // 1 bit to assign whether link is PS/2S 
-// 1 bit if it is connected to the very first layer of the tracker or not 
-// 18 bits in total per link .. 
-// so can fit all links into a BRAM 12 deep ( 36 bits wide )
-// for the moment I store them one link per word 
-// (so a 36 bit wide bram , 24 deep can be used) 
+// 3 bits to encode the number of layers readout by this DTC 
+// 20 bits in total 
 void getLinkInfo(LinkMap pInputMap, int pLinkId, 
   ap_uint<kLINKMAPwidth>& pLinkWord)
 {
@@ -119,8 +117,9 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
   // figure out DTC map encoding for this link 
   pLinkWord = 0x0000;
   uint32_t cWord = 0x00000000; 
-  bool cIs2S = ( pInputMap[static_cast<int>(pLinkId)].first.find("2S") != std::string::npos  ); 
+  ap_uint<1> cIs2S = ( pInputMap[static_cast<int>(pLinkId)].first.find("2S") != std::string::npos  ) ? ap_uint<1>(1) : ap_uint<1>(0) ; 
   auto cLayerIterator = pInputMap[static_cast<int>(pLinkId)].second.begin();
+  int cNLyrs=0;
   bool cFirstLayer=false;
   while( cLayerIterator <  pInputMap[static_cast<int>(pLinkId)].second.end() ) // layer id is either layer number or disk number 
   {
@@ -132,12 +131,17 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
     cWord  = cWord | ( ( (cLayerId << 1) | cIsBarrel ) << 4*cLayerCounter );  
     if( cLayerId == 1 && cIsBarrel == 1) // first barrel layer is special ...
       cFirstLayer = true;
-    
+    cNLyrs++;
     cLayerIterator++;
   }
-  cWord = cWord | (cFirstLayer << 17) | (cIs2S << 16);
+  cWord = (cNLyrs << 17) | ( cIs2S << 16) | cWord ;
   pLinkWord = ap_uint<kLINKMAPwidth>( cWord);
-  std::cout  << "DTC " << pInputMap[static_cast<int>(pLinkId)].first << " Link " << +pLinkId << " -- DTC map encoded word is " << std::bitset<kLINKMAPwidth>(pLinkWord) << "\n";
+  std::cout  << "DTC " << pInputMap[static_cast<int>(pLinkId)].first 
+    << " Link " << +pLinkId
+    << " -- DTC map encoded word is " 
+    << std::bitset<kLINKMAPwidth>(pLinkWord) 
+    << " Is2S bit is set to " << +cIs2S
+    << "\n";
 }
 
 
@@ -318,61 +322,96 @@ int main()
   	// does 
   	BXType hBx = cSelectedBx&0x7;
 
-    // // try and make one large array 
-    // // to hold all memories 
-    // AllStubMemory<TRACKER> hMemories[20];
-    // InputRouterTop( hBx
-    //   , cStubs
-    //   , hLinkWord
-    //   , 20
-    //   , 4
-    //   , hMemories);
+    // try and make one large array 
+    // to hold all memories 
+    int nMemories=20;
+    InputStubMemory<TRACKER> *hMemories = new InputStubMemory<TRACKER>[nMemories];
+    InputRouterGeneric( hBx , cStubs , hLinkWord, hMemories);
 
-    // now preapre memories that the IR 
-    // top level will fill 
-    AllStubMemory<BARRELPS> hL1[8];
-    AllStubMemory<DISKPS> hL2[4];
-    AllStubMemory<DISKPS> hL3[4];
-    AllStubMemory<DISKPS> hL4[4];
-    
-  	// actual IR module under test 
-  	InputRouter_PS_1Barrel3Disk( hBx, 
-  		cStubs, hLinkWord, 
-  		hL1, hL2, hL3, hL4);
-    int cLyrIndx=0;
-    int cPhiBin=1;
-    std::vector<int> cErrors(0);
-    for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
+    ap_uint<1> cIsPS = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
+    int cMemIndx=0;
+    for(int cLyrIndx=0; cLyrIndx<1; cLyrIndx++)
     {
-      std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBin, cNonant, hLinkWord);
-      if( !cMemPrint.empty() )
+      ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
+      ap_uint<1> hIsBrl = hWrd.range(1,0);
+      ap_uint<3> hLyrId = hWrd.range(3,1);
+      int cNPhiBns = (cIsPS && hLyrId==1 && hIsBrl) ? 8 : 4; 
+      std::vector<int> cErrors(0);
+      for( int cPhiBn=0; cPhiBn<2; cPhiBn++)
       {
-        if( IR_DEBUG )
+        std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
+        int cErrorCount =0;
+        if( !cMemPrint.empty() )
         {
-          auto cEntries = hL1[cPhiBin].getEntries(hBx);
-          std::cout << "TopLevel found " 
-            << std::dec 
-            << +cEntries
-            << " stub in L"
-            << +cLyrIndx
-            << " phi bin "
-            << +cPhiBin
-            << " for Bx "
-            << cSelectedBx 
-            << std::dec 
-            << "\n";
+          if( IR_DEBUG )
+          {
+            std::cout << "Phi Bin " << cPhiBn << " of Lyr" << hLyrId << "\n";
+            auto cEntries = hMemories[cMemIndx].getEntries(hBx);
+            std::cout << "TopLevel found " 
+              << std::dec 
+              << +cEntries
+              << " stubs "
+              << " for Bx "
+              << cSelectedBx 
+              << std::dec 
+              << "\n";
+          }
+          ifstream cInputStream;
+          openDataFile(cInputStream,cMemPrint); 
+          cErrorCount = compareMemWithFile<InputStubMemory<TRACKER>,2>(hMemories[cMemIndx],cInputStream,cSelectedBx,"AllStub",cTruncation);
+          cInputStream.close();
         }
-        std::cout << "Phi Bin " << cPhiBin << "\n";
-        ifstream cInputStream;
-        openDataFile(cInputStream,cMemPrint); 
-        int cErrorCount = compareMemWithFile<AllStubMemory<BARRELPS>,2>(hL1[cPhiBin],cInputStream,cSelectedBx,"AllStub",cTruncation);
         cErrors.push_back( cErrorCount );
+        cMemIndx++;
       }
-      else
-        cErrors.push_back(0);
+      cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
     }
-    cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
-    cErrorCount_L1.push_back(cErrors);
+
+   //  // now preapre memories that the IR 
+   //  // top level will fill 
+   //  AllStubMemory<BARRELPS> hL1[8];
+   //  AllStubMemory<DISKPS> hL2[4];
+   //  AllStubMemory<DISKPS> hL3[4];
+   //  AllStubMemory<DISKPS> hL4[4];
+    
+  	// // actual IR module under test 
+  	// InputRouter_PS_1Barrel3Disk( hBx, 
+  	// 	cStubs, hLinkWord, 
+  	// 	hL1, hL2, hL3, hL4);
+   //  int cLyrIndx=0;
+   //  int cPhiBin=1;
+   //  std::vector<int> cErrors(0);
+   //  for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
+   //  {
+   //    std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBin, cNonant, hLinkWord);
+   //    if( !cMemPrint.empty() )
+   //    {
+   //      if( IR_DEBUG )
+   //      {
+   //        auto cEntries = hL1[cPhiBin].getEntries(hBx);
+   //        std::cout << "TopLevel found " 
+   //          << std::dec 
+   //          << +cEntries
+   //          << " stub in L"
+   //          << +cLyrIndx
+   //          << " phi bin "
+   //          << +cPhiBin
+   //          << " for Bx "
+   //          << cSelectedBx 
+   //          << std::dec 
+   //          << "\n";
+   //      }
+   //      std::cout << "Phi Bin " << cPhiBin << "\n";
+   //      ifstream cInputStream;
+   //      openDataFile(cInputStream,cMemPrint); 
+   //      int cErrorCount = compareMemWithFile<AllStubMemory<BARRELPS>,2>(hL1[cPhiBin],cInputStream,cSelectedBx,"AllStub",cTruncation);
+   //      cErrors.push_back( cErrorCount );
+   //    }
+   //    else
+   //      cErrors.push_back(0);
+   //  }
+   //  cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
+   //  cErrorCount_L1.push_back(cErrors);
   }
   // now look at the mismatches
   // for(int cSelectedBx=0; cSelectedBx < 100 ; cSelectedBx++ )

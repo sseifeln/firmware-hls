@@ -5,11 +5,12 @@
 #include "Constants.h"
 // # bits encoding stub addres on link 
 #include "hls_math.h"
+#include "InputStubMemory.h"
 #include "AllStubMemory.h"
 #include "VMRouter.h"
 
 // link map
-constexpr int kLINKMAPwidth = 18;
+constexpr int kLINKMAPwidth = 20;
 // maxumum number of IR memories  
 constexpr unsigned int kMAXIRMemories = 8 + 4 * 3; 
 constexpr unsigned int kMAXNStubsPerPhi = 30; 
@@ -197,12 +198,10 @@ void EnLRouter4L(const BXType bx
 	EnLRouter<ASType4, NM4>(bx, inStub, lnkWord,3, n4, L4);
 }
 
-void InputRouterTop( const BXType bx
+void InputRouterGeneric( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hLinkWord 
-	, const ap_uint<5> hNMemories  
-	, const ap_uint<3> hNLayers
-	, AllStubMemory<TRACKER> *hMemories);
+	, InputStubMemory<TRACKER> hMemories[20]);
 
 void InputRouter_PS_1Barrel3Disk( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]

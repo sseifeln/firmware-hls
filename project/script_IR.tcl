@@ -8,7 +8,7 @@ open_project -reset inputrouter
 
 # source files
 set CFLAGS {-std=c++11 -I../TrackletAlgorithm}
-set_top InputRouter_PS_1Barrel3Disk
+set_top InputRouterGeneric
 add_files ../TrackletAlgorithm/InputRouterTop.cc -cflags "$CFLAGS"
 add_files -tb ../TestBenches/InputRouter_test.cpp -cflags "$CFLAGS"
 
@@ -25,7 +25,7 @@ create_clock -period 480MHz -name fast_clock
 
 set nProc [exec nproc]
 csim_design -compiler gcc -mflags "-j$nProc"
-#csynth_design
+csynth_design
 #cosim_design 
 #export_design -format ip_catalog
 # Adding "-flow impl" runs full Vivado implementation, providing accurate resource use numbers (very slow).

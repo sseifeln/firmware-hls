@@ -8,6 +8,21 @@
 template<int ISType> class InputStubBase {};
 
 template<>
+class InputStubBase<TRACKER>
+{
+public:
+  enum BitWidths {
+    kISBendSize = 3,
+    kISAlphaSize = 0,
+    kISPhiSize = 14,
+    kISZSize = 12,
+    kISRSize = 7,
+    // Bit size for full InputStubMemory
+    kInputStubSize = kISBendSize + kISAlphaSize + kISPhiSize + kISZSize + kISRSize
+  };
+};
+
+template<>
 class InputStubBase<BARRELPS>
 {
 public:

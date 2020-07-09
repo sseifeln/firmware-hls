@@ -8,21 +8,6 @@
 template<int ASType> class AllStubBase {};
 
 template<>
-class AllStubBase<TRACKER>
-{
-public:
-  enum BitWidths {
-    // Bit size for AllStubMemory fields
-    kASBendSize = 0,
-    kASAlphaSize = 0,
-    kASPhiSize = 0,
-    kASZSize = 0,
-    kASRSize = 0,
-    kAllStubSize = kBRAMwidth
-  };
-};
-
-template<>
 class AllStubBase<BARRELPS>
 {
 public:
