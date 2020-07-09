@@ -1,40 +1,72 @@
 #include "InputRouterTop.h"
 
 
-// void InputRouter_PS( const BXType bx
-// 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
-// 	, const ap_uint<kLINKMAPwidth> hLinkWord 
-// 	, const ap_uint<5> hNMemories  
-// 	, const ap_uint<3> hNLayers
-// 	, const ap_uint<3> *hLayers  
-// 	, AllStubMemory<BARRELPS> *hBarrelMemories
-// 	, AllStubMemory<DISKPS> *hDiskMemories)
-// {
-// 	#pragma HLS clock domain=slow_clock 
-// 	#pragma HLS interface ap_none port=hLinkWord
-// 	#pragma HLS interface ap_none port=hNMemories
-// 	#pragma HLS interface ap_none port=hNLayers
-// 	#pragma HLS interface ap_none port=hLayers
-// 	#pragma HLS stream variable=hStubs depth=1 
+void InputRouterTop( const BXType bx
+	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
+	, const ap_uint<kLINKMAPwidth> hLinkWord 
+	, const ap_uint<5> hNMemories  
+	, const ap_uint<3> hNLayers  
+	, AllStubMemory<TRACKER> *hMemories)
+{
+	#pragma HLS clock domain=slow_clock 
+	#pragma HLS interface ap_none port=hLinkWord
+	#pragma HLS interface ap_none port=hNMemories
+	#pragma HLS interface ap_none port=hNLayers
+	#pragma HLS stream variable=hStubs depth=1 
 	
-// 	LOOP_OuterStubLoop :
-// 	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
-// 	{
-// 		#pragma HLS pipeline II=1
-// 		// decode stub 
-// 		// check which memory 
-// 		ap_uint<3> pLayer= (hStubs[cStubCounter] != 0 ) ? ap_uint<3>(inStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3) : 0x7 ;
-// 		for( int cMemIndx=0 ; cMemIndx<hNMemories;cMemIndx++)
-// 		{
-// 			#pragma HLS unroll 
-// 			ap_uint<3> hEncodedLyr=	hLayers[cMemIndx];
-// 		}
-// 		// if( hStubs[cStubCounter] != 0 )
-// 		// {
-			
-// 		// }
-// 	}
-// }
+
+	ap_uint<8> *nStubs = new ap_uint<8>[hNMemories];
+	LOOP_ClearOutputMemories : 
+	for( int cMemIndx=0; cMemIndx<hNMemories; cMemIndx++)
+	{
+		// clear four phi regions at a time ..
+		#pragma HLS unroll 
+		nStubs[cMemIndx]=0;
+		(&hMemories[cMemIndx])->clear(bx);
+	}
+
+	ap_uint<1> cToFirst = hLinkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-2);
+	ap_uint<1> cIsPS = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
+	LOOP_OuterStubLoop :
+	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
+	{
+		#pragma HLS pipeline II=1
+		// decode stub 
+		// check which memory 
+		ap_uint<kNBits_DTC> hStub = hStubs[cStubCounter]; 
+		ap_uint<3> cEncLyr = (hStub != 0 ) ? ap_uint<3>(hStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3) : ap_uint<3>(0x7) ;
+		int cMemIndx=0;
+		int cBaseIndx=cMemIndx;
+		for( int cLyr=0 ; cLyr<hNLayers;cLyr++)
+		{
+			#pragma HLS unroll 
+			ap_uint<4> hWrd = hLinkWord.range(4*cLyr+3,4*cLyr+1);
+			ap_uint<1> hIsBrl = hWrd.range(1,0);
+			ap_uint<3> hLyrId = hWrd.range(3,1);
+			int cMaxPhiBin = (cIsPS && hLyrId==1) ? 8 : 4; 
+			if( cEncLyr == cLyr )
+			{
+				ap_uint<3> hPhiBn;
+				if( cIsPS && hIsBrl ) 
+					GetPhiBin<BARRELPS>(hStub, hWrd, hPhiBn);
+				else if( cIsPS && !hIsBrl )
+					GetPhiBin<DISKPS>(hStub, hWrd, hPhiBn);
+				else if( hIsBrl )
+					GetPhiBin<BARREL2S>(hStub, hWrd, hPhiBn);
+				else
+					GetPhiBin<DISK2S>(hStub, hWrd, hPhiBn);
+				
+				int cIndx = cBaseIndx + int(hPhiBn);
+				ap_uint<8> hEntries = nStubs[cIndx];
+				AllStub<TRACKER> hMemWord(hStub.range(kBRAMwidth-1,0));
+				(&hMemories[cIndx])->write_mem(bx,hMemWord,hEntries);
+				nStubs[cMemIndx]=hEntries+1;
+			}
+			cMemIndx += cMaxPhiBin;
+			cBaseIndx = cMemIndx;
+		}
+	}
+}
 void InputRouter_2S_1Barrel1Disk( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hLinkWord 

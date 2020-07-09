@@ -54,9 +54,15 @@ constexpr int zmean[5] = {
 };
 
 // List of regions for memory template parameters
-enum regionType {BARRELPS, BARREL2S, BARRELOL, BARREL, DISKPS, DISK2S, DISK};
+enum regionType {BARRELPS, BARREL2S, BARRELOL, BARREL, DISKPS, DISK2S, DISK, TRACKER};
 
 // Global BX type
 typedef ap_uint<kNBits_BX> BXType;  // temporary definition. need to be revisited
+
+// FPGA constants 
+constexpr unsigned kBRAMwidth = 36; 
+
+constexpr int kNBits_DTC = 38; 
+
 
 #endif

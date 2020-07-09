@@ -318,6 +318,16 @@ int main()
   	// does 
   	BXType hBx = cSelectedBx&0x7;
 
+    // // try and make one large array 
+    // // to hold all memories 
+    // AllStubMemory<TRACKER> hMemories[20];
+    // InputRouterTop( hBx
+    //   , cStubs
+    //   , hLinkWord
+    //   , 20
+    //   , 4
+    //   , hMemories);
+
     // now preapre memories that the IR 
     // top level will fill 
     AllStubMemory<BARRELPS> hL1[8];
