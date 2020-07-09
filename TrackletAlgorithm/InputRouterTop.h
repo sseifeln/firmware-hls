@@ -94,128 +94,138 @@ void GetPhiBin(const ap_uint<kNBits_DTC> inStub
 		phiBn = inStub.range(hPhiMSB,hPhiLSB) & 0x7;
 }
 
+//templated function that 
+//can be called by the top level function 
+// template<unsigned int nLayers, unsigned int nMemories>
+// void InputRouterGeneric( const BXType bx
+// 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
+// 	, const ap_uint<kLINKMAPwidth> hLinkWord 
+// 	, InputStubMemory<TRACKER> hMemories[nMemories])
+// {
+// 	#pragma HLS inline 
 
-template<regionType ASType, int NM>
-void EnLRouter(const BXType bx
-	, ap_uint<kNBits_DTC> inStub
-	, const ap_uint<kLINKMAPwidth> lnkWord
-	, const ap_uint<2> cLyr
-	, ap_uint<8> nEntries[NM]
-	, AllStubMemory<ASType> hMemory[NM])
-{
+// 	ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-3);
+// 	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
+	
+// 	// prepare variables needed 
+// 	// to be able to move through 
+// 	// the array of memories 
+// 	unsigned int cNMemories=0; 
+// 	// hard code things for now 
+// 	constexpr unsigned int kNLayers=nLayers;
+// 	ap_uint<4> hNPhiBns[kNLayers]; //at most 4 layers
+// 	ap_uint<1> hBrlBits[kNLayers]; //at most 4 layers
 
-	#pragma HLS pipeline II=1 
-	#pragma HLS inline 
-	#pragma HLS interface ap_none port=inStub
-	#pragma HLS interface ap_none port=lnkWord
-	#pragma HLS array_partition variable=nEntries complete
-	// hMemory is partition in the memory template 
-	// layer id is in the link word
-	ap_uint<2> pLayer=inStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3;
-	if( pLayer == cLyr ) 
-	{
-		// now stuff I can get from the stub word 
-		ap_uint<3> hPhiBn;
-		GetPhiBin<ASType>(inStub, lnkWord.range(4*cLyr+3,4*cLyr+1), hPhiBn);
-		assert( hPhiBn < NM );
-		#ifndef __SYNTHESIS__
-			if( IR_DEBUG && cLyr == 0)
-			{
-				std::cout << "Stub from bx "
-				 << bx 
-				 << " : "
-				 << std::bitset<kNBits_DTC>(inStub.range(kNBits_DTC-1,0))
-				 << "\t"
-				 << std::bitset<kBRAMwidth>(inStub.range(kBRAMwidth-1,0))
-				 << "\t"
-				 << std::hex
-				 << inStub.range(kBRAMwidth-1,0)
-				 << std::dec 
-				 << " - layer is "
-				 << std::bitset<2>(cLyr)
-				 << " -- encoded layer is "
-				 << std::bitset<3>(lnkWord.range(4*cLyr+3,4*cLyr+1))
-				 << " -- phi bin is "
-				 << hPhiBn 
-				 << "\n";
-			}
-		#endif
-		AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
-		ap_uint<8> hEntries = nEntries[hPhiBn];
-		(&hMemory[hPhiBn])->write_mem(bx,hStub,hEntries);
-		*(&nEntries[hPhiBn])=hEntries+1;
-	}
-}
+// 	#pragma HLS array_partition variable=hNPhiBns complete
+// 	#pragma HLS array_partition variable=hBrlBits complete
+// 	LOOP_GetNPhiBns : 
+// 	for( unsigned int cIndx=0; cIndx < kNLayers; cIndx++)
+// 	{
+// 		#pragma HLS unroll 
+// 		if( cIndx < hNLayers )
+// 		{
+// 			ap_uint<4> hWrd = hLinkWord.range(4*cIndx+3,4*cIndx);
+// 			ap_uint<1> hIsBrl = hWrd.range(1,0);
+// 			ap_uint<3> hLyrId = hWrd.range(3,1);
+// 			hNPhiBns[cIndx] = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
+// 			hBrlBits[cIndx] = hIsBrl;
+// 			//cNPhiBns[cIndx] = (!cIs2S && hLyrId==1 && hIsBrl) ? 8 : 4; 
+// 			//cBrlBits[cIndx] = hIsBrl;
+// 			#ifndef __SYNTHESIS__
+// 				if( IR_DEBUG )
+// 				{
+// 					std::cout << "Lyr#" << cIndx
+// 						<< " encoded word " << std::bitset<4>(hWrd)
+// 						<< " - " <<  hNPhiBns[cIndx]
+// 						<< " phi bins"
+// 						<< "\n"; 
+// 				}
+// 			#endif
+// 			cNMemories += (unsigned int)(hNPhiBns[cIndx]);
+// 		}
+// 	}
+// 	// clear memories and stub counter
+// 	constexpr unsigned int kNMemories=nMemories;
+// 	ap_uint<8> hNStubs[kNMemories];
+// 	#pragma HLS array_partition variable=hNStubs complete
+// 	LOOP_ClearOutputMemories : 
+// 	for( unsigned int cMemIndx=0; cMemIndx<kNMemories; cMemIndx++)
+// 	{
+// 		// clear four phi regions at a time ..
+// 		#pragma HLS unroll 
+// 		hNStubs[cMemIndx]=0;
+// 		(&hMemories[cMemIndx])->clear(0);
+// 		//local_memories[cMemIndx].clear(0);
+// 	}
+	
+// 	ap_uint<kBRAMwidth> hEmpty=ap_uint<kBRAMwidth>(0); 
+// 	LOOP_OuterStubLoop :
+// 	for (int cStubCounter=0; cStubCounter<kMaxStubsFromLink ; cStubCounter++)
+// 	{
+// 		#pragma HLS pipeline II=1
+// 		// decode stub 
+// 		// check which memory 
+// 		ap_uint<kNBits_DTC> hStub = hStubs[cStubCounter]; 
+// 		if( hStub == 0 )
+// 			continue;
 
-template<regionType ASType1, regionType ASType2, int NM1, int NM2>
-void EnLRouter2L(const BXType bx
-	, ap_uint<kNBits_DTC> inStub
-	, const ap_uint<kLINKMAPwidth> lnkWord
-	, ap_uint<8> n1[NM1] 
-	, ap_uint<8> n2[NM2]
-	, AllStubMemory<ASType1> L1[NM1] 
-	, AllStubMemory<ASType2> L2[NM2])
-{
-	#pragma HLS inline 
-	EnLRouter<ASType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
-	EnLRouter<ASType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
-}
+// 		ap_uint<3> hEncLyr = ap_uint<3>(hStub.range(kNBits_DTC-1,kNBits_DTC-2)&0x3) ;
+// 		ap_uint<kBRAMwidth> hStbWrd = hStub.range(kBRAMwidth-1,0);
+// 		//get 36 bit word 
+// 		InputStub<TRACKER> hMemWord(hStbWrd);
+// 		//decode link wrd for this layer 
+// 		ap_uint<4> hWrd = hLinkWord.range(4*hEncLyr+3,4*hEncLyr);
+// 		ap_uint<1> hIsBrl = hWrd.range(1,0);
+// 		ap_uint<3> hLyrId = hWrd.range(3,1);
+// 		//get phi bin 
+// 		ap_uint<3> hPhiBn;
+// 		if( (hIs2S==0) && hIsBrl ) 
+// 			GetPhiBin<BARRELPS>(hStub, hLyrId, hPhiBn);
+// 		else if( (hIs2S==0) && !hIsBrl )
+// 			GetPhiBin<DISKPS>(hStub, hLyrId, hPhiBn);
+// 		else if( hIsBrl )
+// 			GetPhiBin<BARREL2S>(hStub, hLyrId, hPhiBn);
+// 		else
+// 			GetPhiBin<DISK2S>(hStub, hLyrId, hPhiBn);
+		
+// 		//update index 
+// 		unsigned int cIndx=0;
+// 		//unsigned int cMemIndx=0;
+// 		//unsigned int cBaseIndx=cMemIndx;
+// 		LOOP_UpdateIndxLoop :
+// 		for( int cLyr=0 ; cLyr<kNLayers;cLyr++)
+// 		{
+// 			#pragma HLS unroll 
+// 			//update index 
+// 			cIndx += (cLyr >= hEncLyr ) ? 0 : (unsigned int)(hNPhiBns[cLyr]);
+// 		}
+// 		//write to memory 
+// 		unsigned int cMemIndx = cIndx+hPhiBn;
+// 		ap_uint<8> hEntries = hNStubs[cMemIndx];
+// 		#ifndef __SYNTHESIS__
+// 			if( IR_DEBUG )
+// 			{
+// 				std::cout << "\t.. Stub : " << std::hex 
+// 					<< hStbWrd
+// 					<< std::dec 
+// 					<< "[ LyrId " << hLyrId 
+// 					<< " ] IsBrl bit " << +hIsBrl
+// 					<< " PhiBn#" << +hPhiBn 
+// 					<< " Mem#" << cMemIndx 
+// 					<< " Current number of entries " << +hEntries 
+// 					<< "\n"; 
+// 			}
+// 		#endif
+// 		(&hMemories[cMemIndx])->write_mem(0,hMemWord,hEntries);
+// 		//(&local_memories[cIndx])->write_mem(bx,hMemWord,hEntries);
+// 		hNStubs[cMemIndx]=hEntries+1;
+// 	}
+// }
 
-template<regionType ASType1, regionType ASType2, regionType ASType3, int NM1, int NM2, int NM3>
-void EnLRouter3L(const BXType bx
-	, ap_uint<kNBits_DTC> inStub
-	, const ap_uint<kLINKMAPwidth> lnkWord
-	, ap_uint<8> n1[NM1] 
-	, ap_uint<8> n2[NM2]
-	, ap_uint<8> n3[NM3]
-	, AllStubMemory<ASType1> L1[NM1] 
-	, AllStubMemory<ASType2> L2[NM2] 
-	, AllStubMemory<ASType2> L3[NM3])
-{
-	#pragma HLS inline 
-	EnLRouter<ASType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
-	EnLRouter<ASType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
-	EnLRouter<ASType3, NM3>(bx, inStub, lnkWord,2, n3, L3);
-}
-
-template<regionType ASType1, regionType ASType2, regionType ASType3, regionType ASType4, int NM1, int NM2, int NM3, int NM4>
-void EnLRouter4L(const BXType bx
-	, ap_uint<kNBits_DTC> inStub
-	, const ap_uint<kLINKMAPwidth> lnkWord
-	, ap_uint<8> n1[NM1] 
-	, ap_uint<8> n2[NM2]
-	, ap_uint<8> n3[NM3]
-	, ap_uint<8> n4[NM4]
-	, AllStubMemory<ASType1> L1[NM1] 
-	, AllStubMemory<ASType2> L2[NM2] 
-	, AllStubMemory<ASType2> L3[NM3] 
-	, AllStubMemory<ASType2> L4[NM4])
-{
-	#pragma HLS inline 
-	EnLRouter<ASType1, NM1>(bx, inStub, lnkWord,0, n1, L1);
-	EnLRouter<ASType2, NM2>(bx, inStub, lnkWord,1, n2, L2);
-	EnLRouter<ASType3, NM3>(bx, inStub, lnkWord,2, n3, L3);
-	EnLRouter<ASType4, NM4>(bx, inStub, lnkWord,3, n4, L4);
-}
-
-void InputRouterGeneric( const BXType bx
+void InputRouterTop( const BXType bx
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, const ap_uint<kLINKMAPwidth> hLinkWord 
 	, InputStubMemory<TRACKER> hMemories[20]);
-
-void InputRouter_PS_1Barrel3Disk( const BXType bx
-	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
-	, const ap_uint<kLINKMAPwidth> hDTCMapEncoded 
-	, AllStubMemory<BARRELPS> L1[8]
-	, AllStubMemory<DISKPS> L2[4]
-	, AllStubMemory<DISKPS> L3[4]
-	, AllStubMemory<DISKPS> L4[4]);
-
-void InputRouter_2S_1Barrel1Disk( const BXType bx
-	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
-	, const ap_uint<kLINKMAPwidth> hDTCMapEncoded 
-	, AllStubMemory<BARREL2S> L1[4]
-	, AllStubMemory<DISK2S> L2[4]);
 
 
 #endif

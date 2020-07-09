@@ -326,7 +326,7 @@ int main()
     // to hold all memories 
     int nMemories=20;
     InputStubMemory<TRACKER> *hMemories = new InputStubMemory<TRACKER>[nMemories];
-    InputRouterGeneric( hBx , cStubs , hLinkWord, hMemories);
+    InputRouterTop( hBx , cStubs , hLinkWord, hMemories);
 
     ap_uint<1> cIsPS = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
     int cMemIndx=0;
@@ -366,67 +366,7 @@ int main()
       }
       cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
     }
-
-   //  // now preapre memories that the IR 
-   //  // top level will fill 
-   //  AllStubMemory<BARRELPS> hL1[8];
-   //  AllStubMemory<DISKPS> hL2[4];
-   //  AllStubMemory<DISKPS> hL3[4];
-   //  AllStubMemory<DISKPS> hL4[4];
-    
-  	// // actual IR module under test 
-  	// InputRouter_PS_1Barrel3Disk( hBx, 
-  	// 	cStubs, hLinkWord, 
-  	// 	hL1, hL2, hL3, hL4);
-   //  int cLyrIndx=0;
-   //  int cPhiBin=1;
-   //  std::vector<int> cErrors(0);
-   //  for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
-   //  {
-   //    std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBin, cNonant, hLinkWord);
-   //    if( !cMemPrint.empty() )
-   //    {
-   //      if( IR_DEBUG )
-   //      {
-   //        auto cEntries = hL1[cPhiBin].getEntries(hBx);
-   //        std::cout << "TopLevel found " 
-   //          << std::dec 
-   //          << +cEntries
-   //          << " stub in L"
-   //          << +cLyrIndx
-   //          << " phi bin "
-   //          << +cPhiBin
-   //          << " for Bx "
-   //          << cSelectedBx 
-   //          << std::dec 
-   //          << "\n";
-   //      }
-   //      std::cout << "Phi Bin " << cPhiBin << "\n";
-   //      ifstream cInputStream;
-   //      openDataFile(cInputStream,cMemPrint); 
-   //      int cErrorCount = compareMemWithFile<AllStubMemory<BARRELPS>,2>(hL1[cPhiBin],cInputStream,cSelectedBx,"AllStub",cTruncation);
-   //      cErrors.push_back( cErrorCount );
-   //    }
-   //    else
-   //      cErrors.push_back(0);
-   //  }
-   //  cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
-   //  cErrorCount_L1.push_back(cErrors);
   }
-  // now look at the mismatches
-  // for(int cSelectedBx=0; cSelectedBx < 100 ; cSelectedBx++ )
-  // {
-  //   for(int cPhiBin=0; cPhiBin < 8 ; cPhiBin++)
-  //   {
-  //     if( cErrorCount_L1[cSelectedBx][cPhiBin] != 0 ) 
-  //       std::cout << "Found " << +cErrorCount_L1[cSelectedBx][cPhiBin]
-  //         << std::dec 
-  //         << " mismatches in Bx#" << cSelectedBx 
-  //         << " [ phi bin " << cPhiBin
-  //         << " ]"
-  //         << "\n";
-  //   }
-  // }
   std::cout << "Found " << cTotalErrorCount << " mismatches." << "\n";
 	return cTotalErrorCount;
 }
