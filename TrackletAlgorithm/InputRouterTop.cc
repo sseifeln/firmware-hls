@@ -12,14 +12,22 @@ void InputRouterTop( const ap_uint<6> hLinkId
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
 	, InputStubMemory<TRACKER> hMemories[20])
 {
-	#pragma HLS clock domain=slow_clock 
+	#pragma HLS clock domain=fast_clock 
 	#pragma HLS interface ap_none port=hLinkId
 	#pragma HLS interface ap_none port=hLinkTable
 	#pragma HLS stream variable=hStubs depth=1 
 		
 	ap_uint<kLINKMAPwidth> hLinkWord=hLinkTable[hLinkId%24];
 	ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-3);
-	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
+	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-4,kLINKMAPwidth-4);
+	#ifndef __SYNTHESIS__
+		if( IR_DEBUG )
+		{
+			std::cout << "Link Word is " 
+				<< std::bitset<kLINKMAPwidth>(hLinkWord)
+				<< " - Is2S bit is set to " <<hIs2S <<"\n";
+		}
+	#endif
 	
 	// prepare variable needed 
 	// to be able to move through 
@@ -39,7 +47,7 @@ void InputRouterTop( const ap_uint<6> hLinkId
 		if( cIndx < hNLayers )
 		{
 			ap_uint<4> hWrd = hLinkWord.range(4*cIndx+3,4*cIndx);
-			ap_uint<1> hIsBrl = hWrd.range(1,0);
+			ap_uint<1> hIsBrl = hWrd.range(0,0);
 			ap_uint<3> hLyrId = hWrd.range(3,1);
 			hNPhiBns[cIndx] = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
 			hBrlBits[cIndx] = hIsBrl;
@@ -93,9 +101,20 @@ void InputRouterTop( const ap_uint<6> hLinkId
 		if( hIsBrl==1 )
 		{
 			if( hIs2S == 0 ) 
-				GetPhiBinBrl<BARRELPS,64>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
+				GetPhiBinBrl<BARRELPS,64>(hStub, 
+					kPhiCorrtable_L1, 
+					kPhiCorrtable_L2, 
+					kPhiCorrtable_L3, 
+					hLyrId, 
+					hPhiBn);
 			else
-				GetPhiBinBrl<BARREL2S,128>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
+				//GetPhiBinDsk<BARREL2S>(hStub, hLyrId, hPhiBn);
+				GetPhiBinBrl<BARREL2S,128>(hStub, 
+					kPhiCorrtable_L4, 
+					kPhiCorrtable_L5, 
+					kPhiCorrtable_L6, 
+					hLyrId, 
+					hPhiBn);
 		}
 		else 
 		{
@@ -104,22 +123,6 @@ void InputRouterTop( const ap_uint<6> hLinkId
 			else
 				GetPhiBinDsk<DISK2S>(hStub, hLyrId, hPhiBn);
 		}
-		// if( (hIs2S==0) && hIsBrl ) 
-		// {
-		// 	GetPhiBinBrl<BARRELPS,64>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
-		// }
-		// else if( (hIs2S==0) && !hIsBrl )
-		// {
-		// 	GetPhiBinDsk<DISKPS>(hStub, hLyrId, hPhiBn);
-		// }
-		// else if( hIsBrl )
-		// {
-		// 	GetPhiBinBrl<BARREL2S,128>(hStub, kPhiCorrtable_L4, kPhiCorrtable_L5, kPhiCorrtable_L6, hLyrId, hPhiBn);
-		// }
-		// else
-		// {
-		// 	GetPhiBinDsk<DISK2S>(hStub, hLyrId, hPhiBn);
-		// }
 		
 		//update index 
 		unsigned int cIndx=0;
@@ -141,6 +144,9 @@ void InputRouterTop( const ap_uint<6> hLinkId
 				std::cout << "\t.. Stub : " << std::hex 
 					<< hStbWrd
 					<< std::dec 
+					<< " [ EncLyrId "
+					<< hEncLyr
+					<< " ] "
 					<< "[ LyrId " << hLyrId 
 					<< " ] IsBrl bit " << +hIsBrl
 					<< " PhiBn#" << +hPhiBn 

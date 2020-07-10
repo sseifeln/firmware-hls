@@ -11,24 +11,9 @@
 
 // link map
 constexpr int kLINKMAPwidth = 20;
-// maxumum number of IR memories  
-constexpr unsigned int kMAXIRMemories = 8 + 4 * 3; 
-constexpr unsigned int kMAXNStubsPerPhi = 30; 
-constexpr unsigned int kMAXIRStubs = 8 * kMAXNStubsPerPhi + 4 * 3 * kMAXNStubsPerPhi ; 
 #ifndef __SYNTHESIS__
 	#include <bitset> 
 #endif
-constexpr unsigned int kNPSMemories=36;
-constexpr unsigned int kN2SMemories=32;
-constexpr unsigned int kNMemories=48;
-
-constexpr unsigned int kNRegionsLayer1 = 8;
-constexpr unsigned int kNRegions = 4;  
-constexpr unsigned int kNRbinsPhiCorr = 3 ;
-
-constexpr unsigned int kNBns = 4; 
-constexpr unsigned int kMAXNStubsPerBn = kMaxStubsFromLink; 
-constexpr int kMaxSizeArray = kMAXNStubsPerBn*kNBns; 
 
 
 // #define PRAGMA_SUB(x) _Pragma (#x)
@@ -39,7 +24,6 @@ constexpr int kMaxSizeArray = kMAXNStubsPerBn*kNBns;
 // #pragma HLS stream depth=8 variable=OutStream
 
 
-#define PHI_CORRECTION true
 #define IR_DEBUG false
 
 template<regionType ASType, unsigned int nCorrBns> 
@@ -52,13 +36,23 @@ void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
 {
 	#pragma HLS pipeline II=1 
 	#pragma HLS inline 
-	ap_uint<5> hPhiMSB = AllStub<ASType>::kASPhiMSB;
-	ap_uint<5> hPhiLSB;
+	ap_uint<8> hPhiMSB = AllStub<ASType>::kASPhiMSB;
+	ap_uint<8> hPhiLSB;
 	if( pLyrId == 1 && ASType == BARRELPS ) 
 		hPhiLSB = AllStub<ASType>::kASPhiMSB-(3-1);
 	else
 		hPhiLSB = AllStub<ASType>::kASPhiMSB-(2-1);
 
+	#ifndef __SYNTHESIS__
+			if( IR_DEBUG )
+			{
+				std::cout << "\t.. bend is " 
+					<< +AllStub<ASType>::kASBendSize
+					<< " bits : "
+					<< std::bitset<AllStub<ASType>::kASBendSize>(inStub.range(AllStub<ASType>::kASBendMSB,AllStub<ASType>::kASBendLSB))
+					<< "\n";
+			}
+	#endif
 	AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
 	// Corrected phi, i.e. phi at nominal radius (what about disks?)
 	// for now I'm going to use the one from the VMRouter 

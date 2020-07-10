@@ -145,7 +145,7 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
   // figure out DTC map encoding for this link 
   pLinkWord = 0x0000;
   uint32_t cWord = 0x00000000; 
-  ap_uint<1> cIs2S = ( pInputMap[static_cast<int>(pLinkId)].first.find("2S") != std::string::npos  ) ? ap_uint<1>(1) : ap_uint<1>(0) ; 
+  int cIs2S = ( pInputMap[static_cast<int>(pLinkId)].first.find("2S") != std::string::npos  ) ? 1 : 0 ; 
   auto cLayerIterator = pInputMap[static_cast<int>(pLinkId)].second.begin();
   int cNLyrs=0;
   bool cFirstLayer=false;
@@ -164,16 +164,21 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
   }
   cWord = (cNLyrs << 17) | ( cIs2S << 16) | cWord ;
   pLinkWord = ap_uint<kLINKMAPwidth>( cWord);
-  std::cout  << "DTC " << pInputMap[static_cast<int>(pLinkId)].first 
-    << " Link " << +pLinkId
-    << " -- DTC map encoded word is " 
-    << std::bitset<kLINKMAPwidth>(pLinkWord) 
-    << " -- "
-    << std::hex 
-    << +pLinkWord 
-    << std::dec 
-    << " Is2S bit is set to " << +cIs2S
-    << "\n";
+  if( IR_DEBUG )
+  {
+    std::cout  << "DTC " << pInputMap[static_cast<int>(pLinkId)].first 
+      << " Link " << +pLinkId
+      << " -- DTC map encoded word is " 
+      << std::bitset<kLINKMAPwidth>(pLinkWord) 
+      << " -- "
+      << std::hex 
+      << +pLinkWord 
+      << std::dec 
+      << " Is2S bit is set to " << +cIs2S
+      << " which is " << +(pLinkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-3))
+      << " layers"
+      << "\n";
+  }
 }
 
 
@@ -254,6 +259,9 @@ std::string getMemPrint(std::string pDTC
 	ap_uint<4> cDTCWord = (hLinkWord & (0xF << pLyrIndx*4)) >> (pLyrIndx*4); 
 	if( cDTCWord != 0 )
 	{
+    if( IR_DEBUG )
+      std::cout << "Lyr word is " << std::bitset<4>(cDTCWord) << "\n";
+
 		ap_uint<1> cIsBrl = (cDTCWord&0x01); 
     std::string cMemoryPrint = cBaseName;
     cMemoryPrint += (cIsBrl==1) ? "L" : "D";
@@ -350,7 +358,9 @@ int main()
 
     ap_uint<6> hLinkId(cDTC_LinkId);
     hLinkWord=kLinkAssignmentTable[hLinkId%24];
-    std::cout << "Link Word is " << +hLinkId << "\n";
+    std::cout << "Link Word is " 
+      << std::bitset<kLINKMAPwidth>(hLinkWord)
+      << "\n";
     // module under test here 
   	//ok..but for events > 8?
   	// check what the file read utility 
@@ -372,9 +382,9 @@ int main()
       , cStubs 
       , hMemories);
 
-    ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
+    ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
     int cMemIndx=0;
-    for(int cLyrIndx=0; cLyrIndx<1; cLyrIndx++)
+    for(int cLyrIndx=0; cLyrIndx<2; cLyrIndx++)
     {
       ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
       ap_uint<1> hIsBrl = hWrd.range(1,0);
