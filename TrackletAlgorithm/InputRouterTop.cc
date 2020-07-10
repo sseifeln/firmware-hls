@@ -1,22 +1,26 @@
 #include "InputRouterTop.h"
 
 
-void InputRouterTop( const BXType bx
+void InputRouterTop( const ap_uint<6> hLinkId 
+	, const ap_uint<kLINKMAPwidth> hLinkTable[24] 
+	, const int kPhiCorrtable_L1[64]
+	, const int kPhiCorrtable_L2[64]
+	, const int kPhiCorrtable_L3[64]
+	, const int kPhiCorrtable_L4[128]
+	, const int kPhiCorrtable_L5[128]
+	, const int kPhiCorrtable_L6[128]
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
-	, const ap_uint<kLINKMAPwidth> hLinkWord 
 	, InputStubMemory<TRACKER> hMemories[20])
 {
 	#pragma HLS clock domain=slow_clock 
-	#pragma HLS interface ap_none port=hLinkWord
+	#pragma HLS interface ap_none port=hLinkId
+	#pragma HLS interface ap_none port=hLinkTable
 	#pragma HLS stream variable=hStubs depth=1 
 		
-
+	ap_uint<kLINKMAPwidth> hLinkWord=hLinkTable[hLinkId%24];
 	ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth-1,kLINKMAPwidth-3);
 	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
 	
-	//local variable 
-	//InputStubMemory<TRACKER>* local_memories = hMemories;
-
 	// prepare variable needed 
 	// to be able to move through 
 	// the array of memories 
@@ -63,7 +67,6 @@ void InputRouterTop( const BXType bx
 		#pragma HLS unroll 
 		hNStubs[cMemIndx]=0;
 		(&hMemories[cMemIndx])->clear(0);
-		//local_memories[cMemIndx].clear(0);
 	}
 	
 	ap_uint<kBRAMwidth> hEmpty=ap_uint<kBRAMwidth>(0); 
@@ -87,28 +90,50 @@ void InputRouterTop( const BXType bx
 		ap_uint<3> hLyrId = hWrd.range(3,1);
 		//get phi bin 
 		ap_uint<3> hPhiBn;
-		if( (hIs2S==0) && hIsBrl ) 
-			GetPhiBin<BARRELPS>(hStub, hLyrId, hPhiBn);
-		else if( (hIs2S==0) && !hIsBrl )
-			GetPhiBin<DISKPS>(hStub, hLyrId, hPhiBn);
-		else if( hIsBrl )
-			GetPhiBin<BARREL2S>(hStub, hLyrId, hPhiBn);
-		else
-			GetPhiBin<DISK2S>(hStub, hLyrId, hPhiBn);
+		if( hIsBrl==1 )
+		{
+			if( hIs2S == 0 ) 
+				GetPhiBinBrl<BARRELPS,64>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
+			else
+				GetPhiBinBrl<BARREL2S,128>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
+		}
+		else 
+		{
+			if( hIs2S == 0 ) 
+				GetPhiBinDsk<DISKPS>(hStub, hLyrId, hPhiBn);
+			else
+				GetPhiBinDsk<DISK2S>(hStub, hLyrId, hPhiBn);
+		}
+		// if( (hIs2S==0) && hIsBrl ) 
+		// {
+		// 	GetPhiBinBrl<BARRELPS,64>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2, kPhiCorrtable_L3, hLyrId, hPhiBn);
+		// }
+		// else if( (hIs2S==0) && !hIsBrl )
+		// {
+		// 	GetPhiBinDsk<DISKPS>(hStub, hLyrId, hPhiBn);
+		// }
+		// else if( hIsBrl )
+		// {
+		// 	GetPhiBinBrl<BARREL2S,128>(hStub, kPhiCorrtable_L4, kPhiCorrtable_L5, kPhiCorrtable_L6, hLyrId, hPhiBn);
+		// }
+		// else
+		// {
+		// 	GetPhiBinDsk<DISK2S>(hStub, hLyrId, hPhiBn);
+		// }
 		
 		//update index 
 		unsigned int cIndx=0;
-		//unsigned int cMemIndx=0;
-		//unsigned int cBaseIndx=cMemIndx;
 		LOOP_UpdateIndxLoop :
 		for( int cLyr=0 ; cLyr<kNLayers;cLyr++)
 		{
 			#pragma HLS unroll 
 			//update index 
-			cIndx += (cLyr >= hEncLyr ) ? 0 : (unsigned int)(hNPhiBns[cLyr]);
+			cIndx += (cLyr < hEncLyr ) ? (unsigned int)(hNPhiBns[cLyr]) : 0;
 		}
 		//write to memory 
 		unsigned int cMemIndx = cIndx+hPhiBn;
+		assert(cMemIndx<cNMemories);
+		//get entries 
 		ap_uint<8> hEntries = hNStubs[cMemIndx];
 		#ifndef __SYNTHESIS__
 			if( IR_DEBUG )
@@ -125,7 +150,6 @@ void InputRouterTop( const BXType bx
 			}
 		#endif
 		(&hMemories[cMemIndx])->write_mem(0,hMemWord,hEntries);
-		//(&local_memories[cIndx])->write_mem(bx,hMemWord,hEntries);
 		hNStubs[cMemIndx]=hEntries+1;
 	}
 }

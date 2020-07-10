@@ -12,6 +12,34 @@
 #include <iterator>
 #include <map>
 
+// link assignment table 
+// link assignment table 
+static const ap_uint<kLINKMAPwidth> kLinkAssignmentTable[] =
+#include "../emData/LinkAssignment.dat"
+;
+
+// LUT with phi corrections to the nominal radius. Only used by layers.
+// Values are determined by the radius and the bend of the stub.
+static const int kPhiCorrtable_L1[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL1.txt"
+;
+static const int kPhiCorrtable_L2[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL2.txt"
+;
+static const int kPhiCorrtable_L3[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL3.txt"
+;
+static const int kPhiCorrtable_L4[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL4.txt"
+;
+static const int kPhiCorrtable_L5[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL5.txt"
+;
+static const int kPhiCorrtable_L6[] =
+#include "../emData/MemPrints/Tables/VMPhiCorrL6.txt"
+;
+
+
 using namespace std;
 
 // map of input links  [per DTC ]
@@ -140,6 +168,10 @@ void getLinkInfo(LinkMap pInputMap, int pLinkId,
     << " Link " << +pLinkId
     << " -- DTC map encoded word is " 
     << std::bitset<kLINKMAPwidth>(pLinkWord) 
+    << " -- "
+    << std::hex 
+    << +pLinkWord 
+    << std::dec 
     << " Is2S bit is set to " << +cIs2S
     << "\n";
 }
@@ -315,29 +347,41 @@ int main()
   	// to use 
   	// can eventually replace this with a LUT 
   	ap_uint<kLINKMAPwidth> hLinkWord = 0x00;
-  	getLinkInfo(cInputMap, cDTC_LinkId, hLinkWord);
-  	// module under test here 
+
+    ap_uint<6> hLinkId(cDTC_LinkId);
+    hLinkWord=kLinkAssignmentTable[hLinkId%24];
+    std::cout << "Link Word is " << +hLinkId << "\n";
+    // module under test here 
   	//ok..but for events > 8?
   	// check what the file read utility 
   	// does 
   	BXType hBx = cSelectedBx&0x7;
 
-    // try and make one large array 
-    // to hold all memories 
+    //try and make one large array 
+    //to hold all memories 
     int nMemories=20;
     InputStubMemory<TRACKER> *hMemories = new InputStubMemory<TRACKER>[nMemories];
-    InputRouterTop( hBx , cStubs , hLinkWord, hMemories);
+    InputRouterTop( hLinkId 
+      , kLinkAssignmentTable
+      , kPhiCorrtable_L1 
+      , kPhiCorrtable_L2
+      , kPhiCorrtable_L3
+      , kPhiCorrtable_L4
+      , kPhiCorrtable_L5
+      , kPhiCorrtable_L6
+      , cStubs 
+      , hMemories);
 
-    ap_uint<1> cIsPS = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
+    ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-2,kLINKMAPwidth-3);
     int cMemIndx=0;
     for(int cLyrIndx=0; cLyrIndx<1; cLyrIndx++)
     {
       ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
       ap_uint<1> hIsBrl = hWrd.range(1,0);
       ap_uint<3> hLyrId = hWrd.range(3,1);
-      int cNPhiBns = (cIsPS && hLyrId==1 && hIsBrl) ? 8 : 4; 
+      int cNPhiBns = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
       std::vector<int> cErrors(0);
-      for( int cPhiBn=0; cPhiBn<2; cPhiBn++)
+      for( int cPhiBn=0; cPhiBn<cNPhiBns; cPhiBn++)
       {
         std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
         int cErrorCount =0;

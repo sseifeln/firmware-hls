@@ -77,8 +77,9 @@ std::vector<std::string> split(const std::string& s, char delimiter)
 // this does 
 // why?!?! 
 template<class MemType>
-void writeFromFile(MemType& hMemory, std::ifstream& pInputStream, int pEvent, int pBase=2)
+void writeFromFile(MemType& hMemory, std::ifstream& pInputStream, int pEvent)
 {
+  int cBase=2;
   hMemory.clear(pEvent);
   char cStubDelimeter = '|';
   char cSplitToken=' ';
@@ -103,7 +104,7 @@ void writeFromFile(MemType& hMemory, std::ifstream& pInputStream, int pEvent, in
         {
           //remove delimeter
           cToken.erase( std::remove(cToken.begin(), cToken.end(), cStubDelimeter), cToken.end() );
-          hMemory.write_mem(pEvent, cToken, pBase);
+          hMemory.write_mem(pEvent, cToken, cBase);
         }
       }
     }
@@ -162,7 +163,7 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
   ////////////////////////////////////////
   // Read from file
   MemType memory_ref;
-  writeFromFile<MemType>(memory_ref, fout, ievt, InputBase);
+  writeFromFile<MemType>(memory_ref, fout, ievt);
   //writeMemFromFile<MemType>(memory_ref, fout, ievt, InputBase);
 
   // Check if at least one of the memories in comparison is non empty
