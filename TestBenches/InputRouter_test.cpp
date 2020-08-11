@@ -311,7 +311,7 @@ int main()
   int cNonant=4;
 	std::string cDTCname_PS = "PS10G_2";
 	std::string cDTCname_2S = "2S_4";
-	std::string cDTCname = cDTCname_2S; 
+	std::string cDTCname = cDTCname_PS; 
   cDTCname += (cDTCsplit==0) ? "_A" : "_B";
 
 	std::string cInputFile_LinkMap = "emData/dtclinklayerdisk.dat";
@@ -382,7 +382,6 @@ int main()
   for(int cSelectedBx=cFirstBx; cSelectedBx < cLastBx ; cSelectedBx ++ )
   {
     bool cIsLastBx = (cSelectedBx == cLastBx - 1 );  
-          
     std::cout << "Bx" << +cSelectedBx << "\n";  
     // first prepare array 
   	ap_uint<kNBits_DTC> cStubs[kMaxStubsFromLink];
@@ -431,7 +430,7 @@ int main()
       , cStubs 
       , hMemories);
 
-    s// memory index counter 
+    // memory index counter 
     for(int cLyrIndx=0; cLyrIndx<kMaxLyrsPerDTC; cLyrIndx++)
     {
       ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
@@ -444,8 +443,10 @@ int main()
       std::vector<int> cErrors(0);
       for( int cPhiBn=0; cPhiBn<cNPhiBns; cPhiBn++)
       {
-        if( cInputStreams[cMemIndx].good() ) 
+        if( cInputStreams[cMemIndx].is_open() ) 
         {
+          std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
+          std::cout << cMemPrint << "\n";
           int cErrorCount = compareMemWithFile<InputStubMemory<TRACKER>,16>(hMemories[cMemIndx],cInputStreams[cMemIndx],cSelectedBx,"AllStub",cTruncation,kMaxProc,true);
           if( cIsLastBx )
             cInputStreams[cMemIndx].close(); 
@@ -458,5 +459,5 @@ int main()
     cMemIndx=0;
   }
   std::cout << "Found " << cTotalErrorCount << " mismatches." << "\n";
-	return cTotalErrorCount;
+  return cTotalErrorCount;
 }
