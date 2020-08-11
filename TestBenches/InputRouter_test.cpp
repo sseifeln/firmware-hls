@@ -12,6 +12,9 @@
 #include <iterator>
 #include <map>
 
+//
+static const int kMaxLyrsPerDTC = 4; 
+static const int kMaxIRMemories = 20; 
 // link assignment table 
 //static const ap_uint<kLINKMAPwidth> kLinkAssignmentTable[] =
 // #include "../emData/LinkAssignment.dat"
@@ -308,7 +311,7 @@ int main()
   int cNonant=4;
 	std::string cDTCname_PS = "PS10G_2";
 	std::string cDTCname_2S = "2S_4";
-	std::string cDTCname = cDTCname_PS; 
+	std::string cDTCname = cDTCname_2S; 
   cDTCname += (cDTCsplit==0) ? "_A" : "_B";
 
 	std::string cInputFile_LinkMap = "emData/dtclinklayerdisk.dat";
@@ -324,13 +327,62 @@ int main()
 	getLinkId(cInputMap, cDTCname , cDTC_LinkId );
 	std::cout << "DTC " << cDTCname << " is link#" <<  cDTC_LinkId << std::endl;
 
+  ap_uint<6> hLinkId(cDTC_LinkId);
+  ap_uint<kLINKMAPwidth> hLinkWord = 0x00;
+  hLinkWord = kLinkAssignmentTable[hLinkId%24];
+  ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
+  std::cout << "Link Word is " 
+    << std::bitset<kLINKMAPwidth>(hLinkWord)
+    << "\t"
+    << std::hex
+    << hLinkWord 
+    << std::dec
+    << "\n";
+
 
   int cTotalErrorCount=0;
   std::vector<std::vector<int>> cErrorCount_L1(0);
   int cFirstBx=0;
-  int cLastBx=1;
+  int cLastBx=10;
+
+  // prepare file streams 
+  // containing data from 
+  // reference memories 
+  // produced by emulation 
+  int nMemories=20;
+  ifstream cInputStreams[kMaxIRMemories];
+  int cMemIndx=0;
+  for(int cLyrIndx=0; cLyrIndx< kMaxLyrsPerDTC; cLyrIndx++)
+  {
+    ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
+    if( hWrd == 0)
+      continue;
+    ap_uint<1> hIsBrl = hWrd.range(1,0);
+    ap_uint<3> hLyrId = hWrd.range(3,1);
+    // then over phi bins
+    int cNPhiBns = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
+    for( int cPhiBn=0; cPhiBn<cNPhiBns; cPhiBn++)
+    {
+        std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
+        if( !cMemPrint.empty() )
+        {
+          openDataFile(cInputStreams[cMemIndx],cMemPrint); 
+        }
+        cMemIndx++;
+    }
+  }
+  cMemIndx=0;
+
+  // loop over entires in emulated data 
+  // for each entry 
+  // read stubs 
+  // run top level IR 
+  // and compare reference memories for all 
+  // layers and phi bins 
   for(int cSelectedBx=cFirstBx; cSelectedBx < cLastBx ; cSelectedBx ++ )
   {
+    bool cIsLastBx = (cSelectedBx == cLastBx - 1 );  
+          
     std::cout << "Bx" << +cSelectedBx << "\n";  
     // first prepare array 
   	ap_uint<kNBits_DTC> cStubs[kMaxStubsFromLink];
@@ -359,21 +411,7 @@ int main()
   		}		
   	}
 
-  	// and get the link word that I would like 
-  	// to use 
-  	// can eventually replace this with a LUT 
-  	ap_uint<kLINKMAPwidth> hLinkWord = 0x00;
-
-    ap_uint<6> hLinkId(cDTC_LinkId);
-    hLinkWord=kLinkAssignmentTable[hLinkId%24];
-    std::cout << "Link Word is " 
-      << std::bitset<kLINKMAPwidth>(hLinkWord)
-      << "\t"
-      << std::hex
-      << hLinkWord 
-      << std::dec
-      << "\n";
-    // module under test here 
+  	// module under test here 
   	//ok..but for events > 8?
   	// check what the file read utility 
   	// does 
@@ -381,8 +419,7 @@ int main()
 
     //try and make one large array 
     //to hold all memories 
-    int nMemories=20;
-    InputStubMemory<TRACKER> *hMemories = new InputStubMemory<TRACKER>[nMemories];
+    InputStubMemory<TRACKER> hMemories[kMaxIRMemories];
     InputRouterTop( hLinkId 
       , kLinkAssignmentTable
       , kPhiCorrtable_L1 
@@ -394,44 +431,31 @@ int main()
       , cStubs 
       , hMemories);
 
-    ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
-    int cMemIndx=0;
-    for(int cLyrIndx=0; cLyrIndx<2; cLyrIndx++)
+    s// memory index counter 
+    for(int cLyrIndx=0; cLyrIndx<kMaxLyrsPerDTC; cLyrIndx++)
     {
       ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
+      if( hWrd == 0)
+        continue;
+      
       ap_uint<1> hIsBrl = hWrd.range(1,0);
       ap_uint<3> hLyrId = hWrd.range(3,1);
       int cNPhiBns = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
       std::vector<int> cErrors(0);
       for( int cPhiBn=0; cPhiBn<cNPhiBns; cPhiBn++)
       {
-        std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
-        int cErrorCount =0;
-        if( !cMemPrint.empty() )
+        if( cInputStreams[cMemIndx].good() ) 
         {
-          if( IR_DEBUG )
-          {
-            std::cout << "Phi Bin " << cPhiBn << " of Lyr" << hLyrId << "\n";
-            auto cEntries = hMemories[cMemIndx].getEntries(hBx);
-            std::cout << "TopLevel found " 
-              << std::dec 
-              << +cEntries
-              << " stubs "
-              << " for Bx "
-              << cSelectedBx 
-              << std::dec 
-              << "\n";
-          }
-          ifstream cInputStream;
-          openDataFile(cInputStream,cMemPrint); 
-          cErrorCount = compareMemWithFile<InputStubMemory<TRACKER>,2>(hMemories[cMemIndx],cInputStream,cSelectedBx,"AllStub",cTruncation);
-          cInputStream.close();
+          int cErrorCount = compareMemWithFile<InputStubMemory<TRACKER>,16>(hMemories[cMemIndx],cInputStreams[cMemIndx],cSelectedBx,"AllStub",cTruncation,kMaxProc,true);
+          if( cIsLastBx )
+            cInputStreams[cMemIndx].close(); 
+          cErrors.push_back( cErrorCount );
         }
-        cErrors.push_back( cErrorCount );
         cMemIndx++;
       }
       cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
     }
+    cMemIndx=0;
   }
   std::cout << "Found " << cTotalErrorCount << " mismatches." << "\n";
 	return cTotalErrorCount;

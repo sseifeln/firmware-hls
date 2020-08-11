@@ -71,45 +71,6 @@ std::vector<std::string> split(const std::string& s, char delimiter)
   return tokens;
 }
 
-// S.S.Storey  
-// For some reason writeMemFromFile
-// doesn't work for the IR for Bx>0 
-// this does 
-// why?!?! 
-template<class MemType>
-void writeFromFile(MemType& hMemory, std::ifstream& pInputStream, int pEvent)
-{
-  int cBase=2;
-  hMemory.clear(pEvent);
-  char cStubDelimeter = '|';
-  char cSplitToken=' ';
-  assert(pInputStream.good());
-  int cEventCounter=-1;
-  for(std::string cInputLine; getline( pInputStream, cInputLine ); )
-  {
-    if( cInputLine.find("Event") != std::string::npos ) 
-    {
-      cEventCounter++;
-    }
-    else
-    {
-      if(cEventCounter != pEvent)
-        continue;
-      // split line 
-      std::stringstream cLineContent(cInputLine);
-      for(std::string cToken; getline( cLineContent, cToken , cSplitToken ); )
-      {
-        // look for binary representation of word  
-        if( cToken.find('|') != std::string::npos )  
-        {
-          //remove delimeter
-          cToken.erase( std::remove(cToken.begin(), cToken.end(), cStubDelimeter), cToken.end() );
-          hMemory.write_mem(pEvent, cToken, cBase);
-        }
-      }
-    }
-  }
-}
 
 template<class MemType>
 void writeMemFromFile(MemType& memory, std::ifstream& fin, int ievt, int base=16)
@@ -156,25 +117,26 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
 template<class MemType, int InputBase=16, int OutputBase=16>
 unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
                                 int ievt, const std::string& label,
-                                bool& truncated, int maxProc = kMaxProc)
+                                bool& truncated, int maxProc = kMaxProc
+                                , bool irMemory = false)
 {
   unsigned int err_count = 0;
 
   ////////////////////////////////////////
   // Read from file
   MemType memory_ref;
-  writeFromFile<MemType>(memory_ref, fout, ievt);
-  //writeMemFromFile<MemType>(memory_ref, fout, ievt, InputBase);
+  writeMemFromFile<MemType>(memory_ref, fout, ievt, InputBase);
 
   // Check if at least one of the memories in comparison is non empty
   // before spamming the screen
-  if (memory_ref.getEntries(ievt) or memory.getEntries(ievt)) {
+  int iBx = irMemory ? 0 : ievt;
+  if (memory_ref.getEntries(ievt) or memory.getEntries(iBx)) {
     std::cout << label << ":" << std::endl;
   }
 
   ////////////////////////////////////////
   // compare expected data with those computed and stored in the output memory
-  if (memory.getEntries(ievt)!=0 or memory_ref.getEntries(ievt)!=0)
+  if (memory.getEntries(iBx)!=0 or memory_ref.getEntries(ievt)!=0)
     std::cout << "index" << "\t" << "reference" << "\t" << "computed" << std::endl;
   
   for (int i = 0; i < memory_ref.getEntries(ievt); ++i) {
@@ -193,14 +155,14 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
     if (OutputBase == 2) std::cout << std::bitset<MemType::getWidth()>(data_ref) << "\t";
     else                 std::cout << std::hex << data_ref << "\t";
     
-    if (i >= memory.getEntries(ievt) ) {
+    if (i >= memory.getEntries(iBx) ) {
       // missing entries in the computed memory
       if (not truncated) err_count++;
       std::cout << "missing" << std::endl;
       continue;
     }
 
-    auto data_com = memory.read_mem(ievt,i).raw();
+    auto data_com = memory.read_mem(iBx,i).raw();
     if (OutputBase == 2) std::cout << std::bitset<MemType::getWidth()>(data_com);
     else                 std::cout << std::hex << data_com; // << std::endl;
 
@@ -213,10 +175,10 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
   }
   
   // in case computed memory has extra contents...
-  if (memory.getEntries(ievt) >  memory_ref.getEntries(ievt)) {
+  if (memory.getEntries(iBx) >  memory_ref.getEntries(ievt)) {
     
-    for (int i = memory_ref.getEntries(ievt); i < memory.getEntries(ievt); ++i) {
-      auto data_extra = memory.read_mem(ievt, i).raw();   
+    for (int i = memory_ref.getEntries(ievt); i < memory.getEntries(iBx); ++i) {
+      auto data_extra = memory.read_mem(iBx, i).raw();   
       std::cout << "missing" << "\t" << std::hex << data_extra << std::endl;
       err_count++;
     }
