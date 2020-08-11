@@ -13,10 +13,19 @@
 #include <map>
 
 // link assignment table 
-// link assignment table 
+//static const ap_uint<kLINKMAPwidth> kLinkAssignmentTable[] =
+// #include "../emData/LinkAssignment.dat"
+// ;
+// TO-BE fixed :  need this added to emData 
 static const ap_uint<kLINKMAPwidth> kLinkAssignmentTable[] =
-#include "../emData/LinkAssignment.dat"
-;
+{
+  0x500b9, 0x3000b, 0x3000d, 0x5006d, 
+  0x50082, 0x500a4, 0x60843, 0x8a623, 
+  0x20005, 0x60a62, 0x40047, 0x40087,
+  0x500b9, 0x3000b, 0x3000d, 0x5006d, 
+  0x50082, 0x500a4, 0x60843, 0x8a623, 
+  0x20005, 0x60a62, 0x40047, 0x40087
+};
 
 // LUT with phi corrections to the nominal radius. Only used by layers.
 // Values are determined by the radius and the bend of the stub.
@@ -302,7 +311,6 @@ int main()
 	std::string cDTCname = cDTCname_PS; 
   cDTCname += (cDTCsplit==0) ? "_A" : "_B";
 
-	//MemPrints/InputStubs/
 	std::string cInputFile_LinkMap = "emData/dtclinklayerdisk.dat";
 	std::cout << "Parsing link map : " << cInputFile_LinkMap << std::endl;
 
@@ -360,6 +368,10 @@ int main()
     hLinkWord=kLinkAssignmentTable[hLinkId%24];
     std::cout << "Link Word is " 
       << std::bitset<kLINKMAPwidth>(hLinkWord)
+      << "\t"
+      << std::hex
+      << hLinkWord 
+      << std::dec
       << "\n";
     // module under test here 
   	//ok..but for events > 8?
