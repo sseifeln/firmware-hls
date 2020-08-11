@@ -7,6 +7,7 @@ void InputRouterTop(
     const int kPhiCorrtable_L5[128], const int kPhiCorrtable_L6[128],
     ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink],
     InputStubMemory<TRACKER> hMemories[20]) {
+
 #pragma HLS clock domain = fast_clock
 #pragma HLS interface ap_none port = hLinkId
 #pragma HLS interface ap_none port = hLinkTable
@@ -74,8 +75,7 @@ LOOP_OuterStubLoop:
     if (hStub == 0)
       continue;
 
-    ap_uint<3> hEncLyr =
-        ap_uint<3>(hStub.range(kNBits_DTC - 1, kNBits_DTC - 2) & 0x3);
+    ap_uint<3> hEncLyr = ap_uint<3>(hStub.range(kNBits_DTC - 1, kNBits_DTC - 2) & 0x3);
     ap_uint<kBRAMwidth> hStbWrd = hStub.range(kBRAMwidth - 1, 0);
     // get 36 bit word
     InputStub<TRACKER> hMemWord(hStbWrd);
