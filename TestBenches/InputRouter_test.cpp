@@ -1,6 +1,4 @@
 // InputRouter Test
-#include "InputStubMemory.h"
-#include "AllStubMemory.h"
 #include "InputRouterTop.h"
 #include "FileReadUtility.h"
 
@@ -418,8 +416,10 @@ int main()
 
     //try and make one large array 
     //to hold all memories 
-    InputStubMemory<TRACKER> hMemories[kMaxIRMemories];
-    InputRouterTop( hLinkId 
+    DTCStubMemory hMemories[kMaxIRMemories];
+    //InputStubMemory<TRACKER> hMemories[kMaxIRMemories];
+    InputRouterTop( hBx
+      , hLinkId 
       , kLinkAssignmentTable
       , kPhiCorrtable_L1 
       , kPhiCorrtable_L2
@@ -447,7 +447,7 @@ int main()
         {
           std::string cMemPrint = getMemPrint(cDTCname ,cLyrIndx, cPhiBn, cNonant, hLinkWord);
           std::cout << cMemPrint << "\n";
-          int cErrorCount = compareMemWithFile<InputStubMemory<TRACKER>,16>(hMemories[cMemIndx],cInputStreams[cMemIndx],cSelectedBx,"AllStub",cTruncation,kMaxProc,true);
+          int cErrorCount = compareMemWithFile<DTCStubMemory,16>(hMemories[cMemIndx],cInputStreams[cMemIndx],cSelectedBx,"DTCStub",cTruncation,kMaxProc,true);
           if( cIsLastBx )
             cInputStreams[cMemIndx].close(); 
           cErrors.push_back( cErrorCount );

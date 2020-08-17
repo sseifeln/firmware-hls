@@ -129,7 +129,7 @@ unsigned int compareMemWithFile(const MemType& memory, std::ifstream& fout,
 
   // Check if at least one of the memories in comparison is non empty
   // before spamming the screen
-  int iBx = irMemory ? 0 : ievt;
+  int iBx = ievt; 
   if (memory_ref.getEntries(ievt) or memory.getEntries(iBx)) {
     std::cout << label << ":" << std::endl;
   }

@@ -1,18 +1,19 @@
 #include "InputRouterTop.h"
 
-void InputRouterTop(
+void InputRouterTop(const BXType hBx, 
     const ap_uint<6> hLinkId, const ap_uint<kLINKMAPwidth> hLinkTable[24],
     const int kPhiCorrtable_L1[64], const int kPhiCorrtable_L2[64],
     const int kPhiCorrtable_L3[64], const int kPhiCorrtable_L4[128],
     const int kPhiCorrtable_L5[128], const int kPhiCorrtable_L6[128],
     ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink],
-    InputStubMemory<TRACKER> hMemories[20]) {
+    DTCStubMemory hMemories[20]) {
 
 #pragma HLS clock domain = fast_clock
 #pragma HLS interface ap_none port = hLinkId
 #pragma HLS interface ap_none port = hLinkTable
 #pragma HLS stream variable = hStubs depth = 1
 
+  DTCStubMemory hTkMemory;
   ap_uint<kLINKMAPwidth> hLinkWord = hLinkTable[hLinkId % 24];
   ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth - 1, kLINKMAPwidth - 3);
   ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth - 4, kLINKMAPwidth - 4);
@@ -62,7 +63,7 @@ LOOP_ClearOutputMemories:
 // clear four phi regions at a time ..
 #pragma HLS unroll
     hNStubs[cMemIndx] = 0;
-    (&hMemories[cMemIndx])->clear(0);
+    (&hMemories[cMemIndx])->clear(hBx);
   }
 
   ap_uint<kBRAMwidth> hEmpty = ap_uint<kBRAMwidth>(0);
@@ -78,7 +79,9 @@ LOOP_OuterStubLoop:
     ap_uint<3> hEncLyr = ap_uint<3>(hStub.range(kNBits_DTC - 1, kNBits_DTC - 2) & 0x3);
     ap_uint<kBRAMwidth> hStbWrd = hStub.range(kBRAMwidth - 1, 0);
     // get 36 bit word
-    InputStub<TRACKER> hMemWord(hStbWrd);
+    DTCStub hMemWord(hStbWrd);
+    //InputStub<TRACKER> hMemWord(hStbWrd);
+
     // decode link wrd for this layer
     ap_uint<4> hWrd = hLinkWord.range(4 * hEncLyr + 3, 4 * hEncLyr);
     ap_uint<1> hIsBrl = hWrd.range(1, 0);
@@ -122,7 +125,7 @@ LOOP_OuterStubLoop:
                 << " Current number of entries " << +hEntries << "\n";
     }
 #endif
-    (&hMemories[cMemIndx])->write_mem(0, hMemWord, hEntries);
+    (&hMemories[cMemIndx])->write_mem(hBx, hMemWord, hEntries);
     hNStubs[cMemIndx] = hEntries + 1;
   }
 }

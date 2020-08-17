@@ -3,9 +3,7 @@
 
 
 #include "Constants.h"
-// # bits encoding stub addres on link 
-#include "hls_math.h"
-#include "InputStubMemory.h"
+#include "DTCStubMemory.h"
 #include "AllStubMemory.h"
 #include "VMRouter.h"
 
@@ -85,41 +83,8 @@ void GetPhiBinDsk(const ap_uint<kNBits_DTC> inStub
 	phiBn = inStub.range(hPhiMSB,hPhiLSB) & 0x7;
 }
 
-
-// template<regionType ASType> 
-// void GetPhiBin(const ap_uint<kNBits_DTC> inStub
-// 	, ap_uint<3> pLyrId 
-// 	, ap_uint<3> &phiBn )
-// {
-// 	#pragma HLS pipeline II=1 
-// 	#pragma HLS inline 
-// 	ap_uint<5> hPhiMSB = AllStub<ASType>::kASPhiMSB;
-// 	ap_uint<5> hPhiLSB;
-// 	if( pLyrId == 1 && ASType == BARRELPS ) 
-// 		hPhiLSB = AllStub<ASType>::kASPhiMSB-(3-1);
-// 	else
-// 		hPhiLSB = AllStub<ASType>::kASPhiMSB-(2-1);
-
-// 	// check if phi of input stub needs to be corrected 
-// 	if( PHI_CORRECTION ) 
-// 	{
-// 		AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
-// 		if( (ASType == BARRELPS || ASType == BARREL2S) )
-// 		{
-// 			// Corrected phi, i.e. phi at nominal radius (what about disks?)
-// 			// for now I'm going to use the one from the VMRouter 
-// 			// because .. they should be the same 
-// 			auto hPhi = getPhiCorr<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), phicorrtable_L1); 
-// 			hStub.setPhi(hPhi);
-// 		}
-// 		phiBn = hStub.raw().range(hPhiMSB,hPhiLSB) & 0x7;
-// 	}
-// 	else
-// 		phiBn = inStub.range(hPhiMSB,hPhiLSB) & 0x7;
-// }
-
-
-void InputRouterTop( const ap_uint<6> hLinkId 
+void InputRouterTop( const BXType hBx
+	, const ap_uint<6> hLinkId 
 	, const ap_uint<kLINKMAPwidth> hLinkTable[24] 
 	, const int kPhiCorrtable_L1[64]
 	, const int kPhiCorrtable_L2[64]
@@ -128,8 +93,7 @@ void InputRouterTop( const ap_uint<6> hLinkId
 	, const int kPhiCorrtable_L5[128]
 	, const int kPhiCorrtable_L6[128]
 	, ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink]
-	, InputStubMemory<TRACKER> hMemories[20]);
-
+	, DTCStubMemory hMemories[20]);
 
 #endif
 

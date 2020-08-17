@@ -54,7 +54,7 @@ constexpr int zmean[5] = {
 };
 
 // List of regions for memory template parameters
-enum regionType {BARRELPS, BARREL2S, BARRELOL, BARREL, DISKPS, DISK2S, DISK, TRACKER};
+enum regionType {BARRELPS, BARREL2S, BARRELOL, BARREL, DISKPS, DISK2S, DISK};
 
 // Global BX type
 typedef ap_uint<kNBits_BX> BXType;  // temporary definition. need to be revisited
