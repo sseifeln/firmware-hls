@@ -22,7 +22,54 @@ constexpr int kLINKMAPwidth = 20;
 // #pragma HLS stream depth=8 variable=OutStream
 
 
+// maximum number of IR memories 
+constexpr unsigned int kNMemories = 20;
+
 #define IR_DEBUG false
+
+
+
+// Get the corrected phi, i.e. phi at the average radius of the barrel
+template<regionType ASType, unsigned int nCorrBns> 
+void GetPhiCorrection(
+		const typename AllStub<ASType>::ASPHI phi,
+		const typename AllStub<ASType>::ASR r,
+		const typename AllStub<ASType>::ASBEND bend, 
+		const int phicorrtable[nCorrBns], 
+		typename AllStub<ASType>::ASPHI &corrPhi ) {
+
+	#pragma HLS pipeline II=1 
+	#pragma HLS interface ap_none port = phicorrtable
+	//#pragma HLS array_partition variable = phicorrtable complete
+	
+	// local copy of table 
+	if (ASType == DISKPS || ASType == DISK2S)
+	{
+		corrPhi = phi;
+	}
+	else
+	{
+		constexpr auto rbins = 1 << nrbitsphicorrtable; // The number of bins for r
+
+		ap_uint<nrbitsphicorrtable> rbin = (r + (1 << (r.length() - 1)))
+				>> (r.length() - nrbitsphicorrtable); // Which bin r belongs to. Note r = 0 is mid radius
+		auto index = bend * rbins + rbin; // Index for where we find our correction value
+		int hPhiCorr = phicorrtable[index];
+		// LOOP_GetPhiCorr:
+		// for (unsigned int cIndx = 0; cIndx < nCorrBns; cIndx++) 
+		// {
+		// 	#pragma HLS unroll
+		// 	if( cIndx == index ) hPhiCorr = phicorrtable[cIndx];
+		// }
+		corrPhi = phi - hPhiCorr; // the corrected phi
+		
+		// Check for overflow
+		if (corrPhi < 0)
+			corrPhi = 0; // can't be less than 0
+		if (corrPhi >= 1 << phi.length())
+			corrPhi = (1 << phi.length()) - 1;  // can't be more than the max value
+	}
+}
 
 template<regionType ASType, unsigned int nCorrBns> 
 void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
@@ -34,6 +81,7 @@ void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
 {
 	#pragma HLS pipeline II=1 
 	#pragma HLS inline 
+
 	ap_uint<8> hPhiMSB = AllStub<ASType>::kASPhiMSB;
 	ap_uint<8> hPhiLSB;
 	if( pLyrId == 1 && ASType == BARRELPS ) 
@@ -52,18 +100,23 @@ void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
 			}
 	#endif
 	AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
-	// Corrected phi, i.e. phi at nominal radius (what about disks?)
-	// for now I'm going to use the one from the VMRouter 
-	// because .. they should be the same 
-	const int* pCorrTable=kPhiCorrtable_L1;
-	if( pLyrId == 2 || pLyrId == 5 ) 
-		pCorrTable =kPhiCorrtable_L2; 
+	typename AllStub<ASType>::ASPHI hPhiCorrected; 
+	if( pLyrId == 1 || pLyrId == 4 )
+	{  
+		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L1, hPhiCorrected); 
+	}
+	else if( pLyrId == 2 || pLyrId == 5 )
+	{  
+		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L2, hPhiCorrected); 
+	}
 	else if( pLyrId == 3 || pLyrId == 6 )
-		pCorrTable =kPhiCorrtable_L3; 
-	// corrected phi 
-	auto hPhi = getPhiCorr<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), pCorrTable); 
-	hStub.setPhi(hPhi);
+	{  
+		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L3, hPhiCorrected); 
+	}
+	hStub.setPhi(hPhiCorrected);
 	phiBn = hStub.raw().range(hPhiMSB,hPhiLSB) & 0x7;
+	
+	
 }
 
 template<regionType ASType> 

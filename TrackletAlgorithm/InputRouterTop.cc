@@ -8,18 +8,30 @@ void InputRouterTop(const BXType hBx,
     ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink],
     DTCStubMemory hMemories[20]) {
 
-#pragma HLS clock domain = fast_clock
+#pragma HLS clock domain = slow_clock
 #pragma HLS interface ap_none port = hLinkId
-#pragma HLS interface ap_none port = hLinkTable
+#pragma HLS interface ap_memory port = hLinkTable
 #pragma HLS stream variable = hStubs depth = 1
 
+// link words... local copy  
+// ap_uint<kLINKMAPwidth> hLinkWords[24];
+
+// #pragma HLS array_partition variable = hLinkWords complete
+// #pragma HLS array_partition variable = hLinkTable complete
+// LOOP_GetLnkWrds:
+//   for (unsigned int cIndx = 0; cIndx < 24; cIndx++) {
+// #pragma HLS unroll
+//     hLinkWords[cIndx] = hLinkTable[cIndx%24];
+//   }
+
   DTCStubMemory hTkMemory;
-  ap_uint<kLINKMAPwidth> hLinkWord = hLinkTable[hLinkId % 24];
+  ap_uint<kLINKMAPwidth> hLinkWord = hLinkTable[hLinkId % 12];
   ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth - 1, kLINKMAPwidth - 3);
   ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth - 4, kLINKMAPwidth - 4);
 #ifndef __SYNTHESIS__
   if (IR_DEBUG) {
-    std::cout << "Link Word is " << std::bitset<kLINKMAPwidth>(hLinkWord)
+    std::cout << "Link# " << +hLinkId 
+              << " Link Word is " << std::bitset<kLINKMAPwidth>(hLinkWord)
               << " - Is2S bit is set to " << hIs2S << "\n";
   }
 #endif
@@ -55,21 +67,26 @@ LOOP_GetNPhiBns:
     }
   }
   // clear memories and stub counter
-  constexpr unsigned int kNMemories = 20;
   ap_uint<8> hNStubs[kNMemories];
 #pragma HLS array_partition variable = hNStubs complete
 LOOP_ClearOutputMemories:
   for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
-// clear four phi regions at a time ..
 #pragma HLS unroll
-    hNStubs[cMemIndx] = 0;
-    (&hMemories[cMemIndx])->clear(hBx);
+    hNStubs[cMemIndx] = (&hMemories[cMemIndx])->getEntries(hBx);
+#ifndef __SYNTHESIS__
+    std::cout << ".........."
+      << +(&hMemories[cMemIndx])->getEntries(hBx) 
+      << " entries... "
+      << "\n";
+#endif
   }
 
   ap_uint<kBRAMwidth> hEmpty = ap_uint<kBRAMwidth>(0);
-LOOP_OuterStubLoop:
+LOOP_ProcessStub:
   for (int cStubCounter = 0; cStubCounter < kMaxStubsFromLink; cStubCounter++) {
 #pragma HLS pipeline II = 1
+//#pragma HLS PIPELINE rewind
+
     // decode stub
     // check which memory
     ap_uint<kNBits_DTC> hStub = hStubs[cStubCounter];
@@ -80,8 +97,7 @@ LOOP_OuterStubLoop:
     ap_uint<kBRAMwidth> hStbWrd = hStub.range(kBRAMwidth - 1, 0);
     // get 36 bit word
     DTCStub hMemWord(hStbWrd);
-    //InputStub<TRACKER> hMemWord(hStbWrd);
-
+    
     // decode link wrd for this layer
     ap_uint<4> hWrd = hLinkWord.range(4 * hEncLyr + 3, 4 * hEncLyr);
     ap_uint<1> hIsBrl = hWrd.range(1, 0);
@@ -93,7 +109,6 @@ LOOP_OuterStubLoop:
         GetPhiBinBrl<BARRELPS, 64>(hStub, kPhiCorrtable_L1, kPhiCorrtable_L2,
                                    kPhiCorrtable_L3, hLyrId, hPhiBn);
       else
-        // GetPhiBinDsk<BARREL2S>(hStub, hLyrId, hPhiBn);
         GetPhiBinBrl<BARREL2S, 128>(hStub, kPhiCorrtable_L4, kPhiCorrtable_L5,
                                     kPhiCorrtable_L6, hLyrId, hPhiBn);
     } else {
@@ -105,16 +120,18 @@ LOOP_OuterStubLoop:
 
     // update index
     unsigned int cIndx = 0;
-  LOOP_UpdateIndxLoop:
+  LOOP_UpdateMemIndx:
     for (int cLyr = 0; cLyr < kNLayers; cLyr++) {
 #pragma HLS unroll
       // update index
       cIndx += (cLyr < hEncLyr) ? (unsigned int)(hNPhiBns[cLyr]) : 0;
     }
+    
     // write to memory
     unsigned int cMemIndx = cIndx + hPhiBn;
     assert(cMemIndx < cNMemories);
     // get entries
+    //ap_uint<8> hEntries = +(&hMemories[cMemIndx])->getEntries(hBx); 
     ap_uint<8> hEntries = hNStubs[cMemIndx];
 #ifndef __SYNTHESIS__
     if (IR_DEBUG) {
@@ -128,4 +145,15 @@ LOOP_OuterStubLoop:
     (&hMemories[cMemIndx])->write_mem(hBx, hMemWord, hEntries);
     hNStubs[cMemIndx] = hEntries + 1;
   }
+
+#ifndef __SYNTHESIS__
+  std::cout << "After processing...\n";
+  for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
+    std::cout << ".........."
+      << +(&hMemories[cMemIndx])->getEntries(hBx) 
+      << " entries... "
+      << "\n";
+  }
+#endif
+
 }
