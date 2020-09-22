@@ -17,9 +17,6 @@ static const ap_uint<kLINKMAPwidth> kLinkAssignmentTable[] =
   0x500b9, 0x3000b, 0x3000d, 0x5006d, 
   0x50082, 0x500a4, 0x60843, 0x8a623, 
   0x20005, 0x60a62, 0x40047, 0x40087
-  //0x500b9, 0x3000b, 0x3000d, 0x5006d, 
-  //0x50082, 0x500a4, 0x60843, 0x8a623, 
-  //0x20005, 0x60a62, 0x40047, 0x40087
 };
 
 // LUT with phi corrections to the nominal radius. Only used by layers.
@@ -429,7 +426,7 @@ void procInputRouter(DTCStubMemory *hMemories
 
 	ap_uint<6> hLinkId(pLinkId);
 	ap_uint<kLINKMAPwidth> hLinkWord = 0x00;
-	hLinkWord = kLinkAssignmentTable[hLinkId%24];
+	hLinkWord = kLinkAssignmentTable[hLinkId%12];
 	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
 	std::cout << "Link Word is " 
 	<< std::bitset<kLINKMAPwidth>(hLinkWord)
@@ -459,7 +456,6 @@ void procInputRouter(DTCStubMemory *hMemories
 // containing data from 
 // reference memories 
 // produced by emulation 
-	
 void prepareInputStreams( ifstream * pInputStreams
   , int pLinkId
   , int pDTCsplit = 0 
@@ -486,6 +482,7 @@ void prepareInputStreams( ifstream * pInputStreams
 			std::string cMemPrint = getMemPrint(cDTCName ,cLyrIndx, cPhiBn, pNonant, hLinkWord);
 			if( !cMemPrint.empty() )
 			{
+        std::cout << "Loading stubs from .. " << cMemPrint << "\n";
 				openDataFile(pInputStreams[cMemIndx],cMemPrint); 
 			}
 			cMemIndx++;
@@ -493,45 +490,37 @@ void prepareInputStreams( ifstream * pInputStreams
 	}
 }
 
-int verifyInputRouter( int pLinkId 
-	, int pBxId 
-	, DTCStubMemory hMemories[kMaxIRMemories]
-	, ifstream pInputStreams[kMaxIRMemories]
-	, bool pTruncation=false )
+// check HLS against emulation 
+template< class DataType, int nMemories>
+int verifyHLS( int pBxId 
+  , DataType* hMemories
+  , DataType* hRefMemories
+  , bool pTruncated=false )
 {
 
-	ap_uint<kLINKMAPwidth> hLinkWord = kLinkAssignmentTable[pLinkId%12];
-  	ap_uint<1> hIs2S = hLinkWord.range(kLINKMAPwidth-3,kLINKMAPwidth-4);
-  
-	int cTotalErrorCount=0;
-	std::vector<std::vector<int>> cErrorCount(0);
-  	// prepare file streams 
-  	// containing data from 
-  	// reference memories 
-  	// produced by emulation 
-  	int cMemIndx=0;
-  	for(int cLyrIndx=0; cLyrIndx< kMaxLyrsPerDTC; cLyrIndx++)
-	{
-		ap_uint<4> hWrd = hLinkWord.range(4*cLyrIndx+3,4*cLyrIndx);
-		if( hWrd == 0) continue;
-		ap_uint<1> hIsBrl = hWrd.range(1,0);
-		ap_uint<3> hLyrId = hWrd.range(3,1);
-		// then over phi bins
-		int cNPhiBns = ( (hIs2S==0) && hLyrId==1 && hIsBrl) ? 8 : 4; 
-		std::vector<int> cErrors(0);
-		for( int cPhiBn=0; cPhiBn<cNPhiBns; cPhiBn++)
-		{
-		    if( pInputStreams[cMemIndx].is_open() )
-		    {
-		    	int cNerrors = compareMemWithFile<DTCStubMemory,16>(hMemories[cMemIndx],pInputStreams[cMemIndx],pBxId,"DTCStub",pTruncation,kMaxProc,true);
-		   	 	cErrors.push_back( cNerrors );
-		   	 }
-			cMemIndx++;
-		}//phi bins
-		cTotalErrorCount += std::accumulate(cErrors.begin(), cErrors.end(), 0);
-	}//lyrs
-	return cTotalErrorCount;
+  BXType hBx = pBxId&0x7;
+  int cTotalErrorCount=0;
+  std::vector<int> cErrorCount(0);
+  for(int cMemIndx=0; cMemIndx< nMemories; cMemIndx++)
+  {
+    if( hRefMemories[cMemIndx].getEntries(hBx) == 0  ) continue;
+
+    std::cout << dec 
+      << "Comparing stubs from memory#" 
+      << +cMemIndx 
+      << " found "
+      << +hMemories[cMemIndx].getEntries(hBx) 
+      << " entries in memory produced by the HLS...and "
+      << +hRefMemories[cMemIndx].getEntries(hBx) 
+      << " entries in memory produced by emulation.\n";
+
+    int cNerrors = compareMems<DTCStubMemory,16>(hRefMemories[cMemIndx], hMemories[cMemIndx] , pBxId  , "DTCStubMemory" , pTruncated );
+    cErrorCount.push_back( cNerrors );
+  }//lyrs
+  cTotalErrorCount += std::accumulate(cErrorCount.begin(), cErrorCount.end(), 0);
+  return cTotalErrorCount;
 }
+
 
 // pInputFile_LinkMap dtc link layer map 
 // pDTCsplit - which half of the cabling nonant 
@@ -554,10 +543,18 @@ int simInputRouter(DTCStubMemory *hMemories
 	  , pNonant 
 	  , pInputFile_LinkMap );
 
+  // prepare memories based on input streams 
+  DTCStubMemory hRefMems[kMaxIRMemories]; 
+  DTCStubMemory hVrfRefMems[kMaxIRMemories]; 
   // get inputs 
   std::vector<int> cErrorCount(0);
+  std::vector<int> cPhiMissing(0);
+  std::vector<int> cMemIndxMissing(0);
   for( int cBxId=pFirstBx; cBxId < pLastBx ; cBxId++)
   {
+    // BxId  
+    BXType hBx = cBxId&0x7;
+
     std::cout << "Processing input router , Bx# " << +cBxId << "\n";
     // get stubs from input file 
     ap_uint<kNBits_DTC> cStubs[kMaxStubsFromLink];
@@ -565,15 +562,71 @@ int simInputRouter(DTCStubMemory *hMemories
     	, pDTCsplit
     	, pInputFile_LinkMap );
 
+    // fill reference memories
+    for( int cMemIndx=0; cMemIndx < kMaxIRMemories; cMemIndx++ )
+    {
+      if( !cInputStreams[cMemIndx].is_open() ) continue; 
+      
+      getFromFile<DTCStubMemory,2>(hRefMems[cMemIndx], cInputStreams[cMemIndx] ,cBxId );
+      // reset input file stream back to the start 
+      cInputStreams[cMemIndx].clear();
+      cInputStreams[cMemIndx].seekg (0, ios::beg);
+    }
+    
     // process 
     procInputRouter(hMemories , pLinkId  , cBxId , cStubs ); 
 
-    // check 
-    int cNerrors = verifyInputRouter( pLinkId  , cBxId 
-    	, hMemories
-    	, cInputStreams
-    	, pTruncation);
-    cErrorCount.push_back( cNerrors );
+    // check if all these entries are in the emulated memory  
+    // also appear in the file with the input stubs 
+    for( int cMemIndx=0; cMemIndx < kMaxIRMemories; cMemIndx++ )
+    {
+      if( hRefMems[cMemIndx].getEntries(hBx) == 0 ) continue; 
+      
+      // clear memory 
+      hVrfRefMems[cMemIndx].clear(hBx);
+      for( int cIndx=0; cIndx <  hRefMems[cMemIndx].getEntries(hBx); cIndx++ ) 
+      {
+        auto cRaw = hRefMems[cMemIndx].read_mem(hBx, cIndx).raw();
+        ap_uint<1> cFound=0;
+        for( auto cStub : cStubs ) 
+        {
+          if( cStub == 0x00 ) continue;
+          if( cStub.range(kBRAMwidth-1,0) == cRaw ){
+            cFound=1;
+            std::stringstream ss;
+            ss << hex << (long long)(cStub.range(kBRAMwidth-1,0)) << dec ;
+            if( IR_DEBUG )
+            {
+              std::cout << hex << cStub.range(kBRAMwidth-1,0)
+                << " "
+                << ss.str() 
+                << std::dec << "\n";
+            }
+            hVrfRefMems[cMemIndx].write_mem(hBx, ss.str());
+          } 
+        } 
+        if( cFound == 0  && cMemIndx < 8  )
+        {
+          AllStub<BARRELPS> hStub( cRaw );
+          cPhiMissing.push_back( hStub.getPhi() );
+          cMemIndxMissing.push_back( cMemIndx );
+        }
+      }// loop over memory entries  from emulation reference 
+      if( IR_DEBUG )
+      {
+        std::cout << "Mem#" << +cMemIndx 
+         << " has been filled with " << +hRefMems[cMemIndx].getEntries(hBx)
+         << " in emulator...."
+         << " reference used for comparison has " 
+         << +hVrfRefMems[cMemIndx].getEntries(hBx)
+         << " entries. This has been checked against input!!! \n";
+      }
+    }
+    
+    // verify HLS  
+    // int cNerrors = verifyHLS<DTCStubMemory, kMaxIRMemories>( cBxId ,hMemories
+    //   , hVrfRefMems, pTruncation ); 
+    // cErrorCount.push_back( cNerrors );
   }// loop over Bx Ids 
     
   // close streams
@@ -582,7 +635,18 @@ int simInputRouter(DTCStubMemory *hMemories
   	if( !cInputStreams[cMemIndx].is_open() ) continue;
   	cInputStreams[cMemIndx].close();
   }
-    
+  
+  int cIndx=0;
+  for(auto cMissing : cPhiMissing )
+  {
+    std::cout <<  std::dec 
+      << " Missing Barrel PS stub, layer 1 with phi value "
+      << cMissing << " from emulated memory#" 
+      << +cMemIndxMissing[cIndx] 
+      << " which is phi bin " 
+      << cMissing/(16383./8.) << "\n";
+    cIndx++;  
+  }
   // return error count 
   return std::accumulate(cErrorCount.begin(), cErrorCount.end(), 0);  
 }

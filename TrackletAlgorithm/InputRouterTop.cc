@@ -13,17 +13,6 @@ void InputRouterTop(const BXType hBx,
 #pragma HLS interface ap_memory port = hLinkTable
 #pragma HLS stream variable = hStubs depth = 1
 
-// link words... local copy  
-// ap_uint<kLINKMAPwidth> hLinkWords[24];
-
-// #pragma HLS array_partition variable = hLinkWords complete
-// #pragma HLS array_partition variable = hLinkTable complete
-// LOOP_GetLnkWrds:
-//   for (unsigned int cIndx = 0; cIndx < 24; cIndx++) {
-// #pragma HLS unroll
-//     hLinkWords[cIndx] = hLinkTable[cIndx%24];
-//   }
-
   DTCStubMemory hTkMemory;
   ap_uint<kLINKMAPwidth> hLinkWord = hLinkTable[hLinkId % 12];
   ap_uint<3> hNLayers = hLinkWord.range(kLINKMAPwidth - 1, kLINKMAPwidth - 3);
@@ -60,33 +49,36 @@ LOOP_GetNPhiBns:
       if (IR_DEBUG) {
         std::cout << "Lyr#" << cIndx << " encoded word " << std::bitset<4>(hWrd)
                   << " - " << hNPhiBns[cIndx] << " phi bins"
+                  << " -- layer id is " << +hLyrId 
                   << "\n";
       }
 #endif
       cNMemories += (unsigned int)(hNPhiBns[cIndx]);
     }
   }
-  // clear memories and stub counter
-  ap_uint<8> hNStubs[kNMemories];
+// clear memories and stub counter
+ap_uint<8> hNStubs[kNMemories];
 #pragma HLS array_partition variable = hNStubs complete
 LOOP_ClearOutputMemories:
   for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
 #pragma HLS unroll
-    hNStubs[cMemIndx] = (&hMemories[cMemIndx])->getEntries(hBx);
+    hNStubs[cMemIndx] = 0;
+    (&hMemories[cMemIndx])->clear(hBx);
+    //hNStubs[cMemIndx] = (&hMemories[cMemIndx])->getEntries(hBx);
 #ifndef __SYNTHESIS__
+    if (IR_DEBUG) {
     std::cout << ".........."
       << +(&hMemories[cMemIndx])->getEntries(hBx) 
       << " entries... "
       << "\n";
+    }
 #endif
   }
 
-  ap_uint<kBRAMwidth> hEmpty = ap_uint<kBRAMwidth>(0);
 LOOP_ProcessStub:
   for (int cStubCounter = 0; cStubCounter < kMaxStubsFromLink; cStubCounter++) {
 #pragma HLS pipeline II = 1
-//#pragma HLS PIPELINE rewind
-
+#pragma HLS PIPELINE rewind
     // decode stub
     // check which memory
     ap_uint<kNBits_DTC> hStub = hStubs[cStubCounter];
@@ -147,12 +139,14 @@ LOOP_ProcessStub:
   }
 
 #ifndef __SYNTHESIS__
-  std::cout << "After processing...\n";
-  for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
-    std::cout << ".........."
-      << +(&hMemories[cMemIndx])->getEntries(hBx) 
-      << " entries... "
-      << "\n";
+  if (IR_DEBUG) {
+    std::cout << "After processing...\n";
+    for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
+      std::cout << ".........."
+        << +(&hMemories[cMemIndx])->getEntries(hBx) 
+        << " entries... "
+        << "\n";
+    }
   }
 #endif
 

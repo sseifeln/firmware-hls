@@ -5,7 +5,7 @@
 #include "Constants.h"
 #include "DTCStubMemory.h"
 #include "AllStubMemory.h"
-#include "VMRouter.h"
+//#include "VMRouter.h"
 
 // link map
 constexpr int kLINKMAPwidth = 20;
@@ -24,52 +24,41 @@ constexpr int kLINKMAPwidth = 20;
 
 // maximum number of IR memories 
 constexpr unsigned int kNMemories = 20;
+// Number of MSBs used for r index in phicorr LUTs
+constexpr int kNBitsPhiCorrTableR = 3; // Found hardcoded in VMRouterphicorrtable.h
 
+//
 #define IR_DEBUG false
 
-
-
 // Get the corrected phi, i.e. phi at the average radius of the barrel
-template<regionType ASType, unsigned int nCorrBns> 
-void GetPhiCorrection(
-		const typename AllStub<ASType>::ASPHI phi,
-		const typename AllStub<ASType>::ASR r,
-		const typename AllStub<ASType>::ASBEND bend, 
-		const int phicorrtable[nCorrBns], 
-		typename AllStub<ASType>::ASPHI &corrPhi ) {
+// Corrected phi is used by ME and TE memories in the barrel
+template<regionType InType>
+inline typename AllStub<InType>::ASPHI getPhiCorr(
+		const typename AllStub<InType>::ASPHI phi,
+		const typename AllStub<InType>::ASR r,
+		const typename AllStub<InType>::ASBEND bend, const int phicorrtable[]) {
 
-	#pragma HLS pipeline II=1 
-	#pragma HLS interface ap_none port = phicorrtable
-	//#pragma HLS array_partition variable = phicorrtable complete
+	if (InType == DISKPS || InType == DISK2S)
+		return phi; // Do nothing if disks
+
+	constexpr auto rbins = 1 << kNBitsPhiCorrTableR; // The number of bins for r
+
+	ap_uint<kNBitsPhiCorrTableR> rbin = (r + (1 << (r.length() - 1)))
+			>> (r.length() - kNBitsPhiCorrTableR); // Which bin r belongs to. Note r = 0 is mid radius
+	auto index = bend * rbins + rbin; // Index for where we find our correction value
+	auto corrval = phicorrtable[index]; // The amount we need to correct our phi
+
+	auto phicorr = phi - corrval; // the corrected phi
 	
-	// local copy of table 
-	if (ASType == DISKPS || ASType == DISK2S)
-	{
-		corrPhi = phi;
-	}
-	else
-	{
-		constexpr auto rbins = 1 << nrbitsphicorrtable; // The number of bins for r
+	// Check for overflow
+	if (phicorr < 0)
+		phicorr = 0; // can't be less than 0
+	if (phicorr >= 1 << phi.length())
+		phicorr = (1 << phi.length()) - 1;  // can't be more than the max value
 
-		ap_uint<nrbitsphicorrtable> rbin = (r + (1 << (r.length() - 1)))
-				>> (r.length() - nrbitsphicorrtable); // Which bin r belongs to. Note r = 0 is mid radius
-		auto index = bend * rbins + rbin; // Index for where we find our correction value
-		int hPhiCorr = phicorrtable[index];
-		// LOOP_GetPhiCorr:
-		// for (unsigned int cIndx = 0; cIndx < nCorrBns; cIndx++) 
-		// {
-		// 	#pragma HLS unroll
-		// 	if( cIndx == index ) hPhiCorr = phicorrtable[cIndx];
-		// }
-		corrPhi = phi - hPhiCorr; // the corrected phi
-		
-		// Check for overflow
-		if (corrPhi < 0)
-			corrPhi = 0; // can't be less than 0
-		if (corrPhi >= 1 << phi.length())
-			corrPhi = (1 << phi.length()) - 1;  // can't be more than the max value
-	}
+	return phicorr;
 }
+
 
 template<regionType ASType, unsigned int nCorrBns> 
 void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
@@ -89,33 +78,43 @@ void GetPhiBinBrl(const ap_uint<kNBits_DTC> inStub
 	else
 		hPhiLSB = AllStub<ASType>::kASPhiMSB-(2-1);
 
+	AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
+	ap_uint<3> phiBnRaw = hStub.raw().range(hPhiMSB,hPhiLSB) & 0x7;
+
 	#ifndef __SYNTHESIS__
 			if( IR_DEBUG )
 			{
-				std::cout << "\t.. bend is " 
-					<< +AllStub<ASType>::kASBendSize
-					<< " bits : "
-					<< std::bitset<AllStub<ASType>::kASBendSize>(inStub.range(AllStub<ASType>::kASBendMSB,AllStub<ASType>::kASBendLSB))
+				std::cout << "\t\t.. original phi bin is "
+					<< phiBnRaw
 					<< "\n";
 			}
 	#endif
-	AllStub<ASType> hStub(inStub.range(kBRAMwidth-1,0));
 	typename AllStub<ASType>::ASPHI hPhiCorrected; 
 	if( pLyrId == 1 || pLyrId == 4 )
 	{  
-		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L1, hPhiCorrected); 
+		//GetPhiCorrection<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L1,hPhiCorrected); 
+		hPhiCorrected = getPhiCorr<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L1); 
 	}
 	else if( pLyrId == 2 || pLyrId == 5 )
 	{  
-		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L2, hPhiCorrected); 
+		//GetPhiCorrection<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L2,hPhiCorrected); 
+		hPhiCorrected = getPhiCorr<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L2); 
 	}
 	else if( pLyrId == 3 || pLyrId == 6 )
 	{  
-		GetPhiCorrection<ASType,nCorrBns>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L3, hPhiCorrected); 
+		//GetPhiCorrection<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L3,hPhiCorrected); 
+		hPhiCorrected = getPhiCorr<ASType>(hStub.getPhi(), hStub.getR(), hStub.getBend(), kPhiCorrtable_L3); 
 	}
 	hStub.setPhi(hPhiCorrected);
 	phiBn = hStub.raw().range(hPhiMSB,hPhiLSB) & 0x7;
-	
+	#ifndef __SYNTHESIS__
+			if( IR_DEBUG )
+			{
+				std::cout << "\t\t.. after correction phi bin is "
+					<< phiBn
+					<< "\n";
+			}
+	#endif
 	
 }
 
