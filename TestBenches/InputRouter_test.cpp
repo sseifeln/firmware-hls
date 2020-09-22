@@ -1,7 +1,7 @@
 // InputRouter Test
 #include "InputRouterTop.h"
 #include "FileReadUtility.h"
-#include "LinkUtility.h"
+#include "InputStubs.h"
 
 #include <iostream>
 #include <fstream>

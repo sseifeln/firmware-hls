@@ -20,7 +20,7 @@ source settings_hls.tcl
 # data files
 add_files -tb ../emData/
 
-create_clock -period 250MHz -name slow_clock 
+create_clock -period 240MHz -name slow_clock 
 create_clock -period 480MHz -name fast_clock
 
 set nProc [exec nproc]
