@@ -40,7 +40,6 @@ static const int kPhiCorrtable_L6[] =
 #include "../emData/MemPrints/Tables/VMPhiCorrL6.txt"
 ;
 
-
 using namespace std;
 
 // map of input links  [per DTC ]
@@ -396,6 +395,7 @@ std::string getDTCName( int pLinkId
 	return cDTCName;
 }
 
+// fill from input files 
 void fillInputStubs(ap_uint<kNBits_DTC> *pStubs 
 , int pLinkId
 , int pBxSelected 
@@ -418,6 +418,7 @@ void fillInputStubs(ap_uint<kNBits_DTC> *pStubs
 	readStubs( cLinkName , pBxSelected, pStubs ) ;
 }
 
+// process stubs 
 void procInputRouter(DTCStubMemory *hMemories
   , int pLinkId 
   , int pBxSelected 
@@ -461,7 +462,6 @@ void prepareInputStreams( ifstream * pInputStreams
   , int pDTCsplit = 0 
   , int pNonant = 4 
   , std::string pInputFile_LinkMap = "emData/dtclinklayerdisk.dat" )
-
 {
 	std::string cDTCName = getDTCName( pLinkId, pDTCsplit , pInputFile_LinkMap); 
 	std::cout << "DTC " << cDTCName << " is link#" <<  pLinkId << std::endl;
@@ -526,13 +526,13 @@ int verifyHLS( int pBxId
 // pDTCsplit - which half of the cabling nonant 
 // pNonant - which cabling nonant 
 int simInputRouter(DTCStubMemory *hMemories
+  , bool& pTruncated
   , int pLinkId = 0 
   , std::string pInputFile_LinkMap = "emData/dtclinklayerdisk.dat"
   , int pFirstBx = 0 
   , int pLastBx = 12
   , int pDTCsplit = 0 
-  , int pNonant = 4 
-  , bool pTruncation = false )
+  , int pNonant = 4  )
 {
 
   // prepare input streams 
@@ -543,13 +543,18 @@ int simInputRouter(DTCStubMemory *hMemories
 	  , pNonant 
 	  , pInputFile_LinkMap );
 
-  // prepare memories based on input streams 
+  
+  // declare reference memories 
   DTCStubMemory hRefMems[kMaxIRMemories]; 
+  // declare reference memories that are 
+  // checked against inputs 
+  // these will be used to verify the HLS 
   DTCStubMemory hVrfRefMems[kMaxIRMemories]; 
-  // get inputs 
+  // book keeping 
   std::vector<int> cErrorCount(0);
   std::vector<int> cPhiMissing(0);
   std::vector<int> cMemIndxMissing(0);
+  // loop over events 
   for( int cBxId=pFirstBx; cBxId < pLastBx ; cBxId++)
   {
     // BxId  
@@ -624,9 +629,9 @@ int simInputRouter(DTCStubMemory *hMemories
     }
     
     // verify HLS  
-    // int cNerrors = verifyHLS<DTCStubMemory, kMaxIRMemories>( cBxId ,hMemories
-    //   , hVrfRefMems, pTruncation ); 
-    // cErrorCount.push_back( cNerrors );
+    int cNerrors = verifyHLS<DTCStubMemory, kMaxIRMemories>( cBxId ,hMemories
+      , hVrfRefMems, pTruncated ); 
+    cErrorCount.push_back( cNerrors );
   }// loop over Bx Ids 
     
   // close streams
@@ -635,17 +640,21 @@ int simInputRouter(DTCStubMemory *hMemories
   	if( !cInputStreams[cMemIndx].is_open() ) continue;
   	cInputStreams[cMemIndx].close();
   }
-  
-  int cIndx=0;
-  for(auto cMissing : cPhiMissing )
+
+  // report missing stubs [ref vs. input ]  
+  if(IR_DEBUG)
   {
-    std::cout <<  std::dec 
-      << " Missing Barrel PS stub, layer 1 with phi value "
-      << cMissing << " from emulated memory#" 
-      << +cMemIndxMissing[cIndx] 
-      << " which is phi bin " 
-      << cMissing/(16383./8.) << "\n";
-    cIndx++;  
+    int cIndx=0;
+    for(auto cMissing : cPhiMissing )
+    {
+      std::cout <<  std::dec 
+        << " Missing Barrel PS stub, layer 1 with phi value "
+        << cMissing << " from emulated memory#" 
+        << +cMemIndxMissing[cIndx] 
+        << " which is phi bin " 
+        << cMissing/(16383./8.) << "\n";
+      cIndx++;  
+    }
   }
   // return error count 
   return std::accumulate(cErrorCount.begin(), cErrorCount.end(), 0);  

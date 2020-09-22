@@ -2,10 +2,11 @@
 #define TrackletAlgorithm_InputRouterTop_h
 
 
+#include <cassert>
 #include "Constants.h"
 #include "DTCStubMemory.h"
 #include "AllStubMemory.h"
-//#include "VMRouter.h"
+
 
 // link map
 constexpr int kLINKMAPwidth = 20;

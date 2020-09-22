@@ -20,33 +20,24 @@ int main()
 {
  
   DTCStubMemory hMemories[kMaxIRMemories];
-  // // clear memories
-  // for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) 
-  // {
-  //   for( unsigned int cBxId= 0; cBxId < 8 ; cBxId++)
-  //   {
-  //     hMemories[cMemIndx].clear(cBxId);
-  //   }
-  // }
-
-
-  bool cTruncation = true;
+  
+  bool cTruncated = false;
   int cDTCsplit=1;
   int cNonant=4;
   std::string cInputFile_LinkMap = "emData/dtclinklayerdisk.dat";
  
   //
   int cFirstBx = 0 ;
-  int cLastBx = 100;
+  int cLastBx = 1;
   // 
   int pLinkId = 6; 
   int cTotalErrorCount = simInputRouter( hMemories
+    , cTruncated 
     , pLinkId 
     , cInputFile_LinkMap
     , cFirstBx
     , cLastBx
     , cDTCsplit
-    , cNonant
-    , cTruncation ); 
-  return 0;//cTotalErrorCount;
+    , cNonant); 
+  return cTotalErrorCount;
 }
