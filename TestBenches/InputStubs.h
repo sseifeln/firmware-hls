@@ -1,3 +1,6 @@
+#include "FileReadUtility.h"
+#include "InputRouterTop.h"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -8,7 +11,6 @@
 
 //
 static const int kMaxLyrsPerDTC = 4; 
-static const int kMaxIRMemories = 20; 
 // link assignment table 
 
 // TO-BE fixed :  need this added to emData 
@@ -536,7 +538,7 @@ int simInputRouter(DTCStubMemory *hMemories
 {
 
   // prepare input streams 
-  ifstream cInputStreams[kMaxIRMemories];
+  ifstream cInputStreams[kNIRMemories];
   prepareInputStreams( cInputStreams
 	  , pLinkId
 	  , pDTCsplit
@@ -545,11 +547,11 @@ int simInputRouter(DTCStubMemory *hMemories
 
   
   // declare reference memories 
-  DTCStubMemory hRefMems[kMaxIRMemories]; 
+  DTCStubMemory hRefMems[kNIRMemories]; 
   // declare reference memories that are 
   // checked against inputs 
   // these will be used to verify the HLS 
-  DTCStubMemory hVrfRefMems[kMaxIRMemories]; 
+  DTCStubMemory hVrfRefMems[kNIRMemories]; 
   // book keeping 
   std::vector<int> cErrorCount(0);
   std::vector<int> cPhiMissing(0);
@@ -568,7 +570,7 @@ int simInputRouter(DTCStubMemory *hMemories
     	, pInputFile_LinkMap );
 
     // fill reference memories
-    for( int cMemIndx=0; cMemIndx < kMaxIRMemories; cMemIndx++ )
+    for( int cMemIndx=0; cMemIndx < kNIRMemories; cMemIndx++ )
     {
       if( !cInputStreams[cMemIndx].is_open() ) continue; 
       
@@ -583,7 +585,7 @@ int simInputRouter(DTCStubMemory *hMemories
 
     // check if all these entries are in the emulated memory  
     // also appear in the file with the input stubs 
-    for( int cMemIndx=0; cMemIndx < kMaxIRMemories; cMemIndx++ )
+    for( int cMemIndx=0; cMemIndx < kNIRMemories; cMemIndx++ )
     {
       if( hRefMems[cMemIndx].getEntries(hBx) == 0 ) continue; 
       
@@ -629,13 +631,13 @@ int simInputRouter(DTCStubMemory *hMemories
     }
     
     // verify HLS  
-    int cNerrors = verifyHLS<DTCStubMemory, kMaxIRMemories>( cBxId ,hMemories
+    int cNerrors = verifyHLS<DTCStubMemory, kNIRMemories>( cBxId ,hMemories
       , hVrfRefMems, pTruncated ); 
     cErrorCount.push_back( cNerrors );
   }// loop over Bx Ids 
     
   // close streams
-  for( int cMemIndx = 0 ; cMemIndx < kMaxIRMemories ; cMemIndx ++ )
+  for( int cMemIndx = 0 ; cMemIndx < kNIRMemories ; cMemIndx ++ )
   {
   	if( !cInputStreams[cMemIndx].is_open() ) continue;
   	cInputStreams[cMemIndx].close();

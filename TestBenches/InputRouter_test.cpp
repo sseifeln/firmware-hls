@@ -1,25 +1,12 @@
 // InputRouter Test
-#include "InputRouterTop.h"
-#include "FileReadUtility.h"
 #include "InputStubs.h"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <numeric>
-#include <algorithm>
-#include <iterator>
-#include <map>
-
-
 using namespace std;
-
-
 
 int main()
 {
  
-  DTCStubMemory hMemories[kMaxIRMemories];
+  DTCStubMemory hMemories[kNIRMemories];
   
   bool cTruncated = false;
   int cDTCsplit=1;

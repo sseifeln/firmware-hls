@@ -1,12 +1,16 @@
 #include "InputRouterTop.h"
 
-void InputRouterTop(const BXType hBx, 
-    const ap_uint<6> hLinkId, const ap_uint<kLINKMAPwidth> hLinkTable[24],
-    const int kPhiCorrtable_L1[64], const int kPhiCorrtable_L2[64],
-    const int kPhiCorrtable_L3[64], const int kPhiCorrtable_L4[128],
-    const int kPhiCorrtable_L5[128], const int kPhiCorrtable_L6[128],
-    ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink],
-    DTCStubMemory hMemories[20]) {
+void InputRouterTop( const BXType hBx
+  , const ap_uint<6> hLinkId 
+  , const ap_uint<kLINKMAPwidth> *hLinkTable 
+  , const int *kPhiCorrtable_L1
+  , const int *kPhiCorrtable_L2
+  , const int *kPhiCorrtable_L3
+  , const int *kPhiCorrtable_L4
+  , const int *kPhiCorrtable_L5
+  , const int *kPhiCorrtable_L6
+  , ap_uint<kNBits_DTC> *hStubs
+  , DTCStubMemory *hMemories) {
 
 #pragma HLS clock domain = fast_clock
 #pragma HLS interface ap_none port = hLinkId
@@ -57,10 +61,10 @@ LOOP_GetNPhiBns:
     }
   }
 // clear memories and stub counter
-ap_uint<8> hNStubs[kNMemories];
+ap_uint<8> hNStubs[kNIRMemories];
 #pragma HLS array_partition variable = hNStubs complete
 LOOP_ClearOutputMemories:
-  for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
+  for (unsigned int cMemIndx = 0; cMemIndx < kNIRMemories; cMemIndx++) {
 #pragma HLS unroll
     hNStubs[cMemIndx] = 0;
     (&hMemories[cMemIndx])->clear(hBx);
@@ -141,7 +145,7 @@ LOOP_ProcessStub:
 #ifndef __SYNTHESIS__
   if (IR_DEBUG) {
     std::cout << "After processing...\n";
-    for (unsigned int cMemIndx = 0; cMemIndx < kNMemories; cMemIndx++) {
+    for (unsigned int cMemIndx = 0; cMemIndx < kNIRMemories; cMemIndx++) {
       std::cout << ".........."
         << +(&hMemories[cMemIndx])->getEntries(hBx) 
         << " entries... "
