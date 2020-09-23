@@ -8,7 +8,7 @@ void InputRouterTop(const BXType hBx,
     ap_uint<kNBits_DTC> hStubs[kMaxStubsFromLink],
     DTCStubMemory hMemories[20]) {
 
-#pragma HLS clock domain = slow_clock
+#pragma HLS clock domain = fast_clock
 #pragma HLS interface ap_none port = hLinkId
 #pragma HLS interface ap_memory port = hLinkTable
 #pragma HLS stream variable = hStubs depth = 1
